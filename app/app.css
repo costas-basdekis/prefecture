@@ -13,3 +13,8 @@ body {
     color-scheme: dark;
   }
 }
+
+svg {
+  border: 1px solid red;
+  background: black;
+}
