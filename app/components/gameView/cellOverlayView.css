@@ -1,0 +1,8 @@
+.grid-overlay-cell {
+  stroke: transparent;
+  fill: transparent;
+  &:hover {
+    cursor: pointer;
+  stroke: red;
+  }
+}

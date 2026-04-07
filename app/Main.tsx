@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Grid } from "./game";
-import { GridView } from "./components";
+import { GridOverlayView, GridView } from "./components";
 
 export function Main() {
   const [grid, setGrid] = useState(() => Grid.make({ width: 25, height: 25 }));
@@ -15,6 +15,7 @@ export function Main() {
         height={600}
       >
         <GridView grid={grid} />
+        <GridOverlayView grid={grid} />
       </svg>
     </main>
   );
