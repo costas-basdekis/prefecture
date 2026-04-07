@@ -11,7 +11,7 @@ export class Grid {
       Object.fromEntries(
         lodash
           .range(height)
-          .flatMap((y) => lodash.range(width).map((x) => Cell.make(x, y)))
+          .flatMap((y) => lodash.range(width).map((x) => Cell.make({ x, y })))
           .map((cell) => [cell.key, cell] as const),
       ),
       width,

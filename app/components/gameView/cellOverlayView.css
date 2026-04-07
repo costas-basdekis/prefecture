@@ -1,8 +1,13 @@
 .grid-overlay-cell {
   stroke: transparent;
   fill: transparent;
+  
+  &.selected {
+    stroke: red;
+  }
+
   &:hover {
     cursor: pointer;
-  stroke: red;
+    stroke: red;
   }
 }
