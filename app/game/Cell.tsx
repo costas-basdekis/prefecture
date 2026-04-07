@@ -1,4 +1,4 @@
-import { Coords } from "./Coords";
+import { Coords, makeCoordsKey } from "./Coords";
 
 export class Cell {
   x: number;
@@ -16,6 +16,6 @@ export class Cell {
   constructor({ x, y }: Coords) {
     this.x = x;
     this.y = y;
-    this.key = Cell.makeKey(this);
+    this.key = makeCoordsKey(this);
   }
 }

@@ -1,7 +1,7 @@
 import { Cell, Grid } from "~/game";
 import { CellOverlayView } from "./CellOverlayView";
 import { useCallback, useMemo, useState } from "react";
-import { Coords } from "~/game/Coords";
+import { Coords, makeCoordsKey } from "~/game/Coords";
 import { CellSelectionMode, selectCells } from "./CellSelectionMode";
 
 export function GridOverlayView({
@@ -27,7 +27,7 @@ export function GridOverlayView({
   }, [startCoords, endCoords]);
   const allCoordsByKey = useMemo(() => {
     return Object.fromEntries(
-      allCoords.map((coords) => [Cell.makeKey(coords), coords]),
+      allCoords.map((coords) => [makeCoordsKey(coords), coords]),
     );
   }, [allCoords]);
   const onCellMouseDown = useCallback(

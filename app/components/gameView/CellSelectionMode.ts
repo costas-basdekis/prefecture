@@ -1,6 +1,5 @@
 import _ from "lodash";
-import { Cell } from "~/game";
-import { Coords } from "~/game/Coords";
+import { Coords, makeCoordsKey } from "~/game/Coords";
 
 export const cellSelectionModeNames = {
   "line-xy": "Line (X first)",
@@ -42,7 +41,7 @@ export function selectCells(
           ..._.range(minX, maxX + 1).map((x) => ({ x, y: startCoords.y })),
           ..._.range(minY, maxY + 1).map((y) => ({ x: endCoords.x, y })),
         ],
-        Cell.makeKey,
+        makeCoordsKey,
       );
     case "line-yx":
       return _.uniqBy(
@@ -50,7 +49,7 @@ export function selectCells(
           ..._.range(minY, maxY + 1).map((y) => ({ x: startCoords.x, y })),
           ..._.range(minX, maxX + 1).map((x) => ({ x, y: endCoords.y })),
         ],
-        Cell.makeKey,
+        makeCoordsKey,
       );
     case "line-shortest-xy":
       return selectCells(
