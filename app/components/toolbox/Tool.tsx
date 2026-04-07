@@ -1,4 +1,8 @@
-import type { RoadPlacementTool, SelectionTool } from "./tools";
+import type {
+  HousePlacementTool,
+  RoadPlacementTool,
+  SelectionTool,
+} from "./tools";
 
-export type Tool = SelectionTool | RoadPlacementTool;
+export type Tool = SelectionTool | RoadPlacementTool | HousePlacementTool;
 export type ToolName = Tool["name"];

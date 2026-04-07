@@ -1,5 +1,5 @@
 import { JSX } from "react";
-import { Tool } from "./components/toolbox";
+import { Tool } from "../Tool";
 
 export abstract class BaseTool {
   abstract name: string;
@@ -7,5 +7,5 @@ export abstract class BaseTool {
     onChange,
   }: {
     onChange: (tool: Tool) => void;
-  }): JSX.Element;
+  }): JSX.Element | null;
 }

@@ -6,10 +6,11 @@ export class Grid {
   cellMap: Record<string, Cell>;
   width: number;
   height: number;
+  nextBuildingId: number;
 
   static make({ width, height }: { width: number; height: number }): Grid {
-    return new this(
-      Object.fromEntries(
+    return new this({
+      cellMap: Object.fromEntries(
         lodash
           .range(height)
           .flatMap((y) => lodash.range(width).map((x) => Cell.make({ x, y })))
@@ -17,20 +18,35 @@ export class Grid {
       ),
       width,
       height,
-    );
+      nextBuildingId: 0,
+    });
   }
 
-  constructor(cellMap: Record<string, Cell>, width: number, height: number) {
+  constructor({
+    cellMap,
+    width,
+    height,
+    nextBuildingId,
+  }: {
+    cellMap: Record<string, Cell>;
+    width: number;
+    height: number;
+    nextBuildingId: number;
+  }) {
     this.cellMap = cellMap;
     this.width = width;
     this.height = height;
+    this.nextBuildingId = nextBuildingId;
   }
 
   get cells(): Cell[] {
     return Object.values(this.cellMap);
   }
 
-  upgradeCells(cellsOrCellMap: Cell[] | Record<string, Cell>): Grid {
+  upgradeCells(
+    cellsOrCellMap: Cell[] | Record<string, Cell>,
+    nextBuildingId: number = this.nextBuildingId,
+  ): Grid {
     let cellMap;
     if (Array.isArray(cellsOrCellMap)) {
       const cells = cellsOrCellMap;
@@ -42,12 +58,30 @@ export class Grid {
       ...this.cellMap,
       ...cellMap,
     };
-    return new Grid(newCellMap, this.width, this.height);
+    return new Grid({
+      cellMap: newCellMap,
+      width: this.width,
+      height: this.height,
+      nextBuildingId,
+    });
   }
 
   addRoads(allCoords: Coords[]): Grid {
     return this.upgradeCells(
       allCoords.map((coords) => this.cellMap[makeCoordsKey(coords)].addRoad()),
     );
+  }
+
+  addHouses(allCoords: Coords[]): Grid {
+    let nextBuildingId = this.nextBuildingId;
+    function getNextBuildingId(): number {
+      const buildingId = nextBuildingId;
+      nextBuildingId++;
+      return buildingId;
+    }
+    const cells = allCoords.map((coords) =>
+      this.cellMap[makeCoordsKey(coords)].addHouse(getNextBuildingId),
+    );
+    return this.upgradeCells(cells, nextBuildingId);
   }
 }

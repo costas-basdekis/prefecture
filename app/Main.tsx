@@ -35,8 +35,8 @@ export function Main() {
       <ToolSelector tool={tool} onChange={setTool} />
       <svg
         className="flex-1 flex flex-col items-center"
-        width={1000}
-        height={600}
+        width={500}
+        height={500}
       >
         <GridView grid={grid} />
         <GridOverlayView
