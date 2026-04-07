@@ -1,4 +1,8 @@
 .grid-cell {
   stroke: grey;
   stroke-width: 1px;
+
+  &.with-road {
+    fill: white;
+  }
 }

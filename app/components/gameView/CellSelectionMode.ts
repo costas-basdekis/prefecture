@@ -12,7 +12,13 @@ export const cellSelectionModeNames = {
   endopoints: "Endpoints",
 };
 
-export const cellSelectionModes = Object.keys(cellSelectionModeNames);
+export const cellSelectionModes = Object.keys(
+  cellSelectionModeNames,
+) as CellSelectionMode[];
+
+export const lineCellSelectionModes = cellSelectionModes.filter((mode) =>
+  mode.startsWith("line-"),
+);
 
 export type CellSelectionMode = keyof typeof cellSelectionModeNames;
 

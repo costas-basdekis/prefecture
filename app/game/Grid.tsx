@@ -1,5 +1,6 @@
 import lodash from "lodash";
 import { Cell } from "./Cell";
+import { Coords, makeCoordsKey } from "./Coords";
 
 export class Grid {
   cellMap: Record<string, Cell>;
@@ -27,5 +28,26 @@ export class Grid {
 
   get cells(): Cell[] {
     return Object.values(this.cellMap);
+  }
+
+  upgradeCells(cellsOrCellMap: Cell[] | Record<string, Cell>): Grid {
+    let cellMap;
+    if (Array.isArray(cellsOrCellMap)) {
+      const cells = cellsOrCellMap;
+      cellMap = Object.fromEntries(cells.map((cell) => [cell.key, cell]));
+    } else {
+      cellMap = cellsOrCellMap;
+    }
+    const newCellMap = {
+      ...this.cellMap,
+      ...cellMap,
+    };
+    return new Grid(newCellMap, this.width, this.height);
+  }
+
+  addRoads(allCoords: Coords[]): Grid {
+    return this.upgradeCells(
+      allCoords.map((coords) => this.cellMap[makeCoordsKey(coords)].addRoad()),
+    );
   }
 }

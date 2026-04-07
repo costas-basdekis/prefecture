@@ -1,16 +1,24 @@
 import { useCallback, ChangeEvent } from "react";
-import { CellSelectionMode, cellSelectionModeNames } from "./CellSelectionMode";
+import {
+  CellSelectionMode,
+  cellSelectionModeNames,
+  cellSelectionModes,
+} from "./CellSelectionMode";
+
+const cellSelectionModesWithNone = [undefined, ...cellSelectionModes];
 
 export function CellSelectionModeSelector({
   selectionMode,
+  choices,
   onSelectionModeChange,
 }: {
   selectionMode: CellSelectionMode | undefined;
-  onSelectionModeChange: (selectionMode: CellSelectionMode | undefined) => void;
+  choices?: (CellSelectionMode | undefined)[];
+  onSelectionModeChange: (selectionMode: CellSelectionMode) => void;
 }) {
   const onChange = useCallback(
     (e: ChangeEvent<HTMLSelectElement>) => {
-      onSelectionModeChange((e.target.value as CellSelectionMode) || undefined);
+      onSelectionModeChange(e.target.value as CellSelectionMode);
     },
     [onSelectionModeChange],
   );
@@ -18,15 +26,12 @@ export function CellSelectionModeSelector({
     <div>
       <label>
         Selection mode:
-        <select onChange={onChange} value={selectionMode ?? ""}>
-          <option value={""}>None</option>
-          {Object.entries(cellSelectionModeNames).map(
-            ([selectionMode, name]) => (
-              <option key={selectionMode} value={selectionMode}>
-                {name}
-              </option>
-            ),
-          )}
+        <select onChange={onChange} value={selectionMode}>
+          {(choices ?? cellSelectionModesWithNone).map((selectionMode) => (
+            <option key={selectionMode ?? ""} value={selectionMode}>
+              {selectionMode ? cellSelectionModeNames[selectionMode] : "None"}
+            </option>
+          ))}
         </select>
       </label>
     </div>

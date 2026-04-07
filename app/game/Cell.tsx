@@ -4,18 +4,23 @@ export class Cell {
   x: number;
   y: number;
   key: string;
+  hasRoad: boolean;
 
   static make(coords: Coords): Cell {
-    return new this(coords);
+    return new this({ ...coords, hasRoad: false });
   }
 
-  static makeKey({ x, y }: Coords): string {
-    return `${x},${y}`;
-  }
-
-  constructor({ x, y }: Coords) {
+  constructor({ x, y, hasRoad }: Pick<Cell, "x" | "y" | "hasRoad">) {
     this.x = x;
     this.y = y;
     this.key = makeCoordsKey(this);
+    this.hasRoad = hasRoad;
+  }
+
+  addRoad(): Cell {
+    if (this.hasRoad) {
+      return this;
+    }
+    return new Cell({ ...this, hasRoad: true });
   }
 }
