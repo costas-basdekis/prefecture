@@ -1,19 +1,31 @@
 import lodash from "lodash";
-import { makeCellKey } from "./Cell";
 import { Cell } from "./Cell";
 
-export type Grid = Record<string, Cell>;
-export function makeGrid({
-  width,
-  height,
-}: {
+export class Grid {
+  cellMap: Record<string, Cell>;
   width: number;
   height: number;
-}): Grid {
-  return Object.fromEntries(
-    lodash
-      .range(height)
-      .flatMap((y) => lodash.range(width).map((x) => ({ x, y })))
-      .map((cell) => [makeCellKey(cell), cell] as const),
-  );
+
+  static make({ width, height }: { width: number; height: number }): Grid {
+    return new this(
+      Object.fromEntries(
+        lodash
+          .range(height)
+          .flatMap((y) => lodash.range(width).map((x) => Cell.make(x, y)))
+          .map((cell) => [cell.key, cell] as const),
+      ),
+      width,
+      height,
+    );
+  }
+
+  constructor(cellMap: Record<string, Cell>, width: number, height: number) {
+    this.cellMap = cellMap;
+    this.width = width;
+    this.height = height;
+  }
+
+  get cells(): Cell[] {
+    return Object.values(this.cellMap);
+  }
 }

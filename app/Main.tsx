@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { makeGrid } from "./game";
+import { Grid } from "./game";
 import { GridView } from "./components";
 
 export function Main() {
-  const [grid, setGrid] = useState(() => makeGrid({ width: 25, height: 25 }));
+  const [grid, setGrid] = useState(() => Grid.make({ width: 25, height: 25 }));
   return (
     <main className="flex flex-col items-center justify-center pt-16 pb-4">
       <div className="flex-1 flex flex-col items-center gap-16 min-h-0">
