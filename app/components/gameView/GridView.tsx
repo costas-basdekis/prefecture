@@ -5,7 +5,7 @@ export function GridView({ game }: { game: Game }) {
   return (
     <g className="grid">
       {game.grid.cells.map((cell) => (
-        <CellView key={cell.key} cell={cell} />
+        <CellView key={cell.key} game={game} cell={cell} />
       ))}
     </g>
   );

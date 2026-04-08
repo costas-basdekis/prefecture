@@ -1,56 +1,52 @@
+import { Building, HouseBuilding } from "./buildings";
 import { Coords, makeCoordsKey } from "./Coords";
-
-export interface HouseBuilding {
-  id: number;
-  type: "house";
-}
-
-export type Building = HouseBuilding;
 
 export class Cell {
   x: number;
   y: number;
   key: string;
   hasRoad: boolean;
-  building: Building | null;
+  buildingId: number | null;
 
   static make(coords: Coords): Cell {
-    return new this({ ...coords, hasRoad: false, building: null });
+    return new this({ ...coords, hasRoad: false, buildingId: null });
   }
 
   constructor({
     x,
     y,
     hasRoad,
-    building,
-  }: Pick<Cell, "x" | "y" | "hasRoad" | "building">) {
+    buildingId,
+  }: Pick<Cell, "x" | "y" | "hasRoad" | "buildingId">) {
     this.x = x;
     this.y = y;
     this.key = makeCoordsKey(this);
     this.hasRoad = hasRoad;
-    this.building = building;
+    this.buildingId = buildingId;
   }
 
   addRoad(): Cell {
     if (this.hasRoad) {
       return this;
     }
-    if (this.building) {
+    if (this.buildingId) {
       return this;
     }
     return new Cell({ ...this, hasRoad: true });
   }
 
-  addHouse(getNextBuildingId: () => number): any {
+  addHouse(addBuilding: (building: Building) => void): any {
     if (this.hasRoad) {
       return this;
     }
-    if (this.building) {
+    if (this.buildingId) {
       return this;
     }
+    const building = { type: "house", id: 0 } as HouseBuilding;
+    addBuilding(building);
     return new Cell({
       ...this,
-      building: { type: "house", id: getNextBuildingId() },
+      buildingId: building.id,
     });
   }
 }
