@@ -1,5 +1,5 @@
 import { useCallback, ChangeEvent } from "react";
-import { Coords, Grid } from "../../game";
+import { Coords, Game, Grid } from "../../game";
 import { HousePlacementTool, RoadPlacementTool, SelectionTool } from "./tools";
 import { Tool, ToolName } from "./Tool";
 
@@ -64,8 +64,8 @@ export function ToolSelector({
   );
 }
 export interface OnSelectionProps {
-  grid: Grid;
-  setGrid: React.Dispatch<React.SetStateAction<Grid>>;
+  game: Game;
+  setGame: React.Dispatch<React.SetStateAction<Game>>;
   startCoords: Coords;
   endCoords: Coords;
   allCoords: Coords[];

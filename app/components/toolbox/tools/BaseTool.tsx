@@ -1,4 +1,4 @@
-import { JSX } from "react";
+import { ReactNode } from "react";
 import { Tool } from "../Tool";
 
 export abstract class BaseTool {
@@ -7,5 +7,5 @@ export abstract class BaseTool {
     onChange,
   }: {
     onChange: (tool: Tool) => void;
-  }): JSX.Element | null;
+  }): ReactNode;
 }
