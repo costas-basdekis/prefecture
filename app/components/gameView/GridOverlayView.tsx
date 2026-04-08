@@ -1,15 +1,15 @@
-import { Cell, Grid } from "~/game";
+import { Cell, Game } from "~/game";
 import { CellOverlayView } from "./CellOverlayView";
 import { useCallback, useMemo, useState } from "react";
 import { Coords, makeCoordsKey } from "~/game/Coords";
 import { CellSelectionMode, selectCells } from "./CellSelectionMode";
 
 export function GridOverlayView({
-  grid,
+  game,
   onSelection,
   selectionMode,
 }: {
-  grid: Grid;
+  game: Game;
   onSelection?: (
     startCoords: Coords,
     endCoords: Coords,
@@ -62,7 +62,7 @@ export function GridOverlayView({
   );
   return (
     <g className="gridOverlay">
-      {grid.cells.map((cell) => (
+      {game.grid.cells.map((cell) => (
         <CellOverlayView
           key={cell.key}
           cell={cell}

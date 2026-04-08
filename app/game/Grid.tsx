@@ -2,13 +2,18 @@ import lodash from "lodash";
 import { Cell } from "./Cell";
 import { Coords, makeCoordsKey } from "./Coords";
 
+export interface GridMakeOptions {
+  width: number;
+  height: number;
+}
+
 export class Grid {
   cellMap: Record<string, Cell>;
   width: number;
   height: number;
   nextBuildingId: number;
 
-  static make({ width, height }: { width: number; height: number }): Grid {
+  static make({ width, height }: GridMakeOptions): Grid {
     return new this({
       cellMap: Object.fromEntries(
         lodash

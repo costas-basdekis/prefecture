@@ -17,7 +17,7 @@ export class HousePlacementTool extends BaseTool {
     return null;
   }
 
-  onSelection({ setGrid, allCoords }: OnSelectionProps) {
-    setGrid((grid) => grid.addHouses(allCoords));
+  onSelection({ setGame, allCoords }: OnSelectionProps) {
+    setGame((game) => game.addHouses(allCoords));
   }
 }

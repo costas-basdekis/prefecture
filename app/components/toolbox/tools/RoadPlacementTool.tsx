@@ -43,7 +43,7 @@ export class RoadPlacementTool extends BaseTool {
     );
   }
 
-  onSelection({ setGrid, allCoords }: OnSelectionProps) {
-    setGrid((grid) => grid.addRoads(allCoords));
+  onSelection({ setGame, allCoords }: OnSelectionProps) {
+    setGame((game) => game.addRoads(allCoords));
   }
 }
