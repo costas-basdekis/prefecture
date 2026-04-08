@@ -1,7 +1,6 @@
 import lodash from "lodash";
-import { Cell } from "./Cell";
+import { AddBuilding, Cell } from "./Cell";
 import { Coords, makeCoordsKey } from "./Coords";
-import { Building } from "./buildings";
 
 export interface GridMakeOptions {
   width: number;
@@ -78,10 +77,7 @@ export class Grid {
     );
   }
 
-  addHouses(
-    allCoords: Coords[],
-    addBuilding: (building: Building) => void,
-  ): Grid {
+  addHouses(allCoords: Coords[], addBuilding: AddBuilding): Grid {
     const cells = allCoords.map((coords) =>
       this.cellMap[makeCoordsKey(coords)].addHouse(addBuilding),
     );

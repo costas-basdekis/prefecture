@@ -1,6 +1,8 @@
 import { Building, HouseBuilding } from "./buildings";
 import { Coords, makeCoordsKey } from "./Coords";
 
+export type AddBuilding = (building: Building) => Building;
+
 export class Cell {
   x: number;
   y: number;
@@ -35,18 +37,20 @@ export class Cell {
     return new Cell({ ...this, hasRoad: true });
   }
 
-  addHouse(addBuilding: (building: Building) => void): any {
+  addBuilding(makeBuilding: () => Building, addBuilding: AddBuilding): Cell {
     if (this.hasRoad) {
       return this;
     }
     if (this.buildingId) {
       return this;
     }
-    const building = { type: "house", id: 0 } as HouseBuilding;
-    addBuilding(building);
     return new Cell({
       ...this,
-      buildingId: building.id,
+      buildingId: addBuilding(makeBuilding()).id,
     });
+  }
+
+  addHouse(addBuilding: AddBuilding): Cell {
+    return this.addBuilding(() => new HouseBuilding(), addBuilding);
   }
 }

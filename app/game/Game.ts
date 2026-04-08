@@ -21,8 +21,9 @@ export class Game {
 
   addHouses(allCoords: Coords[]): Game {
     let buildings = this.buildings;
-    function addBuilding(building: Building) {
+    function addBuilding(building: Building): Building {
       buildings = buildings.add(building);
+      return building;
     }
     return new Game(this.grid.addHouses(allCoords, addBuilding), buildings);
   }
