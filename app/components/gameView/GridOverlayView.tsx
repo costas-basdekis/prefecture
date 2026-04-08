@@ -1,4 +1,4 @@
-import { Cell, Game } from "~/game";
+import { CellImmutable, GameImmutable } from "~/game";
 import { CellOverlayView } from "./CellOverlayView";
 import { useCallback, useMemo, useState } from "react";
 import { Coords, makeCoordsKey } from "~/game/Coords";
@@ -9,7 +9,7 @@ export function GridOverlayView({
   onSelection,
   selectionMode,
 }: {
-  game: Game;
+  game: GameImmutable;
   onSelection?: (
     startCoords: Coords,
     endCoords: Coords,
@@ -31,7 +31,7 @@ export function GridOverlayView({
     );
   }, [allCoords]);
   const onCellMouseDown = useCallback(
-    (cell: Cell) => {
+    (cell: CellImmutable) => {
       if (selectionMode) {
         const coords = { x: cell.x, y: cell.y };
         setStartCoords(coords);
@@ -41,7 +41,7 @@ export function GridOverlayView({
     [selectionMode, setStartCoords, setEndCoords],
   );
   const onCellMouseMove = useCallback(
-    (cell: Cell) => {
+    (cell: CellImmutable) => {
       if (selectionMode && startCoords) {
         setEndCoords({ x: cell.x, y: cell.y });
       }
@@ -49,7 +49,7 @@ export function GridOverlayView({
     [selectionMode, startCoords, setEndCoords],
   );
   const onCellMouseUp = useCallback(
-    (cell: Cell) => {
+    (cell: CellImmutable) => {
       if (startCoords && endCoords) {
         if (selectionMode) {
           onSelection?.(startCoords, endCoords, allCoords);

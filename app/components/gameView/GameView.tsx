@@ -1,16 +1,16 @@
-import { Coords, Game } from "~/game";
+import { Coords, GameImmutable } from "~/game";
 import { GridView } from "./GridView";
 import { GridOverlayView } from "./GridOverlayView";
-import React, { useCallback, useState } from "react";
-import { Tool, SelectionTool } from "../toolbox";
+import React, { useCallback } from "react";
+import { Tool } from "../toolbox";
 
 export function GameView({
   game,
   setGame,
   tool,
 }: {
-  game: Game;
-  setGame: React.Dispatch<React.SetStateAction<Game>>;
+  game: GameImmutable;
+  setGame: React.Dispatch<React.SetStateAction<GameImmutable>>;
   tool: Tool;
 }) {
   const onSelection = useCallback(

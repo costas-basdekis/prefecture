@@ -1,8 +1,14 @@
 import "./cellView.css";
-import { Cell, Game } from "../../game";
+import { CellImmutable, GameImmutable } from "../../game";
 import { useMemo } from "react";
 
-export function CellView({ game, cell }: { game: Game; cell: Cell }) {
+export function CellView({
+  game,
+  cell,
+}: {
+  game: GameImmutable;
+  cell: CellImmutable;
+}) {
   const building = useMemo(() => {
     if (!cell.buildingId) {
       return null;

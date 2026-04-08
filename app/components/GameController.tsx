@@ -1,7 +1,7 @@
 import { FC, ReactNode, useState } from "react";
 import { Game } from "~/game";
-import { GameView } from "./gameView";
 import { Tool, SelectionTool, ToolSelector } from "./toolbox";
+import { GameView } from "./gameView";
 
 export function GameController({
   initialGame,
@@ -10,8 +10,8 @@ export function GameController({
   initialGame?: Game;
   SvgComponent: FC<{ children: ReactNode }>;
 }) {
-  const [game, setGame] = useState(
-    () => initialGame ?? Game.make({ width: 25, height: 25 }),
+  const [game, setGame] = useState(() =>
+    (initialGame ?? Game.make({ width: 25, height: 25 })).getImmutable(),
   );
   const [tool, setTool] = useState<Tool>(new SelectionTool());
   return (

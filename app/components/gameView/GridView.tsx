@@ -1,7 +1,7 @@
-import { Game } from "../../game";
+import { GameImmutable } from "../../game";
 import { CellView } from "./CellView";
 
-export function GridView({ game }: { game: Game }) {
+export function GridView({ game }: { game: GameImmutable }) {
   return (
     <g className="grid">
       {game.grid.cells.map((cell) => (

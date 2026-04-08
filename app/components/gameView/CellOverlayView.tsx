@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import "./cellOverlayView.css";
-import { Cell } from "~/game";
+import { CellImmutable } from "~/game";
 
 export function CellOverlayView({
   cell,
@@ -9,11 +9,11 @@ export function CellOverlayView({
   onMouseMove,
   onMouseUp,
 }: {
-  cell: Cell;
+  cell: CellImmutable;
   selected?: boolean;
-  onMouseDown?: (cell: Cell) => void;
-  onMouseMove?: (cell: Cell) => void;
-  onMouseUp?: (cell: Cell) => void;
+  onMouseDown?: (cell: CellImmutable) => void;
+  onMouseMove?: (cell: CellImmutable) => void;
+  onMouseUp?: (cell: CellImmutable) => void;
 }) {
   const innerOnMouseDown = useCallback(() => {
     onMouseDown?.(cell);
