@@ -1,10 +1,10 @@
-import { MutationHelper } from "~/immutable";
+import { Immutable, Mutable, MutationHelper } from "~/immutable";
 import { Game } from "../Game";
 import { Building, BuildingImmutable } from "./Building";
 
 export type BuildingsImmutable = Pick<Buildings, "nextId"> & {
   byId: BuildingMapImmutable;
-};
+} & Immutable<Buildings>;
 
 export class BuildingsMutationHelper extends MutationHelper<
   Buildings,
@@ -18,8 +18,13 @@ export class BuildingsMutationHelper extends MutationHelper<
 
   getInitialLastImmutable() {
     return {
+      _mutable: this.mutable,
       nextId: this.mutable.nextId,
-      byId: this.mutable.byId,
+      byId: Object.fromEntries(
+        Object.values(this.mutable.byId).map(
+          (building) => [building.id, building.getImmutable()] as const,
+        ),
+      ),
     };
   }
 
@@ -37,24 +42,15 @@ export class BuildingsMutationHelper extends MutationHelper<
   }
 
   updateImmutableDirtyKeys() {
-    if (this.dirtyKeys.nextId) {
-      this.lastImmutable.nextId = this.mutable.nextId;
-      this.dirtyKeys.nextId = false;
-    }
-    if (this.dirtyKeys.byId.size) {
-      this.lastImmutable.byId = { ...this.mutable.byId };
-      for (const id of this.dirtyKeys.byId) {
-        this.lastImmutable.byId[id] = this.mutable.byId[id].getImmutable();
-      }
-      this.dirtyKeys.byId.clear();
-    }
+    this.updateForPlainValue("nextId");
+    this.updateForMappedMutable("byId");
   }
 }
 
 type BuildingMap = Record<number, Building>;
 type BuildingMapImmutable = Record<number, BuildingImmutable>;
 
-export class Buildings {
+export class Buildings implements Mutable<Buildings, BuildingsImmutable> {
   mutationHelper: BuildingsMutationHelper;
   game: Game;
   nextId: number;

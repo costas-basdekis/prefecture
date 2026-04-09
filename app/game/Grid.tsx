@@ -3,7 +3,7 @@ import { Cell, CellImmutable } from "./Cell";
 import { Coords, makeCoordsKey } from "./Coords";
 import { Game } from "./Game";
 import { Building } from "./buildings";
-import { MutationHelper } from "~/immutable";
+import { Immutable, Mutable, MutationHelper } from "~/immutable";
 
 export interface GridMakeOptions {
   width: number;
@@ -11,26 +11,25 @@ export interface GridMakeOptions {
 }
 
 export type GridImmutable = Pick<Grid, "width" | "height"> & {
-  _mutable: Grid;
   cellMap: CellMapImmutable;
   getCells(): CellImmutable[];
-};
+} & Immutable<Grid>;
 
 export class GridMutationHelper extends MutationHelper<
   Grid,
   GridImmutable,
-  Set<string>,
-  string
+  { cellMap: Set<string> },
+  ["cellMap", string]
 > {
   getInitialDirtyKeys() {
-    return new Set<string>();
+    return { cellMap: new Set<string>() };
   }
 
   getInitialLastImmutable() {
     return {
       _mutable: this.mutable,
       cellMap: Object.fromEntries(
-        this.mutable.cells.map((cell) => [cell.key, cell.getImmutalbe()]),
+        this.mutable.cells.map((cell) => [cell.key, cell.getImmutable()]),
       ),
       width: this.mutable.width,
       height: this.mutable.height,
@@ -40,35 +39,24 @@ export class GridMutationHelper extends MutationHelper<
     };
   }
 
-  markDirty(...keys: string[]): void {
+  markDirty(...keys: ["cellMap", string][]): void {
     super.markDirty(...keys);
     this.mutable.game.mutationHelper.markDirty("grid");
   }
 
-  markKeyDirty(key: string) {
-    this.dirtyKeys.add(key);
-  }
-
-  getImmutable(): GridImmutable {
-    return this.updateImmutable();
+  markKeyDirty([, key]: ["cellMap", string]) {
+    this.dirtyKeys.cellMap.add(key);
   }
 
   updateImmutableDirtyKeys() {
-    if (this.dirtyKeys.size) {
-      this.lastImmutable.cellMap = { ...this.lastImmutable.cellMap };
-      for (const key of this.dirtyKeys) {
-        this.lastImmutable.cellMap[key] =
-          this.mutable.cellMap[key].getImmutalbe();
-      }
-      this.dirtyKeys.clear();
-    }
+    this.updateForMappedMutable("cellMap");
   }
 }
 
 export type CellMap = Record<string, Cell>;
 export type CellMapImmutable = Record<string, CellImmutable>;
 
-export class Grid {
+export class Grid implements Mutable<Grid, GridImmutable> {
   mutationHelper: GridMutationHelper;
   game: Game;
   cellMap: CellMap;

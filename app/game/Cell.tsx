@@ -1,4 +1,4 @@
-import { MutationHelper } from "~/immutable";
+import { Immutable, Mutable, MutationHelper } from "~/immutable";
 import { Building, HouseBuilding } from "./buildings";
 import { Coords, makeCoordsKey } from "./Coords";
 import { Grid } from "./Grid";
@@ -6,7 +6,8 @@ import { Grid } from "./Grid";
 export type CellImmutable = Pick<
   Cell,
   "x" | "y" | "key" | "hasRoad" | "buildingId"
-> & { _mutable: Cell };
+> &
+  Immutable<Cell>;
 
 export class CellMutationHelper extends MutationHelper<
   Cell,
@@ -30,22 +31,16 @@ export class CellMutationHelper extends MutationHelper<
 
   markDirty(...keys: (keyof CellMutationHelper["dirtyKeys"])[]) {
     super.markDirty(...keys);
-    this.mutable.grid.mutationHelper.markDirty(this.mutable.key);
+    this.mutable.grid.mutationHelper.markDirty(["cellMap", this.mutable.key]);
   }
 
   updateImmutableDirtyKeys() {
-    if (this.dirtyKeys.hasRoad) {
-      this.lastImmutable.hasRoad = this.mutable.hasRoad;
-      this.dirtyKeys.hasRoad = false;
-    }
-    if (this.dirtyKeys.buildingId) {
-      this.lastImmutable.buildingId = this.mutable.buildingId;
-      this.dirtyKeys.buildingId = false;
-    }
+    this.updateForPlainValue("hasRoad");
+    this.updateForPlainValue("buildingId");
   }
 }
 
-export class Cell {
+export class Cell implements Mutable<Cell, CellImmutable> {
   mutationHelper: CellMutationHelper;
   grid: Grid;
   x: number;
@@ -79,7 +74,7 @@ export class Cell {
     this.mutationHelper = new CellMutationHelper(this);
   }
 
-  getImmutalbe(): CellImmutable {
+  getImmutable(): CellImmutable {
     return this.mutationHelper.getImmutable();
   }
 

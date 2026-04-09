@@ -1,10 +1,10 @@
-import { MutationHelper } from "~/immutable";
+import { Immutable, Mutable, MutationHelper } from "~/immutable";
 import { Buildings } from "./Buildings";
 
-export interface HouseBuildingImmutable {
+export type HouseBuildingImmutable = {
   id: number;
   type: "house";
-}
+} & Immutable<HouseBuilding>;
 
 export class HouseBuildingMutationHelper extends MutationHelper<
   HouseBuilding,
@@ -16,7 +16,11 @@ export class HouseBuildingMutationHelper extends MutationHelper<
   }
 
   getInitialLastImmutable() {
-    return { id: this.mutable.id, type: this.mutable.type };
+    return {
+      _mutable: this.mutable,
+      id: this.mutable.id,
+      type: this.mutable.type,
+    };
   }
 
   markDirty(): void {
@@ -25,7 +29,10 @@ export class HouseBuildingMutationHelper extends MutationHelper<
   }
 }
 
-export class HouseBuilding {
+export class HouseBuilding implements Mutable<
+  HouseBuilding,
+  HouseBuildingImmutable
+> {
   mutationHelper: HouseBuildingMutationHelper;
   id: number;
   type: "house";
