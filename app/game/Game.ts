@@ -10,12 +10,63 @@ export type GameImmutable = {
   addHouses(allCoords: Coords[]): GameImmutable;
 };
 
+export class GameMutationHelper {
+  mutable: Game;
+  dirty: boolean;
+  dirtyKeys: { grid: boolean; buildings: boolean };
+  lastImmutable: GameImmutable;
+
+  constructor(mutable: Game) {
+    this.mutable = mutable;
+    this.dirty = false;
+    this.dirtyKeys = { grid: false, buildings: false };
+    this.lastImmutable = {
+      _mutable: mutable,
+      grid: mutable.grid.getImmutable(),
+      buildings: mutable.buildings.getImmutable(),
+      addRoads(allCoords: Coords[]): GameImmutable {
+        this._mutable.addRoads(allCoords);
+        return this._mutable.mutationHelper.getImmutable();
+      },
+      addHouses(allCoords: Coords[]): GameImmutable {
+        this._mutable.addHouses(allCoords);
+        return this._mutable.mutationHelper.getImmutable();
+      },
+    };
+  }
+
+  markDirty(key: keyof GameMutationHelper["dirtyKeys"]) {
+    this.dirtyKeys[key] = true;
+    this.dirty = true;
+  }
+
+  getImmutable(): GameImmutable {
+    return this.updateImmutable();
+  }
+
+  updateImmutable(): GameImmutable {
+    if (this.dirty) {
+      this.lastImmutable = {
+        ...this.lastImmutable,
+      };
+      if (this.dirtyKeys.grid) {
+        this.lastImmutable.grid = this.mutable.grid.getImmutable();
+        this.dirtyKeys.grid = false;
+      }
+      if (this.dirtyKeys.buildings) {
+        this.lastImmutable.buildings = this.mutable.buildings.getImmutable();
+        this.dirtyKeys.buildings = false;
+      }
+      this.dirty = false;
+    }
+    return this.lastImmutable;
+  }
+}
+
 export class Game {
+  mutationHelper: GameMutationHelper;
   grid: Grid;
   buildings: Buildings;
-  _dirty: boolean;
-  _dirtyKeys: { grid: boolean; buildings: boolean };
-  _lastView: GameImmutable;
 
   static make(options: GridMakeOptions): Game {
     return new this(Grid.make(options), Buildings.make());
@@ -26,55 +77,11 @@ export class Game {
     this.grid.game = this;
     this.buildings = buildings;
     this.buildings.game = this;
-    this._dirty = false;
-    this._dirtyKeys = { grid: false, buildings: false };
-    this._lastView = {
-      _mutable: this,
-      grid: this.grid.getImmutable(),
-      buildings: this.buildings.getImmutable(),
-      addRoads(allCoords: Coords[]): GameImmutable {
-        return this._mutable._mutate((game) => {
-          game.addRoads(allCoords);
-        });
-      },
-      addHouses(allCoords: Coords[]): GameImmutable {
-        return this._mutable._mutate((game) => {
-          game.addHouses(allCoords);
-        });
-      },
-    };
+    this.mutationHelper = new GameMutationHelper(this);
   }
 
   getImmutable(): GameImmutable {
-    return this._updateImmutable();
-  }
-
-  _markDirty(key: keyof Game["_dirtyKeys"]) {
-    this._dirtyKeys[key] = true;
-    this._dirty = true;
-  }
-
-  _updateImmutable(): GameImmutable {
-    if (this._dirty) {
-      this._lastView = {
-        ...this._lastView,
-      };
-      if (this._dirtyKeys.grid) {
-        this._lastView.grid = this.grid.getImmutable();
-        this._dirtyKeys.grid = false;
-      }
-      if (this._dirtyKeys.buildings) {
-        this._lastView.buildings = this.buildings.getImmutable();
-        this._dirtyKeys.buildings = false;
-      }
-      this._dirty = false;
-    }
-    return this._lastView;
-  }
-
-  _mutate(func: (game: Game) => void): GameImmutable {
-    func(this);
-    return this._updateImmutable();
+    return this.mutationHelper.getImmutable();
   }
 
   addRoads(allCoords: Coords[]): Game {

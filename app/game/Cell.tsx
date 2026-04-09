@@ -4,19 +4,66 @@ import { Grid } from "./Grid";
 
 export type CellImmutable = Pick<
   Cell,
-  "x" | "y" | "key" | "hasRoad" | "buildingId" | "addRoad" | "addBuilding"
->;
+  "x" | "y" | "key" | "hasRoad" | "buildingId"
+> & { _mutable: Cell };
+
+export class CellMutationHelper {
+  mutable: Cell;
+  dirty: boolean;
+  dirtyKeys: { hasRoad: boolean; buildingId: boolean };
+  lastImmutable: CellImmutable;
+
+  constructor(mutable: Cell) {
+    this.mutable = mutable;
+    this.dirty = false;
+    this.dirtyKeys = { hasRoad: false, buildingId: false };
+    this.lastImmutable = {
+      _mutable: mutable,
+      x: mutable.x,
+      y: mutable.y,
+      key: mutable.key,
+      hasRoad: mutable.hasRoad,
+      buildingId: mutable.buildingId,
+    };
+  }
+
+  markDirty(key: keyof CellMutationHelper["dirtyKeys"]) {
+    this.dirtyKeys[key] = true;
+    this.dirty = true;
+    this.mutable.grid.mutationHelper.markDirty(this.mutable.key);
+  }
+
+  getImmutable(): CellImmutable {
+    return this.updateImmutable();
+  }
+
+  updateImmutable(): CellImmutable {
+    if (this.dirty) {
+      this.lastImmutable = {
+        ...this.lastImmutable,
+      };
+      if (this.dirtyKeys.hasRoad) {
+        this.lastImmutable.hasRoad = this.mutable.hasRoad;
+        this.dirtyKeys.hasRoad = false;
+      }
+      if (this.dirtyKeys.buildingId) {
+        this.lastImmutable.buildingId = this.mutable.buildingId;
+        this.dirtyKeys.buildingId = false;
+      }
+      this.dirty = false;
+    }
+    return this.lastImmutable;
+  }
+}
 
 export class Cell {
+  mutationHelper: CellMutationHelper;
   grid: Grid;
   x: number;
   y: number;
   key: string;
   hasRoad: boolean;
   buildingId: number | null;
-  _dirty: boolean;
-  _dirtyKeys: { hasRoad: boolean; buildingId: boolean };
-  _lastView: CellImmutable;
 
   static make(coords: Coords): Cell {
     return new this({
@@ -40,43 +87,11 @@ export class Cell {
     this.key = makeCoordsKey(this);
     this.hasRoad = hasRoad;
     this.buildingId = buildingId;
-    this._dirty = false;
-    this._dirtyKeys = { hasRoad: false, buildingId: false };
-    this._lastView = {
-      x: this.x,
-      y: this.y,
-      key: this.key,
-      hasRoad: this.hasRoad,
-      buildingId: this.buildingId,
-      addRoad: this.addRoad.bind(this),
-      addBuilding: this.addBuilding.bind(this),
-    };
+    this.mutationHelper = new CellMutationHelper(this);
   }
 
   getImmutalbe(): CellImmutable {
-    return this._updateImmutable();
-  }
-
-  _markDirty(key: keyof Cell["_dirtyKeys"]) {
-    this._dirty = true;
-    this._dirtyKeys.hasRoad = true;
-    this.grid._markDirty("cellMap");
-  }
-
-  _updateImmutable() {
-    if (this._dirty) {
-      this._lastView = { ...this._lastView };
-      if (this._dirtyKeys.hasRoad) {
-        this._lastView.hasRoad = this.hasRoad;
-        this._dirtyKeys.hasRoad = false;
-      }
-      if (this._dirtyKeys.buildingId) {
-        this._lastView.buildingId = this.buildingId;
-        this._dirtyKeys.buildingId = false;
-      }
-      this._dirty = false;
-    }
-    return this._lastView;
+    return this.mutationHelper.getImmutable();
   }
 
   addRoad(): Cell {
@@ -87,7 +102,7 @@ export class Cell {
       return this;
     }
     this.hasRoad = true;
-    this._markDirty("hasRoad");
+    this.mutationHelper.markDirty("hasRoad");
     return this;
   }
 
@@ -99,7 +114,7 @@ export class Cell {
       return this;
     }
     this.buildingId = this.grid.addBuilding(makeBuilding()).id;
-    this._markDirty("buildingId");
+    this.mutationHelper.markDirty("buildingId");
     return this;
   }
 

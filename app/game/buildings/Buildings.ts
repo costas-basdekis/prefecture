@@ -39,7 +39,7 @@ export class Buildings {
       this._dirtyKeys[key] = true;
     }
     this._dirty = true;
-    this.game._markDirty("buildings");
+    this.game.mutationHelper.markDirty("buildings");
   }
 
   _updateImmutable(): BuildingsImmutable {

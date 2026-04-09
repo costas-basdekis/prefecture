@@ -62,7 +62,7 @@ export function GridOverlayView({
   );
   return (
     <g className="gridOverlay">
-      {game.grid.cells.map((cell) => (
+      {game.grid.getCells().map((cell) => (
         <CellOverlayView
           key={cell.key}
           cell={cell}

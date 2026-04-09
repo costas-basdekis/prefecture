@@ -1,5 +1,5 @@
 import lodash from "lodash";
-import { Cell } from "./Cell";
+import { Cell, CellImmutable } from "./Cell";
 import { Coords, makeCoordsKey } from "./Coords";
 import { Game } from "./Game";
 import { Building } from "./buildings";
@@ -9,24 +9,74 @@ export interface GridMakeOptions {
   height: number;
 }
 
-export type GridImmutable = Pick<
-  Grid,
-  "cellMap" | "width" | "height" | "cells"
-> & {
+export type GridImmutable = Pick<Grid, "width" | "height"> & {
   _mutable: Grid;
+  cellMap: CellMapImmutable;
+  getCells(): CellImmutable[];
 };
 
+export class GridMutationHelper {
+  mutable: Grid;
+  dirty: boolean;
+  dirtyKeys: Set<string>;
+  lastImmutable: GridImmutable;
+
+  constructor(mutable: Grid) {
+    this.mutable = mutable;
+    this.dirty = false;
+    this.dirtyKeys = new Set();
+    this.lastImmutable = {
+      _mutable: mutable,
+      cellMap: Object.fromEntries(
+        mutable.cells.map((cell) => [cell.key, cell.getImmutalbe()]),
+      ),
+      width: mutable.width,
+      height: mutable.height,
+      getCells() {
+        return Object.values(this.cellMap);
+      },
+    };
+  }
+
+  markDirty(key: string) {
+    this.dirtyKeys.add(key);
+    this.dirty = true;
+    this.mutable.game.mutationHelper.markDirty("grid");
+  }
+
+  getImmutable(): GridImmutable {
+    return this.updateImmutable();
+  }
+
+  updateImmutable(): GridImmutable {
+    if (this.dirty) {
+      this.lastImmutable = {
+        ...this.lastImmutable,
+        cellMap: { ...this.lastImmutable.cellMap },
+      };
+      if (this.dirtyKeys.size) {
+        for (const key of this.dirtyKeys) {
+          this.lastImmutable.cellMap[key] =
+            this.mutable.cellMap[key].getImmutalbe();
+        }
+        this.dirtyKeys.clear();
+      }
+      this.dirty = false;
+    }
+    return this.lastImmutable;
+  }
+}
+
 export type CellMap = Record<string, Cell>;
+export type CellMapImmutable = Record<string, CellImmutable>;
 
 export class Grid {
+  mutationHelper: GridMutationHelper;
   game: Game;
   cellMap: CellMap;
   width: number;
   height: number;
   nextBuildingId: number;
-  _dirty: boolean;
-  _dirtyKeys: { cellMap: boolean };
-  _lastView: GridImmutable;
 
   static make({ width, height }: GridMakeOptions): Grid {
     return new this({
@@ -64,41 +114,11 @@ export class Grid {
     this.width = width;
     this.height = height;
     this.nextBuildingId = nextBuildingId;
-    this._dirty = false;
-    this._dirtyKeys = { cellMap: false };
-    this._lastView = {
-      _mutable: this,
-      cellMap: { ...this.cellMap },
-      width: this.width,
-      height: this.height,
-      get cells() {
-        return Object.values(this.cellMap);
-      },
-    };
+    this.mutationHelper = new GridMutationHelper(this);
   }
 
   getImmutable(): GridImmutable {
-    return this._updateImmutable();
-  }
-
-  _markDirty(key: keyof Grid["_dirtyKeys"]) {
-    this._dirtyKeys[key] = true;
-    this._dirty = true;
-    this.game._markDirty("grid");
-  }
-
-  _updateImmutable(): GridImmutable {
-    if (this._dirty) {
-      this._lastView = {
-        ...this._lastView,
-      };
-      if (this._dirtyKeys.cellMap) {
-        this._lastView.cellMap = { ...this.cellMap };
-        this._dirtyKeys.cellMap = false;
-      }
-      this._dirty = false;
-    }
-    return this._lastView;
+    return this.mutationHelper.getImmutable();
   }
 
   get cells(): Cell[] {
