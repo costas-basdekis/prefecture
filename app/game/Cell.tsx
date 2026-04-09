@@ -1,3 +1,4 @@
+import { MutationHelper } from "~/immutable";
 import { Building, HouseBuilding } from "./buildings";
 import { Coords, makeCoordsKey } from "./Coords";
 import { Grid } from "./Grid";
@@ -7,52 +8,40 @@ export type CellImmutable = Pick<
   "x" | "y" | "key" | "hasRoad" | "buildingId"
 > & { _mutable: Cell };
 
-export class CellMutationHelper {
-  mutable: Cell;
-  dirty: boolean;
-  dirtyKeys: { hasRoad: boolean; buildingId: boolean };
-  lastImmutable: CellImmutable;
+export class CellMutationHelper extends MutationHelper<
+  Cell,
+  CellImmutable,
+  { hasRoad: boolean; buildingId: boolean }
+> {
+  getInitialDirtyKeys() {
+    return { hasRoad: false, buildingId: false };
+  }
 
-  constructor(mutable: Cell) {
-    this.mutable = mutable;
-    this.dirty = false;
-    this.dirtyKeys = { hasRoad: false, buildingId: false };
-    this.lastImmutable = {
-      _mutable: mutable,
-      x: mutable.x,
-      y: mutable.y,
-      key: mutable.key,
-      hasRoad: mutable.hasRoad,
-      buildingId: mutable.buildingId,
+  getInitialLastImmutable() {
+    return {
+      _mutable: this.mutable,
+      x: this.mutable.x,
+      y: this.mutable.y,
+      key: this.mutable.key,
+      hasRoad: this.mutable.hasRoad,
+      buildingId: this.mutable.buildingId,
     };
   }
 
   markDirty(key: keyof CellMutationHelper["dirtyKeys"]) {
-    this.dirtyKeys[key] = true;
-    this.dirty = true;
+    super.markDirty(key);
     this.mutable.grid.mutationHelper.markDirty(this.mutable.key);
   }
 
-  getImmutable(): CellImmutable {
-    return this.updateImmutable();
-  }
-
-  updateImmutable(): CellImmutable {
-    if (this.dirty) {
-      this.lastImmutable = {
-        ...this.lastImmutable,
-      };
-      if (this.dirtyKeys.hasRoad) {
-        this.lastImmutable.hasRoad = this.mutable.hasRoad;
-        this.dirtyKeys.hasRoad = false;
-      }
-      if (this.dirtyKeys.buildingId) {
-        this.lastImmutable.buildingId = this.mutable.buildingId;
-        this.dirtyKeys.buildingId = false;
-      }
-      this.dirty = false;
+  updateImmutableDirtyKeys() {
+    if (this.dirtyKeys.hasRoad) {
+      this.lastImmutable.hasRoad = this.mutable.hasRoad;
+      this.dirtyKeys.hasRoad = false;
     }
-    return this.lastImmutable;
+    if (this.dirtyKeys.buildingId) {
+      this.lastImmutable.buildingId = this.mutable.buildingId;
+      this.dirtyKeys.buildingId = false;
+    }
   }
 }
 

@@ -3,6 +3,7 @@ import { Cell, CellImmutable } from "./Cell";
 import { Coords, makeCoordsKey } from "./Coords";
 import { Game } from "./Game";
 import { Building } from "./buildings";
+import { MutationHelper } from "~/immutable";
 
 export interface GridMakeOptions {
   width: number;
@@ -15,55 +16,52 @@ export type GridImmutable = Pick<Grid, "width" | "height"> & {
   getCells(): CellImmutable[];
 };
 
-export class GridMutationHelper {
-  mutable: Grid;
-  dirty: boolean;
-  dirtyKeys: Set<string>;
-  lastImmutable: GridImmutable;
+export class GridMutationHelper extends MutationHelper<
+  Grid,
+  GridImmutable,
+  Set<string>,
+  string
+> {
+  getInitialDirtyKeys() {
+    return new Set<string>();
+  }
 
-  constructor(mutable: Grid) {
-    this.mutable = mutable;
-    this.dirty = false;
-    this.dirtyKeys = new Set();
-    this.lastImmutable = {
-      _mutable: mutable,
+  getInitialLastImmutable() {
+    return {
+      _mutable: this.mutable,
       cellMap: Object.fromEntries(
-        mutable.cells.map((cell) => [cell.key, cell.getImmutalbe()]),
+        this.mutable.cells.map((cell) => [cell.key, cell.getImmutalbe()]),
       ),
-      width: mutable.width,
-      height: mutable.height,
+      width: this.mutable.width,
+      height: this.mutable.height,
       getCells() {
         return Object.values(this.cellMap);
       },
     };
   }
 
-  markDirty(key: string) {
-    this.dirtyKeys.add(key);
-    this.dirty = true;
+  markDirty(key: string): void {
+    super.markDirty(key);
     this.mutable.game.mutationHelper.markDirty("grid");
+  }
+
+  markKeyDirty(key: string) {
+    this.dirtyKeys.add(key);
   }
 
   getImmutable(): GridImmutable {
     return this.updateImmutable();
   }
 
-  updateImmutable(): GridImmutable {
-    if (this.dirty) {
-      this.lastImmutable = {
-        ...this.lastImmutable,
-        cellMap: { ...this.lastImmutable.cellMap },
-      };
-      if (this.dirtyKeys.size) {
-        for (const key of this.dirtyKeys) {
-          this.lastImmutable.cellMap[key] =
-            this.mutable.cellMap[key].getImmutalbe();
-        }
-        this.dirtyKeys.clear();
+  updateImmutableDirtyKeys() {
+    if (this.dirtyKeys.size) {
+      this.lastImmutable.cellMap = { ...this.lastImmutable.cellMap };
+      for (const key of this.dirtyKeys) {
+        this.lastImmutable.cellMap[key] =
+          this.mutable.cellMap[key].getImmutalbe();
       }
-      this.dirty = false;
+      this.dirtyKeys.clear();
     }
-    return this.lastImmutable;
   }
 }
 
