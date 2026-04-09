@@ -40,8 +40,8 @@ export class GridMutationHelper extends MutationHelper<
     };
   }
 
-  markDirty(key: string): void {
-    super.markDirty(key);
+  markDirty(...keys: string[]): void {
+    super.markDirty(...keys);
     this.mutable.game.mutationHelper.markDirty("grid");
   }
 

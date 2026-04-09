@@ -23,8 +23,10 @@ export class MutationHelper<M, I, DKO, DK extends string = keyof DKO & string> {
     );
   }
 
-  markDirty(key: DK) {
-    this.markKeyDirty(key);
+  markDirty(...keys: DK[]) {
+    for (const key of keys) {
+      this.markKeyDirty(key);
+    }
     this.dirty = true;
   }
 

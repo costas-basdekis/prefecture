@@ -28,8 +28,8 @@ export class CellMutationHelper extends MutationHelper<
     };
   }
 
-  markDirty(key: keyof CellMutationHelper["dirtyKeys"]) {
-    super.markDirty(key);
+  markDirty(...keys: (keyof CellMutationHelper["dirtyKeys"])[]) {
+    super.markDirty(...keys);
     this.mutable.grid.mutationHelper.markDirty(this.mutable.key);
   }
 
