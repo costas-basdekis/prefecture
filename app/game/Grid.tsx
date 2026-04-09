@@ -3,7 +3,7 @@ import { Cell, CellImmutable } from "./Cell";
 import { Coords, makeCoordsKey } from "./Coords";
 import { Game } from "./Game";
 import { Building } from "./buildings";
-import { Immutable, Mutable, MutationHelper } from "~/immutable";
+import { Immutable, Mutable, mutate, MutationHelper } from "~/immutable";
 
 export interface GridMakeOptions {
   width: number;
@@ -47,10 +47,6 @@ export class GridMutationHelper extends MutationHelper<
   markKeyDirty([, key]: ["cellMap", string]) {
     this.dirtyKeys.cellMap.add(key);
   }
-
-  updateImmutableDirtyKeys() {
-    this.updateForMappedMutable("cellMap");
-  }
 }
 
 export type CellMap = Record<string, Cell>;
@@ -59,6 +55,7 @@ export type CellMapImmutable = Record<string, CellImmutable>;
 export class Grid implements Mutable<Grid, GridImmutable> {
   mutationHelper: GridMutationHelper;
   game: Game;
+  @mutate("mappedMutable")
   cellMap: CellMap;
   width: number;
   height: number;

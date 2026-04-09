@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { Immutable } from "./Immutable";
 import { Mutable } from "./Mutable";
 
@@ -20,7 +21,28 @@ export type MappedMutableDirtyKeys<M, I> = keyof {
     : never]: M[key];
 };
 
-export class MutationHelper<M, I, DKO, DK = keyof DKO> {
+export type MutationType = "mutable" | "mappedMutable" | "plainValue";
+
+const keysWithMutationTypeKey = Symbol("keysWithMutationType");
+const mutationTypeKey = Symbol("mutationType");
+
+export function mutate(type: MutationType) {
+  return function (target: Object, propertyKey: string | symbol) {
+    const keys: Set<string | symbol> =
+      Reflect.getMetadata(keysWithMutationTypeKey, target) ??
+      new Set<string | symbol>();
+    keys.add(propertyKey);
+    Reflect.defineMetadata(keysWithMutationTypeKey, keys, target);
+    Reflect.defineMetadata(mutationTypeKey, type, target, propertyKey);
+  };
+}
+
+export class MutationHelper<
+  M extends Mutable<any, any>,
+  I,
+  DKO,
+  DK = keyof DKO,
+> {
   mutable: M;
   dirty: boolean;
   dirtyKeys: DKO;
@@ -77,9 +99,37 @@ export class MutationHelper<M, I, DKO, DK = keyof DKO> {
   }
 
   updateImmutableDirtyKeys() {
-    throw new Error(
-      `Not implemented ${this.constructor.name}.updateImmutableDirtyKeys`,
+    const keys: Set<string | symbol> | undefined = Reflect.getMetadata(
+      keysWithMutationTypeKey,
+      this.mutable,
     );
+    if (!keys) {
+      throw new Error(
+        `Not implemented ${this.constructor.name}.updateImmutableDirtyKeys`,
+      );
+    }
+    for (const key of keys) {
+      const mutationType: MutationType = Reflect.getMetadata(
+        mutationTypeKey,
+        this.mutable,
+        key,
+      );
+      switch (mutationType) {
+        case "mutable":
+          this.updateForMutable(key as any);
+          break;
+        case "mappedMutable":
+          this.updateForMappedMutable(key as never);
+          break;
+        case "plainValue":
+          this.updateForPlainValue(key as any);
+          break;
+        default:
+          throw new Error(
+            `Unknown mutation type "${mutationType}" for ${this.mutable.constructor.name}.${key.toString()}`,
+          );
+      }
+    }
   }
 
   updateForMutable(key: MutableDirtyKeys<M, I, DK>) {

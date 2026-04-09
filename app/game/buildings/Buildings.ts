@@ -1,4 +1,4 @@
-import { Immutable, Mutable, MutationHelper } from "~/immutable";
+import { Immutable, Mutable, mutate, MutationHelper } from "~/immutable";
 import { Game } from "../Game";
 import { Building, BuildingImmutable } from "./Building";
 
@@ -40,11 +40,6 @@ export class BuildingsMutationHelper extends MutationHelper<
     }
     this.dirtyKeys.byId.add(key);
   }
-
-  updateImmutableDirtyKeys() {
-    this.updateForPlainValue("nextId");
-    this.updateForMappedMutable("byId");
-  }
 }
 
 type BuildingMap = Record<number, Building>;
@@ -53,7 +48,9 @@ type BuildingMapImmutable = Record<number, BuildingImmutable>;
 export class Buildings implements Mutable<Buildings, BuildingsImmutable> {
   mutationHelper: BuildingsMutationHelper;
   game: Game;
+  @mutate("plainValue")
   nextId: number;
+  @mutate("mappedMutable")
   byId: BuildingMap;
 
   static make(): Buildings {

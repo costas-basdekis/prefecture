@@ -1,4 +1,4 @@
-import { Immutable, Mutable, MutationHelper } from "~/immutable";
+import { Immutable, Mutable, mutate, MutationHelper } from "~/immutable";
 import { Building, HouseBuilding } from "./buildings";
 import { Coords, makeCoordsKey } from "./Coords";
 import { Grid } from "./Grid";
@@ -33,11 +33,6 @@ export class CellMutationHelper extends MutationHelper<
     super.markDirty(...keys);
     this.mutable.grid.mutationHelper.markDirty(["cellMap", this.mutable.key]);
   }
-
-  updateImmutableDirtyKeys() {
-    this.updateForPlainValue("hasRoad");
-    this.updateForPlainValue("buildingId");
-  }
 }
 
 export class Cell implements Mutable<Cell, CellImmutable> {
@@ -46,7 +41,9 @@ export class Cell implements Mutable<Cell, CellImmutable> {
   x: number;
   y: number;
   key: string;
+  @mutate("plainValue")
   hasRoad: boolean;
+  @mutate("plainValue")
   buildingId: number | null;
 
   static make(coords: Coords): Cell {

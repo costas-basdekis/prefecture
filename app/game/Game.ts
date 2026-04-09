@@ -1,7 +1,7 @@
 import { Building, Buildings, BuildingsImmutable } from "./buildings";
 import { Coords } from "./Coords";
 import { Grid, GridMakeOptions, GridImmutable } from "./Grid";
-import { Mutable, MutationHelper } from "../immutable";
+import { Mutable, mutate, MutationHelper } from "../immutable";
 
 export type GameImmutable = {
   _mutable: Game;
@@ -35,16 +35,13 @@ export class GameMutationHelper extends MutationHelper<
       },
     };
   }
-
-  updateImmutableDirtyKeys() {
-    this.updateForMutable("grid");
-    this.updateForMutable("buildings");
-  }
 }
 
 export class Game implements Mutable<Game, GameImmutable> {
   mutationHelper: GameMutationHelper;
+  @mutate("mutable")
   grid: Grid;
+  @mutate("mutable")
   buildings: Buildings;
 
   static make(options: GridMakeOptions): Game {
