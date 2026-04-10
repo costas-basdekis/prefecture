@@ -23,8 +23,8 @@ export class GameMutationHelper extends MutationHelper<
   getInitialLastImmutable() {
     return {
       _mutable: this.mutable,
-      grid: this.mutable.grid.getImmutable(),
-      buildings: this.mutable.buildings.getImmutable(),
+      grid: this.getForMutable("grid"),
+      buildings: this.getForMutable("buildings"),
       addRoads(allCoords: Coords[]): GameImmutable {
         this._mutable.addRoads(allCoords);
         return this._mutable.mutationHelper.getImmutable();

@@ -28,9 +28,7 @@ export class GridMutationHelper extends MutationHelper<
   getInitialLastImmutable() {
     return {
       _mutable: this.mutable,
-      cellMap: Object.fromEntries(
-        this.mutable.cells.map((cell) => [cell.key, cell.getImmutable()]),
-      ),
+      cellMap: this.getForMappedMutable("cellMap"),
       width: this.mutable.width,
       height: this.mutable.height,
       getCells() {
@@ -59,7 +57,6 @@ export class Grid implements Mutable<Grid, GridImmutable> {
   cellMap: CellMap;
   width: number;
   height: number;
-  nextBuildingId: number;
 
   static make({ width, height }: GridMakeOptions): Grid {
     return new this({
@@ -72,7 +69,6 @@ export class Grid implements Mutable<Grid, GridImmutable> {
       ),
       width,
       height,
-      nextBuildingId: 0,
     });
   }
 
@@ -81,13 +77,11 @@ export class Grid implements Mutable<Grid, GridImmutable> {
     cellMap,
     width,
     height,
-    nextBuildingId,
   }: {
     game: Game | null;
     cellMap: Record<string, Cell>;
     width: number;
     height: number;
-    nextBuildingId: number;
   }) {
     this.game = game!;
     this.cellMap = cellMap;
@@ -96,7 +90,6 @@ export class Grid implements Mutable<Grid, GridImmutable> {
     }
     this.width = width;
     this.height = height;
-    this.nextBuildingId = nextBuildingId;
     this.mutationHelper = new GridMutationHelper(this);
   }
 

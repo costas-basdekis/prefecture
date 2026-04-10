@@ -132,6 +132,10 @@ export class MutationHelper<
     }
   }
 
+  getForMutable<K extends MutableDirtyKeys<M, I, DK>>(key: K): I[K] {
+    return (this.mutable[key] as M).getImmutable();
+  }
+
   updateForMutable(key: MutableDirtyKeys<M, I, DK>) {
     const dkoKey = key as any as keyof DKO;
     if (typeof this.dirtyKeys[dkoKey] !== "boolean") {
@@ -140,10 +144,13 @@ export class MutationHelper<
       );
     }
     if (this.dirtyKeys[dkoKey]) {
-      // @ts-ignore
-      this.lastImmutable[key] = this.mutable[key].getImmutable();
+      this.lastImmutable[key] = this.getForMutable(key);
       this.dirtyKeys[dkoKey] = false as DKO[typeof dkoKey];
     }
+  }
+
+  getForPlainValue<K extends DK & keyof M>(key: K): M[K] {
+    return this.mutable[key];
   }
 
   updateForPlainValue(key: DK) {
@@ -155,12 +162,41 @@ export class MutationHelper<
     }
     if (this.dirtyKeys[dkoKey]) {
       // @ts-ignore
-      this.lastImmutable[key] = this.mutable[key];
+      this.lastImmutable[key] = this.getForPlainValue(key);
       this.dirtyKeys[dkoKey] = false as DKO[typeof dkoKey];
     }
   }
 
-  updateForMappedMutable<MK>(key: MappedMutableDirtyKeys<M, I>) {
+  getForMappedMutable<
+    MK extends (string | number) & keyof M[K],
+    K extends MappedMutableDirtyKeys<M, I>,
+  >(key: K, mappedKeys?: Set<MK>): Record<MK, any> {
+    if (mappedKeys) {
+      // @ts-ignore
+      return Object.fromEntries(
+        Array.from(mappedKeys).map((mappedKey) => [
+          mappedKey,
+          // @ts-ignore
+          this.mutable[key][mappedKey].getImmutable(),
+        ]),
+      );
+    } else {
+      // @ts-ignore
+      return Object.fromEntries(
+        // @ts-ignore
+        Object.entries(this.mutable[key]).map(([key, value]) => [
+          key,
+          // @ts-ignore
+          value.getImmutable(),
+        ]),
+      );
+    }
+  }
+
+  updateForMappedMutable<
+    MK extends (string | number) & keyof M[K],
+    K extends MappedMutableDirtyKeys<M, I>,
+  >(key: K) {
     const dkoKey = key as any as keyof DKO;
     if (!(this.dirtyKeys[dkoKey] instanceof Set)) {
       throw new Error(
@@ -169,13 +205,10 @@ export class MutationHelper<
     }
     const dirtyMappedKeys: Set<MK> = this.dirtyKeys[dkoKey];
     if (dirtyMappedKeys.size) {
-      this.lastImmutable[key] = { ...this.lastImmutable[key] };
-      for (const mappedKey of dirtyMappedKeys) {
-        // @ts-ignore
-        this.lastImmutable[key][mappedKey] =
-          // @ts-ignore
-          this.mutable[key][mappedKey].getImmutable();
-      }
+      this.lastImmutable[key] = {
+        ...this.lastImmutable[key],
+        ...this.getForMappedMutable(key, dirtyMappedKeys),
+      };
       dirtyMappedKeys.clear();
     }
   }

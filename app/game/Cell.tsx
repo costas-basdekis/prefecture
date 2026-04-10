@@ -24,8 +24,8 @@ export class CellMutationHelper extends MutationHelper<
       x: this.mutable.x,
       y: this.mutable.y,
       key: this.mutable.key,
-      hasRoad: this.mutable.hasRoad,
-      buildingId: this.mutable.buildingId,
+      hasRoad: this.getForPlainValue("hasRoad"),
+      buildingId: this.getForPlainValue("buildingId"),
     };
   }
 

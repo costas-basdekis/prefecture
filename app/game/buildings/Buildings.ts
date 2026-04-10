@@ -19,12 +19,8 @@ export class BuildingsMutationHelper extends MutationHelper<
   getInitialLastImmutable() {
     return {
       _mutable: this.mutable,
-      nextId: this.mutable.nextId,
-      byId: Object.fromEntries(
-        Object.values(this.mutable.byId).map(
-          (building) => [building.id, building.getImmutable()] as const,
-        ),
-      ),
+      nextId: this.getForPlainValue("nextId"),
+      byId: this.getForMappedMutable("byId"),
     };
   }
 
