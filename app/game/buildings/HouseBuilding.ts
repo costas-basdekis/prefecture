@@ -26,13 +26,14 @@ export class HouseBuilding implements Mutable<
   @immutable
   type: "house";
 
-  constructor() {
-    this.id = 0;
+  constructor(buildings: Buildings) {
+    this.buildings = buildings;
+    this.id = this.buildings.createId();
     this.type = "house";
-    this.buildings = null!;
     this.mutationHelper = new MutationHelper<
       HouseBuilding,
       HouseBuildingImmutable
     >(this);
+    this.buildings.add(this);
   }
 }

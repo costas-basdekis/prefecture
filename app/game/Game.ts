@@ -1,4 +1,4 @@
-import { Building, Buildings, BuildingsImmutable } from "./buildings";
+import { Buildings, BuildingsImmutable } from "./buildings";
 import { Coords } from "./Coords";
 import { Grid, GridMakeOptions, GridImmutable } from "./Grid";
 import { methodMutate, Mutable, mutable, MutationHelper } from "../immutable";
@@ -32,10 +32,6 @@ export class Game implements Mutable<Game, GameImmutable> {
   addRoads(allCoords: Coords[]): Game {
     this.grid.addRoads(allCoords);
     return this;
-  }
-
-  addBuilding(building: Building): Building {
-    return this.buildings.add(building);
   }
 
   @methodMutate

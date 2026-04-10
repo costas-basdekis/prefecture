@@ -62,12 +62,12 @@ export class Cell implements Mutable<Cell, CellImmutable> {
     if (this.buildingId) {
       return this;
     }
-    this.buildingId = this.grid.addBuilding(makeBuilding()).id;
+    this.buildingId = makeBuilding().id;
     this.mutationHelper.markDirty("buildingId");
     return this;
   }
 
   addHouse(): Cell {
-    return this.addBuilding(() => new HouseBuilding());
+    return this.addBuilding(() => new HouseBuilding(this.grid.game.buildings));
   }
 }
