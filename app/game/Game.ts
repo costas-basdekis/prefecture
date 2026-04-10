@@ -25,8 +25,8 @@ export class GameMutationHelper extends MutationHelper<
       _mutable: this.mutable,
       grid: this.getForMutable("grid"),
       buildings: this.getForMutable("buildings"),
-      addRoads: this.getForMutationMethod("addRoads"),
-      addHouses: this.getForMutationMethod("addHouses"),
+      addRoads: this.getForMutationMethod("addRoads" as const),
+      addHouses: this.getForMutationMethod("addHouses" as const),
     };
   }
 }

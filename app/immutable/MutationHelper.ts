@@ -3,8 +3,8 @@ import { Immutable } from "./Immutable";
 import { Mutable } from "./Mutable";
 
 export type MutableDirtyKeys<M, I, DK> = keyof {
-  [key in keyof M & keyof I & DK as M[key] extends Mutable<infer M1, infer I1>
-    ? I[key] extends Immutable<M1>
+  [key in keyof M & keyof I & DK as M[key] extends Mutable<any, infer I1>
+    ? I[key] extends I1
       ? key
       : never
     : never]: M[key];
@@ -13,17 +13,19 @@ export type MutableDirtyKeys<M, I, DK> = keyof {
 export type MappedMutableDirtyKeys<M, I> = keyof {
   [key in keyof M & keyof I as M[key] extends Record<
     any,
-    Mutable<infer M1, infer I1>
+    Mutable<any, infer I1>
   >
-    ? I[key] extends Record<any, Immutable<M1>>
+    ? I[key] extends Record<any, I1>
       ? key
       : never
     : never]: M[key];
 };
 
 export type MutableMutationMethodKeys<M, I> = keyof {
-  [key in keyof M & keyof I as M[key] extends (...args: infer A) => M
-    ? I[key] extends (...args: A) => I
+  [key in keyof M & keyof I as M[key] extends (
+    ...args: infer A
+  ) => Mutable<any, any>
+    ? I[key] extends (...args: A) => any
       ? key
       : never
     : never]: M[key];
