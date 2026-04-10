@@ -12,16 +12,11 @@ export type BuildingsImmutable = Pick<Buildings, "nextId"> & {
   byId: BuildingMapImmutable;
 } & Immutable<Buildings>;
 
-export class BuildingsMutationHelper extends MutationHelper<
-  Buildings,
-  BuildingsImmutable
-> {}
-
 type BuildingMap = Record<number, Building>;
 type BuildingMapImmutable = Record<number, BuildingImmutable>;
 
 export class Buildings implements Mutable<Buildings, BuildingsImmutable> {
-  mutationHelper: BuildingsMutationHelper;
+  mutationHelper: MutationHelper<Buildings, BuildingsImmutable>;
   @parent("buildings")
   game: Game;
   @mutate("plainValue")
@@ -37,7 +32,9 @@ export class Buildings implements Mutable<Buildings, BuildingsImmutable> {
     this.game = game!;
     this.nextId = nextId;
     this.byId = byId;
-    this.mutationHelper = new BuildingsMutationHelper(this);
+    this.mutationHelper = new MutationHelper<Buildings, BuildingsImmutable>(
+      this,
+    );
   }
 
   add(building: Building): Building {

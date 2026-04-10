@@ -12,16 +12,11 @@ export type HouseBuildingImmutable = {
   type: "house";
 } & Immutable<HouseBuilding>;
 
-export class HouseBuildingMutationHelper extends MutationHelper<
-  HouseBuilding,
-  HouseBuildingImmutable
-> {}
-
 export class HouseBuilding implements Mutable<
   HouseBuilding,
   HouseBuildingImmutable
 > {
-  mutationHelper: HouseBuildingMutationHelper;
+  mutationHelper: MutationHelper<HouseBuilding, HouseBuildingImmutable>;
   @parent("byId")
   buildings: Buildings;
   @immutable
@@ -33,6 +28,9 @@ export class HouseBuilding implements Mutable<
     this.id = 0;
     this.type = "house";
     this.buildings = null!;
-    this.mutationHelper = new HouseBuildingMutationHelper(this);
+    this.mutationHelper = new MutationHelper<
+      HouseBuilding,
+      HouseBuildingImmutable
+    >(this);
   }
 }

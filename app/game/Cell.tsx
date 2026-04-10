@@ -17,10 +17,8 @@ export type CellImmutable = Pick<
 > &
   Immutable<Cell>;
 
-export class CellMutationHelper extends MutationHelper<Cell, CellImmutable> {}
-
 export class Cell implements Mutable<Cell, CellImmutable> {
-  mutationHelper: CellMutationHelper;
+  mutationHelper: MutationHelper<Cell, CellImmutable>;
   @parent("cellMap")
   grid: Grid;
   @immutable
@@ -57,7 +55,7 @@ export class Cell implements Mutable<Cell, CellImmutable> {
     this.key = makeCoordsKey(this);
     this.hasRoad = hasRoad;
     this.buildingId = buildingId;
-    this.mutationHelper = new CellMutationHelper(this);
+    this.mutationHelper = new MutationHelper<Cell, CellImmutable>(this);
   }
 
   addRoad(): Cell {

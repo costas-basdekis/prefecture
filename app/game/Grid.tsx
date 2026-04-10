@@ -22,13 +22,11 @@ export type GridImmutable = Pick<Grid, "width" | "height"> & {
   getCells(): CellImmutable[];
 } & Immutable<Grid>;
 
-export class GridMutationHelper extends MutationHelper<Grid, GridImmutable> {}
-
 export type CellMap = Record<string, Cell>;
 export type CellMapImmutable = Record<string, CellImmutable>;
 
 export class Grid implements Mutable<Grid, GridImmutable> {
-  mutationHelper: GridMutationHelper;
+  mutationHelper: MutationHelper<Grid, GridImmutable>;
   @parent("grid")
   game: Game;
   @mutate("mappedMutable")
@@ -70,7 +68,7 @@ export class Grid implements Mutable<Grid, GridImmutable> {
     }
     this.width = width;
     this.height = height;
-    this.mutationHelper = new GridMutationHelper(this, {
+    this.mutationHelper = new MutationHelper<Grid, GridImmutable>(this, {
       getCells(this: GridImmutable) {
         return Object.values(this.cellMap);
       },

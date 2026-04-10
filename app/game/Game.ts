@@ -11,10 +11,8 @@ export type GameImmutable = {
   addHouses(allCoords: Coords[]): GameImmutable;
 };
 
-export class GameMutationHelper extends MutationHelper<Game, GameImmutable> {}
-
 export class Game implements Mutable<Game, GameImmutable> {
-  mutationHelper: GameMutationHelper;
+  mutationHelper: MutationHelper<Game, GameImmutable>;
   @mutate("mutable")
   grid: Grid;
   @mutate("mutable")
@@ -29,7 +27,7 @@ export class Game implements Mutable<Game, GameImmutable> {
     this.grid.game = this;
     this.buildings = buildings;
     this.buildings.game = this;
-    this.mutationHelper = new GameMutationHelper(this);
+    this.mutationHelper = new MutationHelper<Game, GameImmutable>(this);
   }
 
   @methodMutate
