@@ -27,10 +27,6 @@ export class GridMutationHelper extends MutationHelper<
   { cellMap: Set<string> },
   ["cellMap", string]
 > {
-  getInitialDirtyKeys() {
-    return { cellMap: new Set<string>() };
-  }
-
   getExtraInitialImmutable() {
     return {
       getCells(this: GridImmutable) {

@@ -15,11 +15,7 @@ export class GameMutationHelper extends MutationHelper<
   Game,
   GameImmutable,
   { grid: boolean; buildings: boolean }
-> {
-  getInitialDirtyKeys() {
-    return { grid: false, buildings: false };
-  }
-}
+> {}
 
 export class Game implements Mutable<Game, GameImmutable> {
   mutationHelper: GameMutationHelper;

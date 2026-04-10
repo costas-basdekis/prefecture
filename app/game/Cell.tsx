@@ -20,10 +20,6 @@ export class CellMutationHelper extends MutationHelper<
   CellImmutable,
   { hasRoad: boolean; buildingId: boolean }
 > {
-  getInitialDirtyKeys() {
-    return { hasRoad: false, buildingId: false };
-  }
-
   markDirty(...keys: (keyof CellMutationHelper["dirtyKeys"])[]) {
     super.markDirty(...keys);
     this.mutable.grid.mutationHelper.markDirty(["cellMap", this.mutable.key]);

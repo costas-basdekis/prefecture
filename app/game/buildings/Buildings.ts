@@ -12,10 +12,6 @@ export class BuildingsMutationHelper extends MutationHelper<
   { nextId: boolean; byId: Set<number> },
   "nextId" | number
 > {
-  getInitialDirtyKeys() {
-    return { nextId: false, byId: new Set<number>() };
-  }
-
   markDirty(...keys: ("nextId" | number)[]): void {
     super.markDirty(...keys);
     this.mutable.game.mutationHelper.markDirty("buildings");

@@ -84,9 +84,40 @@ export class MutationHelper<
   }
 
   getInitialDirtyKeys(): DKO {
-    throw new Error(
-      `Not implemented ${this.constructor.name}.getInitialDirtyKeys`,
+    return this.getDefaultInitialDirtyKeys();
+  }
+
+  getDefaultInitialDirtyKeys(): this["dirtyKeys"] {
+    const dirtyKeys: Partial<this["dirtyKeys"]> = {};
+    const keysWithMutationType: Set<keyof I> | undefined = Reflect.getMetadata(
+      keysWithMutationTypeKey,
+      this.mutable,
     );
+    if (keysWithMutationType) {
+      for (const key of keysWithMutationType) {
+        const mutationType: MutationType = Reflect.getMetadata(
+          mutationTypeKey,
+          this.mutable,
+          key as string | symbol,
+        );
+        switch (mutationType) {
+          case "mutable":
+          case "plainValue":
+            // @ts-ignore
+            dirtyKeys[key] = false;
+            break;
+          case "mappedMutable":
+            // @ts-ignore
+            dirtyKeys[key] = new Set();
+            break;
+          default:
+            throw new Error(
+              `Unknown mutation type "${mutationType}" for ${this.mutable.constructor.name}.${key.toString()}`,
+            );
+        }
+      }
+    }
+    return dirtyKeys as this["dirtyKeys"];
   }
 
   getInitialImmutable(): I {

@@ -11,10 +11,6 @@ export class HouseBuildingMutationHelper extends MutationHelper<
   HouseBuildingImmutable,
   {}
 > {
-  getInitialDirtyKeys() {
-    return {};
-  }
-
   markDirty(): void {
     super.markDirty();
     this.mutable.buildings.mutationHelper.markDirty(this.mutable.id);
