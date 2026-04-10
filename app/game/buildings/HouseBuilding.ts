@@ -1,4 +1,4 @@
-import { Immutable, Mutable, MutationHelper } from "~/immutable";
+import { immutable, Immutable, Mutable, MutationHelper } from "~/immutable";
 import { Buildings } from "./Buildings";
 
 export type HouseBuildingImmutable = {
@@ -15,14 +15,6 @@ export class HouseBuildingMutationHelper extends MutationHelper<
     return {};
   }
 
-  getInitialImmutable() {
-    return {
-      _mutable: this.mutable,
-      id: this.mutable.id,
-      type: this.mutable.type,
-    };
-  }
-
   markDirty(): void {
     super.markDirty();
     this.mutable.buildings.mutationHelper.markDirty(this.mutable.id);
@@ -34,7 +26,9 @@ export class HouseBuilding implements Mutable<
   HouseBuildingImmutable
 > {
   mutationHelper: HouseBuildingMutationHelper;
+  @immutable
   id: number;
+  @immutable
   type: "house";
   buildings: Buildings;
 

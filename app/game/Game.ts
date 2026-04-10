@@ -1,7 +1,7 @@
 import { Building, Buildings, BuildingsImmutable } from "./buildings";
 import { Coords } from "./Coords";
 import { Grid, GridMakeOptions, GridImmutable } from "./Grid";
-import { Mutable, mutate, MutationHelper } from "../immutable";
+import { methodMutate, Mutable, mutate, MutationHelper } from "../immutable";
 
 export type GameImmutable = {
   _mutable: Game;
@@ -18,16 +18,6 @@ export class GameMutationHelper extends MutationHelper<
 > {
   getInitialDirtyKeys() {
     return { grid: false, buildings: false };
-  }
-
-  getInitialImmutable() {
-    return {
-      _mutable: this.mutable,
-      grid: this.getForMutable("grid"),
-      buildings: this.getForMutable("buildings"),
-      addRoads: this.getForMutationMethod("addRoads" as const),
-      addHouses: this.getForMutationMethod("addHouses" as const),
-    };
   }
 }
 
@@ -54,6 +44,7 @@ export class Game implements Mutable<Game, GameImmutable> {
     return this.mutationHelper.getImmutable();
   }
 
+  @methodMutate
   addRoads(allCoords: Coords[]): Game {
     this.grid.addRoads(allCoords);
     return this;
@@ -63,6 +54,7 @@ export class Game implements Mutable<Game, GameImmutable> {
     return this.buildings.add(building);
   }
 
+  @methodMutate
   addHouses(allCoords: Coords[]): Game {
     this.grid.addHouses(allCoords);
     return this;

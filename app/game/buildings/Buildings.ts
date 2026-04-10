@@ -16,14 +16,6 @@ export class BuildingsMutationHelper extends MutationHelper<
     return { nextId: false, byId: new Set<number>() };
   }
 
-  getInitialImmutable() {
-    return {
-      _mutable: this.mutable,
-      nextId: this.getForPlainValue("nextId"),
-      byId: this.getForMappedMutable("byId"),
-    };
-  }
-
   markDirty(...keys: ("nextId" | number)[]): void {
     super.markDirty(...keys);
     this.mutable.game.mutationHelper.markDirty("buildings");

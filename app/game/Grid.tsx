@@ -3,7 +3,13 @@ import { Cell, CellImmutable } from "./Cell";
 import { Coords, makeCoordsKey } from "./Coords";
 import { Game } from "./Game";
 import { Building } from "./buildings";
-import { Immutable, Mutable, mutate, MutationHelper } from "~/immutable";
+import {
+  immutable,
+  Immutable,
+  Mutable,
+  mutate,
+  MutationHelper,
+} from "~/immutable";
 
 export interface GridMakeOptions {
   width: number;
@@ -25,13 +31,9 @@ export class GridMutationHelper extends MutationHelper<
     return { cellMap: new Set<string>() };
   }
 
-  getInitialImmutable() {
+  getExtraInitialImmutable() {
     return {
-      _mutable: this.mutable,
-      cellMap: this.getForMappedMutable("cellMap"),
-      width: this.mutable.width,
-      height: this.mutable.height,
-      getCells() {
+      getCells(this: GridImmutable) {
         return Object.values(this.cellMap);
       },
     };
@@ -55,7 +57,9 @@ export class Grid implements Mutable<Grid, GridImmutable> {
   game: Game;
   @mutate("mappedMutable")
   cellMap: CellMap;
+  @immutable
   width: number;
+  @immutable
   height: number;
 
   static make({ width, height }: GridMakeOptions): Grid {

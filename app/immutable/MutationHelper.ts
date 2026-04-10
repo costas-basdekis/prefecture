@@ -33,8 +33,18 @@ export type MutableMutationMethodKeys<M, I> = keyof {
 
 export type MutationType = "mutable" | "mappedMutable" | "plainValue";
 
+const keysWithNoMutationKey = Symbol("keysWithNoMutation");
 const keysWithMutationTypeKey = Symbol("keysWithMutationType");
+const keysWithMethodMutationTypeKey = Symbol("keysWithMethodMutationType");
 const mutationTypeKey = Symbol("mutationType");
+
+export function immutable(target: Object, propertyKey: string | symbol) {
+  const keys: Set<string | symbol> =
+    Reflect.getMetadata(keysWithNoMutationKey, target) ??
+    new Set<string | symbol>();
+  keys.add(propertyKey);
+  Reflect.defineMetadata(keysWithNoMutationKey, keys, target);
+}
 
 export function mutate(type: MutationType) {
   return function (target: Object, propertyKey: string | symbol) {
@@ -45,6 +55,14 @@ export function mutate(type: MutationType) {
     Reflect.defineMetadata(keysWithMutationTypeKey, keys, target);
     Reflect.defineMetadata(mutationTypeKey, type, target, propertyKey);
   };
+}
+
+export function methodMutate(target: Object, propertyKey: string | symbol) {
+  const keys: Set<string | symbol> =
+    Reflect.getMetadata(keysWithMethodMutationTypeKey, target) ??
+    new Set<string | symbol>();
+  keys.add(propertyKey);
+  Reflect.defineMetadata(keysWithMethodMutationTypeKey, keys, target);
 }
 
 export class MutationHelper<
@@ -72,9 +90,64 @@ export class MutationHelper<
   }
 
   getInitialImmutable(): I {
-    throw new Error(
-      `Not implemented ${this.constructor.name}.getInitialLastImmutable`,
+    return {
+      ...this.getDefaultInitialImmutable(),
+      ...this.getExtraInitialImmutable(),
+    };
+  }
+
+  getDefaultInitialImmutable(): I {
+    const immutable: Partial<I> = { _mutable: this.mutable } as Partial<I>;
+    const keysWithNoMutation: Set<keyof I> | undefined = Reflect.getMetadata(
+      keysWithNoMutationKey,
+      this.mutable,
     );
+    if (keysWithNoMutation) {
+      for (const key of keysWithNoMutation) {
+        // @ts-ignore
+        immutable[key] = this.mutable[key];
+      }
+    }
+    const keysWithMutationType: Set<keyof I> | undefined = Reflect.getMetadata(
+      keysWithMutationTypeKey,
+      this.mutable,
+    );
+    if (keysWithMutationType) {
+      for (const key of keysWithMutationType) {
+        const mutationType: MutationType = Reflect.getMetadata(
+          mutationTypeKey,
+          this.mutable,
+          key as string | symbol,
+        );
+        switch (mutationType) {
+          case "mutable":
+            immutable[key] = this.getForMutable(key as any);
+            break;
+          case "mappedMutable":
+            immutable[key] = this.getForMappedMutable(key as any) as any;
+            break;
+          case "plainValue":
+            immutable[key] = this.getForPlainValue(key as any);
+            break;
+          default:
+            throw new Error(
+              `Unknown mutation type "${mutationType}" for ${this.mutable.constructor.name}.${key.toString()}`,
+            );
+        }
+      }
+    }
+    const keysWithMethodMutation: Set<keyof I> | undefined =
+      Reflect.getMetadata(keysWithMethodMutationTypeKey, this.mutable);
+    if (keysWithMethodMutation) {
+      for (const key of keysWithMethodMutation) {
+        immutable[key] = this.getForMutationMethod(key as any) as any;
+      }
+    }
+    return immutable as I;
+  }
+
+  getExtraInitialImmutable(): Partial<I> {
+    return {};
   }
 
   markDirty(...keys: DK[]) {
