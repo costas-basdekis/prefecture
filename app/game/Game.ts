@@ -36,10 +36,6 @@ export class Game implements Mutable<Game, GameImmutable> {
     this.mutationHelper = new GameMutationHelper(this);
   }
 
-  getImmutable(): GameImmutable {
-    return this.mutationHelper.getImmutable();
-  }
-
   @methodMutate
   addRoads(allCoords: Coords[]): Game {
     this.grid.addRoads(allCoords);

@@ -64,10 +64,6 @@ export class Cell implements Mutable<Cell, CellImmutable> {
     this.mutationHelper = new CellMutationHelper(this);
   }
 
-  getImmutable(): CellImmutable {
-    return this.mutationHelper.getImmutable();
-  }
-
   addRoad(): Cell {
     if (this.hasRoad) {
       return this;

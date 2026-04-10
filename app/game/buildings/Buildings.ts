@@ -42,10 +42,6 @@ export class Buildings implements Mutable<Buildings, BuildingsImmutable> {
     this.mutationHelper = new BuildingsMutationHelper(this);
   }
 
-  getImmutable(): BuildingsImmutable {
-    return this.mutationHelper.getImmutable();
-  }
-
   add(building: Building): Building {
     building.id = this.nextId;
     building.buildings = this;

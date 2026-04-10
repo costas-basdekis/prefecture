@@ -36,8 +36,4 @@ export class HouseBuilding implements Mutable<
     this.buildings = null!;
     this.mutationHelper = new HouseBuildingMutationHelper(this);
   }
-
-  getImmutable(): HouseBuildingImmutable {
-    return this.mutationHelper.getImmutable();
-  }
 }

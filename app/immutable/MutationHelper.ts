@@ -327,7 +327,9 @@ export class MutationHelper<
   }
 
   getForMutable<K extends MutableDirtyKeys<M, I, DK>>(key: K): I[K] {
-    return (this.mutable[key] as Mutable<any, any>).getImmutable();
+    return (
+      this.mutable[key] as Mutable<any, any>
+    ).mutationHelper.getImmutable();
   }
 
   updateForMutable(key: MutableDirtyKeys<M, I, DK>) {
@@ -371,7 +373,7 @@ export class MutationHelper<
         Array.from(mappedKeys).map((mappedKey) => [
           mappedKey,
           // @ts-ignore
-          this.mutable[key][mappedKey].getImmutable(),
+          this.mutable[key][mappedKey].mutationHelper.getImmutable(),
         ]),
       );
     } else {
@@ -381,7 +383,7 @@ export class MutationHelper<
         Object.entries(this.mutable[key]).map(([key, value]) => [
           key,
           // @ts-ignore
-          value.getImmutable(),
+          value.mutationHelper.getImmutable(),
         ]),
       );
     }

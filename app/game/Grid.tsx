@@ -86,10 +86,6 @@ export class Grid implements Mutable<Grid, GridImmutable> {
     this.mutationHelper = new GridMutationHelper(this);
   }
 
-  getImmutable(): GridImmutable {
-    return this.mutationHelper.getImmutable();
-  }
-
   get cells(): Cell[] {
     return Object.values(this.cellMap);
   }

@@ -11,7 +11,9 @@ export function GameController({
   SvgComponent: FC<{ children: ReactNode }>;
 }) {
   const [game, setGame] = useState(() =>
-    (initialGame ?? Game.make({ width: 25, height: 25 })).getImmutable(),
+    (
+      initialGame ?? Game.make({ width: 25, height: 25 })
+    ).mutationHelper.getImmutable(),
   );
   const [tool, setTool] = useState<Tool>(new SelectionTool());
   return (
