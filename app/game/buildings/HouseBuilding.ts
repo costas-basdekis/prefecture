@@ -6,12 +6,19 @@ import {
   parentKey,
   parentSecondaryKey,
 } from "~/immutable";
-import { Buildings } from "./Buildings";
+import type { Buildings } from "./Buildings";
+import { ImmigrantPerson } from "../people";
+import type { Coords } from "../Coords";
 
-export type HouseBuildingImmutable = {
-  id: number;
-  type: "house";
-} & Immutable<HouseBuilding>;
+export type HouseBuildingImmutable = Pick<
+  HouseBuilding,
+  "id" | "type" | "position"
+> &
+  Immutable<HouseBuilding>;
+
+export type HouseOptions = {
+  position: Coords;
+};
 
 export class HouseBuilding implements Mutable<
   HouseBuilding,
@@ -25,15 +32,21 @@ export class HouseBuilding implements Mutable<
   id: number;
   @immutable
   type: "house";
+  @immutable
+  position: Coords;
 
-  constructor(buildings: Buildings) {
+  constructor(buildings: Buildings, { position }: HouseOptions) {
     this.buildings = buildings;
     this.id = this.buildings.createId();
     this.type = "house";
+    this.position = position;
     this.mutationHelper = new MutationHelper<
       HouseBuilding,
       HouseBuildingImmutable
     >(this);
     this.buildings.add(this);
+    new ImmigrantPerson(this.buildings.game.people, {
+      targetBuildingId: this.id,
+    });
   }
 }

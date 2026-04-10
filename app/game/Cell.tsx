@@ -7,7 +7,7 @@ import {
   parentKey,
   parentSecondaryKey,
 } from "~/immutable";
-import { Building, HouseBuilding } from "./buildings";
+import { Building, HouseBuilding, HouseOptions } from "./buildings";
 import { Coords, makeCoordsKey } from "./Coords";
 import { Grid } from "./Grid";
 
@@ -67,7 +67,9 @@ export class Cell implements Mutable<Cell, CellImmutable> {
     return this;
   }
 
-  addHouse(): Cell {
-    return this.addBuilding(() => new HouseBuilding(this.grid.game.buildings));
+  addHouse(houseOptions: HouseOptions): Cell {
+    return this.addBuilding(
+      () => new HouseBuilding(this.grid.game.buildings, houseOptions),
+    );
   }
 }

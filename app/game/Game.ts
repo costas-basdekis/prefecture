@@ -2,12 +2,13 @@ import { Buildings, BuildingsImmutable } from "./buildings";
 import { Coords } from "./Coords";
 import { Grid, GridMakeOptions, GridImmutable } from "./Grid";
 import { methodMutate, Mutable, mutable, MutationHelper } from "../immutable";
-import { People } from "./people";
+import { People, PeopleImmutable } from "./people";
 
 export type GameImmutable = {
   _mutable: Game;
   grid: GridImmutable;
   buildings: BuildingsImmutable;
+  people: PeopleImmutable;
   addRoads(allCoords: Coords[]): GameImmutable;
   addHouses(allCoords: Coords[]): GameImmutable;
 };

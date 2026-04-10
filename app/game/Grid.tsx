@@ -68,7 +68,7 @@ export class Grid implements Mutable<Grid, GridImmutable> {
 
   addHouses(allCoords: Coords[]): Grid {
     for (const coords of allCoords) {
-      this.cellMap[makeCoordsKey(coords)].addHouse();
+      this.cellMap[makeCoordsKey(coords)].addHouse({ position: coords });
     }
     return this;
   }

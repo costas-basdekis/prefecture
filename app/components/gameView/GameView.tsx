@@ -3,6 +3,7 @@ import { GridView } from "./GridView";
 import { GridOverlayView } from "./GridOverlayView";
 import React, { useCallback } from "react";
 import { Tool } from "../toolbox";
+import { PeopleView } from "./PeopleView";
 
 export function GameView({
   game,
@@ -31,6 +32,7 @@ export function GameView({
   return (
     <>
       <GridView game={game} />
+      <PeopleView game={game} />
       <GridOverlayView
         game={game}
         selectionMode={"mode" in tool ? tool.mode : undefined}
