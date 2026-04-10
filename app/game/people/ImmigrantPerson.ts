@@ -56,6 +56,10 @@ export class ImmigrantPerson implements Mutable<
 
   tick() {
     if (this.completion >= 1) {
+      this.people.game.buildings.byId[this.targetBuildingId].immigrantArrived(
+        this,
+      );
+      this.people.remove(this);
       return;
     }
     this.completion = Math.min(1, this.completion + this.completionRate);

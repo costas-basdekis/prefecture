@@ -367,8 +367,10 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
       return Object.fromEntries(
         Array.from(mappedKeys).map((mappedKey) => [
           mappedKey,
-          // @ts-ignore
-          this.mutable[key][mappedKey].mutationHelper.getImmutable(),
+          this.mutable[key][mappedKey]
+            ? // @ts-ignore
+              this.mutable[key][mappedKey].mutationHelper.getImmutable()
+            : undefined,
         ]),
       );
     } else {
@@ -399,6 +401,13 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
         ...this.lastImmutable[key],
         ...this.getForMappedMutable(key, dirtyMappedKeys),
       };
+      for (const mappedKey of dirtyMappedKeys) {
+        // @ts-ignore
+        if (this.lastImmutable[key][mappedKey] === undefined) {
+          // @ts-ignore
+          delete this.lastImmutable[key][mappedKey];
+        }
+      }
       dirtyMappedKeys.clear();
     }
   }
