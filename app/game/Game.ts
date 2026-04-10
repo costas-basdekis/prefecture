@@ -25,14 +25,8 @@ export class GameMutationHelper extends MutationHelper<
       _mutable: this.mutable,
       grid: this.getForMutable("grid"),
       buildings: this.getForMutable("buildings"),
-      addRoads(allCoords: Coords[]): GameImmutable {
-        this._mutable.addRoads(allCoords);
-        return this._mutable.mutationHelper.getImmutable();
-      },
-      addHouses(allCoords: Coords[]): GameImmutable {
-        this._mutable.addHouses(allCoords);
-        return this._mutable.mutationHelper.getImmutable();
-      },
+      addRoads: this.getForMutationMethod("addRoads"),
+      addHouses: this.getForMutationMethod("addHouses"),
     };
   }
 }

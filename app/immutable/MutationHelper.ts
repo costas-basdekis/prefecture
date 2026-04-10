@@ -21,6 +21,14 @@ export type MappedMutableDirtyKeys<M, I> = keyof {
     : never]: M[key];
 };
 
+export type MutableMutationMethodKeys<M, I> = keyof {
+  [key in keyof M & keyof I as M[key] extends (...args: infer A) => M
+    ? I[key] extends (...args: A) => I
+      ? key
+      : never
+    : never]: M[key];
+};
+
 export type MutationType = "mutable" | "mappedMutable" | "plainValue";
 
 const keysWithMutationTypeKey = Symbol("keysWithMutationType");
@@ -38,8 +46,8 @@ export function mutate(type: MutationType) {
 }
 
 export class MutationHelper<
-  M extends Mutable<any, any>,
-  I,
+  M extends Mutable<M, I>,
+  I extends Immutable<M>,
   DKO,
   DK = keyof DKO,
 > {
@@ -133,7 +141,7 @@ export class MutationHelper<
   }
 
   getForMutable<K extends MutableDirtyKeys<M, I, DK>>(key: K): I[K] {
-    return (this.mutable[key] as M).getImmutable();
+    return (this.mutable[key] as Mutable<any, any>).getImmutable();
   }
 
   updateForMutable(key: MutableDirtyKeys<M, I, DK>) {
@@ -211,5 +219,17 @@ export class MutationHelper<
       };
       dirtyMappedKeys.clear();
     }
+  }
+
+  getForMutationMethod<K extends MutableMutationMethodKeys<M, I>>(
+    key: K,
+    // @ts-ignore
+  ): (...args: Parameters<M[K]>) => I {
+    // @ts-ignore
+    return function (this: I, ...args: Parameters<M[K]>): I {
+      // @ts-ignore
+      this._mutable[key].apply(this._mutable, args);
+      return this._mutable.mutationHelper.getImmutable();
+    };
   }
 }
