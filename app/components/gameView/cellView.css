@@ -9,4 +9,8 @@
   &.with-building-house {
     fill: orange;
   }
+  
+  &.with-building-well {
+    fill: cyan;
+  }
 }

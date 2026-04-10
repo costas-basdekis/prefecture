@@ -9,6 +9,7 @@ export const cellSelectionModeNames = {
   "line-clockwise": "Line clockwise",
   "line-counter-clockwise": "Line counter-clockwise (original)",
   square: "Square",
+  endpoint: "endpoint",
   endopoints: "Endpoints",
 };
 
@@ -93,6 +94,8 @@ export function selectCells(
       return _.range(minX, maxX + 1).flatMap((x) =>
         _.range(minY, maxY + 1).map((y) => ({ x, y })),
       );
+    case "endpoint":
+      return [endCoords];
     case "endopoints":
       return [startCoords, endCoords];
   }

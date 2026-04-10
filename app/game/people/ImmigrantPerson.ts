@@ -9,6 +9,7 @@ import {
 } from "~/immutable";
 import { People } from "./People";
 import { getDistance } from "../Coords";
+import { HouseBuilding } from "../buildings";
 
 export type ImmigrantPersonImmutable = Pick<
   ImmigrantPerson,
@@ -56,9 +57,9 @@ export class ImmigrantPerson implements Mutable<
 
   tick() {
     if (this.completion >= 1) {
-      this.people.game.buildings.byId[this.targetBuildingId].immigrantArrived(
-        this,
-      );
+      (
+        this.people.game.buildings.byId[this.targetBuildingId] as HouseBuilding
+      ).immigrantArrived(this);
       this.people.remove(this);
       return;
     }

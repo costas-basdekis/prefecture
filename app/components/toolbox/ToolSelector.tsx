@@ -1,6 +1,11 @@
 import { useCallback, ChangeEvent } from "react";
-import { Coords, Game, GameImmutable, Grid } from "../../game";
-import { HousePlacementTool, RoadPlacementTool, SelectionTool } from "./tools";
+import { Coords, GameImmutable } from "../../game";
+import {
+  HousePlacementTool,
+  RoadPlacementTool,
+  SelectionTool,
+  WellPlacementTool,
+} from "./tools";
 import { Tool, ToolName } from "./Tool";
 
 export function ToolSelector({
@@ -22,6 +27,9 @@ export function ToolSelector({
           return;
         case "house-placement":
           onChange(new HousePlacementTool());
+          return;
+        case "well-placement":
+          onChange(new WellPlacementTool());
           return;
       }
       throw new Error(`Unknown tool name "${toolName}"`);
@@ -57,6 +65,15 @@ export function ToolSelector({
             onChange={innerOnChange}
           />
           House
+        </label>
+        <label>
+          <input
+            type={"radio"}
+            value={"well-placement"}
+            checked={tool.name === "well-placement"}
+            onChange={innerOnChange}
+          />
+          Well
         </label>
       </div>
       <tool.renderOptions onChange={onChange} />

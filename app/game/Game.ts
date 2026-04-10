@@ -1,5 +1,5 @@
 import { Buildings, BuildingsImmutable } from "./buildings";
-import { Coords } from "./Coords";
+import type { Coords } from "./Coords";
 import { Grid, GridMakeOptions, GridImmutable } from "./Grid";
 import { methodMutate, Mutable, mutable, MutationHelper } from "../immutable";
 import { People, PeopleImmutable } from "./people";
@@ -11,6 +11,7 @@ export type GameImmutable = {
   people: PeopleImmutable;
   addRoads(allCoords: Coords[]): GameImmutable;
   addHouses(allCoords: Coords[]): GameImmutable;
+  addWell(coords: Coords): GameImmutable;
   tick(): GameImmutable;
 };
 
@@ -39,6 +40,12 @@ export class Game implements Mutable<Game, GameImmutable> {
   @methodMutate
   addHouses(allCoords: Coords[]): Game {
     this.grid.addHouses(allCoords);
+    return this;
+  }
+
+  @methodMutate
+  addWell(coords: Coords): Game {
+    this.grid.addWell(coords);
     return this;
   }
 

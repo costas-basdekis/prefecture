@@ -72,4 +72,9 @@ export class Grid implements Mutable<Grid, GridImmutable> {
     }
     return this;
   }
+
+  addWell(coords: Coords) {
+    this.cellMap[makeCoordsKey(coords)].addWell({ position: coords });
+    return this;
+  }
 }
