@@ -20,10 +20,10 @@ export class CellMutationHelper extends MutationHelper<
   CellImmutable,
   { hasRoad: boolean; buildingId: boolean }
 > {
-  markDirty(...keys: (keyof CellMutationHelper["dirtyKeys"])[]) {
-    super.markDirty(...keys);
-    this.mutable.grid.mutationHelper.markDirty(["cellMap", this.mutable.key]);
-  }
+  parentKey: keyof Cell = "grid";
+  parentDirtyKey: string = "cellMap";
+  parentSecondaryDirtyKey?: (cell: Cell) => string | number = (cell) =>
+    cell.key;
 }
 
 export class Cell implements Mutable<Cell, CellImmutable> {

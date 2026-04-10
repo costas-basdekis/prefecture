@@ -12,10 +12,8 @@ export class BuildingsMutationHelper extends MutationHelper<
   { nextId: boolean; byId: Set<number> },
   "nextId" | ["byId", number]
 > {
-  markDirty(...keys: ("nextId" | ["byId", number])[]): void {
-    super.markDirty(...keys);
-    this.mutable.game.mutationHelper.markDirty("buildings");
-  }
+  parentKey = "game" as const;
+  parentDirtyKey = "buildings";
 }
 
 type BuildingMap = Record<number, Building>;

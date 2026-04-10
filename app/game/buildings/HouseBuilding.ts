@@ -11,10 +11,8 @@ export class HouseBuildingMutationHelper extends MutationHelper<
   HouseBuildingImmutable,
   {}
 > {
-  markDirty(): void {
-    super.markDirty();
-    this.mutable.buildings.mutationHelper.markDirty(["byId", this.mutable.id]);
-  }
+  parentKey = "buildings" as const;
+  parentDirtyKey = "byId";
 }
 
 export class HouseBuilding implements Mutable<

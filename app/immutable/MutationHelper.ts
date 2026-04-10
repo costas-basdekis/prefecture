@@ -186,6 +186,29 @@ export class MutationHelper<
       this.markKeyDirty(key);
     }
     this.dirty = true;
+    this.markParentDirty();
+  }
+
+  parentKey?: keyof M;
+  parentDirtyKey?: string;
+  parentSecondaryDirtyKey?: (mutable: M) => string | number;
+
+  markParentDirty() {
+    if (!this.parentKey) {
+      return;
+    }
+    if (this.parentSecondaryDirtyKey) {
+      (
+        this.mutable[this.parentKey] as Mutable<any, any>
+      ).mutationHelper.markDirty([
+        this.parentDirtyKey,
+        this.parentSecondaryDirtyKey(this.mutable),
+      ]);
+    } else {
+      (
+        this.mutable[this.parentKey] as Mutable<any, any>
+      ).mutationHelper.markDirty(this.parentDirtyKey);
+    }
   }
 
   markKeyDirty(key: DK) {
