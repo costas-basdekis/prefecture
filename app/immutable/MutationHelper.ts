@@ -46,7 +46,7 @@ export function immutable(target: Object, propertyKey: string | symbol) {
 const keysWithMutationTypeKey = Symbol("keysWithMutationType");
 const mutationTypeKey = Symbol("mutationType");
 
-export function mutate(type: MutationType) {
+export function mutable(type: MutationType) {
   return function (target: Object, propertyKey: string | symbol) {
     const keys: Set<string | symbol> =
       Reflect.getMetadata(keysWithMutationTypeKey, target) ??
@@ -69,7 +69,7 @@ export function methodMutate(target: Object, propertyKey: string | symbol) {
 
 const parentInfoKey = Symbol("parentInfo");
 
-export function parent(dirtyKey: string) {
+export function parentKey(dirtyKey: string) {
   return function (target: Object, propertyKey: string | symbol) {
     const existingParentInfo = Reflect.getMetadata(parentInfoKey, target);
     if (existingParentInfo) {

@@ -7,9 +7,9 @@ import {
   immutable,
   Immutable,
   Mutable,
-  mutate,
+  mutable,
   MutationHelper,
-  parent,
+  parentKey,
 } from "~/immutable";
 
 export interface GridMakeOptions {
@@ -27,9 +27,9 @@ export type CellMapImmutable = Record<string, CellImmutable>;
 
 export class Grid implements Mutable<Grid, GridImmutable> {
   mutationHelper: MutationHelper<Grid, GridImmutable>;
-  @parent("grid")
+  @parentKey("grid")
   game: Game;
-  @mutate("mappedMutable")
+  @mutable("mappedMutable")
   cellMap: CellMap;
   @immutable
   width: number;

@@ -3,7 +3,7 @@ import {
   Immutable,
   Mutable,
   MutationHelper,
-  parent,
+  parentKey,
   parentSecondaryKey,
 } from "~/immutable";
 import { Buildings } from "./Buildings";
@@ -18,7 +18,7 @@ export class HouseBuilding implements Mutable<
   HouseBuildingImmutable
 > {
   mutationHelper: MutationHelper<HouseBuilding, HouseBuildingImmutable>;
-  @parent("byId")
+  @parentKey("byId")
   buildings: Buildings;
   @immutable
   @parentSecondaryKey

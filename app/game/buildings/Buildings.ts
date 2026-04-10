@@ -1,9 +1,9 @@
 import {
   Immutable,
   Mutable,
-  mutate,
+  mutable,
   MutationHelper,
-  parent,
+  parentKey,
 } from "~/immutable";
 import type { Game } from "../Game";
 import { Building, BuildingImmutable } from "./Building";
@@ -17,11 +17,11 @@ type BuildingMapImmutable = Record<number, BuildingImmutable>;
 
 export class Buildings implements Mutable<Buildings, BuildingsImmutable> {
   mutationHelper: MutationHelper<Buildings, BuildingsImmutable>;
-  @parent("buildings")
+  @parentKey("buildings")
   game: Game;
-  @mutate("plainValue")
+  @mutable("plainValue")
   nextId: number;
-  @mutate("mappedMutable")
+  @mutable("mappedMutable")
   byId: BuildingMap;
 
   static make(): Buildings {

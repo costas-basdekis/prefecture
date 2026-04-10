@@ -2,9 +2,9 @@ import {
   immutable,
   Immutable,
   Mutable,
-  mutate,
+  mutable,
   MutationHelper,
-  parent,
+  parentKey,
   parentSecondaryKey,
 } from "~/immutable";
 import { Building, HouseBuilding } from "./buildings";
@@ -19,7 +19,7 @@ export type CellImmutable = Pick<
 
 export class Cell implements Mutable<Cell, CellImmutable> {
   mutationHelper: MutationHelper<Cell, CellImmutable>;
-  @parent("cellMap")
+  @parentKey("cellMap")
   grid: Grid;
   @immutable
   x: number;
@@ -28,9 +28,9 @@ export class Cell implements Mutable<Cell, CellImmutable> {
   @immutable
   @parentSecondaryKey
   key: string;
-  @mutate("plainValue")
+  @mutable("plainValue")
   hasRoad: boolean;
-  @mutate("plainValue")
+  @mutable("plainValue")
   buildingId: number | null;
 
   static make(coords: Coords): Cell {

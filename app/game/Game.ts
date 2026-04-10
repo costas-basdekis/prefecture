@@ -1,7 +1,7 @@
 import { Building, Buildings, BuildingsImmutable } from "./buildings";
 import { Coords } from "./Coords";
 import { Grid, GridMakeOptions, GridImmutable } from "./Grid";
-import { methodMutate, Mutable, mutate, MutationHelper } from "../immutable";
+import { methodMutate, Mutable, mutable, MutationHelper } from "../immutable";
 
 export type GameImmutable = {
   _mutable: Game;
@@ -13,9 +13,9 @@ export type GameImmutable = {
 
 export class Game implements Mutable<Game, GameImmutable> {
   mutationHelper: MutationHelper<Game, GameImmutable>;
-  @mutate("mutable")
+  @mutable("mutable")
   grid: Grid;
-  @mutate("mutable")
+  @mutable("mutable")
   buildings: Buildings;
 
   static make(options: GridMakeOptions): Game {
