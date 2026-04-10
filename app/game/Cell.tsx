@@ -7,10 +7,15 @@ import {
   parentKey,
   parentSecondaryKey,
 } from "~/immutable";
-import { Building, HouseBuilding } from "./buildings";
+import {
+  Building,
+  HouseBuilding,
+  HouseOptions,
+  WellBuilding,
+  WellOptions,
+} from "./buildings";
 import { Coords, makeCoordsKey } from "./Coords";
 import { Grid } from "./Grid";
-import { WellBuilding } from "./buildings/WellBuilding";
 
 export type CellImmutable = Pick<
   Cell,
@@ -74,7 +79,7 @@ export class Cell implements Mutable<Cell, CellImmutable> {
     );
   }
 
-  addWell(options: HouseOptions): Cell {
+  addWell(options: WellOptions): Cell {
     return this.addBuilding(
       () => new WellBuilding(this.grid.game.buildings, options),
     );
