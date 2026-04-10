@@ -1,4 +1,10 @@
-import { immutable, Immutable, Mutable, MutationHelper } from "~/immutable";
+import {
+  immutable,
+  Immutable,
+  Mutable,
+  MutationHelper,
+  parent,
+} from "~/immutable";
 import { Buildings } from "./Buildings";
 
 export type HouseBuildingImmutable = {
@@ -10,21 +16,19 @@ export class HouseBuildingMutationHelper extends MutationHelper<
   HouseBuilding,
   HouseBuildingImmutable,
   {}
-> {
-  parentKey = "buildings" as const;
-  parentDirtyKey = "byId";
-}
+> {}
 
 export class HouseBuilding implements Mutable<
   HouseBuilding,
   HouseBuildingImmutable
 > {
   mutationHelper: HouseBuildingMutationHelper;
+  @parent("byId")
+  buildings: Buildings;
   @immutable
   id: number;
   @immutable
   type: "house";
-  buildings: Buildings;
 
   constructor() {
     this.id = 0;

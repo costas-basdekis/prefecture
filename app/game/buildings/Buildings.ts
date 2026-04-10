@@ -1,5 +1,11 @@
-import { Immutable, Mutable, mutate, MutationHelper } from "~/immutable";
-import { Game } from "../Game";
+import {
+  Immutable,
+  Mutable,
+  mutate,
+  MutationHelper,
+  parent,
+} from "~/immutable";
+import type { Game } from "../Game";
 import { Building, BuildingImmutable } from "./Building";
 
 export type BuildingsImmutable = Pick<Buildings, "nextId"> & {
@@ -11,16 +17,14 @@ export class BuildingsMutationHelper extends MutationHelper<
   BuildingsImmutable,
   { nextId: boolean; byId: Set<number> },
   "nextId" | ["byId", number]
-> {
-  parentKey = "game" as const;
-  parentDirtyKey = "buildings";
-}
+> {}
 
 type BuildingMap = Record<number, Building>;
 type BuildingMapImmutable = Record<number, BuildingImmutable>;
 
 export class Buildings implements Mutable<Buildings, BuildingsImmutable> {
   mutationHelper: BuildingsMutationHelper;
+  @parent("buildings")
   game: Game;
   @mutate("plainValue")
   nextId: number;

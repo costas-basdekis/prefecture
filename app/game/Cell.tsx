@@ -4,6 +4,8 @@ import {
   Mutable,
   mutate,
   MutationHelper,
+  parent,
+  parentSecondaryKey,
 } from "~/immutable";
 import { Building, HouseBuilding } from "./buildings";
 import { Coords, makeCoordsKey } from "./Coords";
@@ -19,21 +21,18 @@ export class CellMutationHelper extends MutationHelper<
   Cell,
   CellImmutable,
   { hasRoad: boolean; buildingId: boolean }
-> {
-  parentKey: keyof Cell = "grid";
-  parentDirtyKey: string = "cellMap";
-  parentSecondaryDirtyKey?: (cell: Cell) => string | number = (cell) =>
-    cell.key;
-}
+> {}
 
 export class Cell implements Mutable<Cell, CellImmutable> {
   mutationHelper: CellMutationHelper;
+  @parent("cellMap")
   grid: Grid;
   @immutable
   x: number;
   @immutable
   y: number;
   @immutable
+  @parentSecondaryKey
   key: string;
   @mutate("plainValue")
   hasRoad: boolean;

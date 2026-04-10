@@ -1,7 +1,7 @@
 import lodash from "lodash";
 import { Cell, CellImmutable } from "./Cell";
 import { Coords, makeCoordsKey } from "./Coords";
-import { Game } from "./Game";
+import type { Game } from "./Game";
 import { Building } from "./buildings";
 import {
   immutable,
@@ -9,6 +9,7 @@ import {
   Mutable,
   mutate,
   MutationHelper,
+  parent,
 } from "~/immutable";
 
 export interface GridMakeOptions {
@@ -34,9 +35,6 @@ export class GridMutationHelper extends MutationHelper<
       },
     };
   }
-
-  parentKey = "game" as const;
-  parentDirtyKey = "grid";
 }
 
 export type CellMap = Record<string, Cell>;
@@ -44,6 +42,7 @@ export type CellMapImmutable = Record<string, CellImmutable>;
 
 export class Grid implements Mutable<Grid, GridImmutable> {
   mutationHelper: GridMutationHelper;
+  @parent("grid")
   game: Game;
   @mutate("mappedMutable")
   cellMap: CellMap;

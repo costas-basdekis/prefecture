@@ -34,9 +34,6 @@ export type MutableMutationMethodKeys<M, I> = keyof {
 export type MutationType = "mutable" | "mappedMutable" | "plainValue";
 
 const keysWithNoMutationKey = Symbol("keysWithNoMutation");
-const keysWithMutationTypeKey = Symbol("keysWithMutationType");
-const keysWithMethodMutationTypeKey = Symbol("keysWithMethodMutationType");
-const mutationTypeKey = Symbol("mutationType");
 
 export function immutable(target: Object, propertyKey: string | symbol) {
   const keys: Set<string | symbol> =
@@ -45,6 +42,9 @@ export function immutable(target: Object, propertyKey: string | symbol) {
   keys.add(propertyKey);
   Reflect.defineMetadata(keysWithNoMutationKey, keys, target);
 }
+
+const keysWithMutationTypeKey = Symbol("keysWithMutationType");
+const mutationTypeKey = Symbol("mutationType");
 
 export function mutate(type: MutationType) {
   return function (target: Object, propertyKey: string | symbol) {
@@ -57,12 +57,41 @@ export function mutate(type: MutationType) {
   };
 }
 
+const keysWithMethodMutationTypeKey = Symbol("keysWithMethodMutationType");
+
 export function methodMutate(target: Object, propertyKey: string | symbol) {
   const keys: Set<string | symbol> =
     Reflect.getMetadata(keysWithMethodMutationTypeKey, target) ??
     new Set<string | symbol>();
   keys.add(propertyKey);
   Reflect.defineMetadata(keysWithMethodMutationTypeKey, keys, target);
+}
+
+const parentInfoKey = Symbol("parentInfo");
+
+export function parent(dirtyKey: string) {
+  return function (target: Object, propertyKey: string | symbol) {
+    const existingParentInfo = Reflect.getMetadata(parentInfoKey, target);
+    if (existingParentInfo) {
+      throw new Error(
+        `Parent key was already defined (${existingParentInfo.parentKey}) for ${target}`,
+      );
+    }
+    Reflect.defineMetadata(
+      parentInfoKey,
+      { parentKey: propertyKey, dirtyKey },
+      target,
+    );
+  };
+}
+
+const parentSecondaryKeyKey = Symbol("parentSecondaryKeyKey");
+
+export function parentSecondaryKey(
+  target: Object,
+  propertyKey: string | symbol,
+) {
+  Reflect.defineMetadata(parentSecondaryKeyKey, propertyKey, target);
 }
 
 export class MutationHelper<
@@ -195,7 +224,22 @@ export class MutationHelper<
 
   markParentDirty() {
     if (!this.parentKey) {
-      return;
+      const parentInfo = Reflect.getMetadata(parentInfoKey, this.mutable);
+      if (!parentInfo) {
+        return;
+      }
+      this.parentKey = parentInfo.parentKey as keyof M;
+      this.parentDirtyKey = parentInfo.dirtyKey as string;
+    }
+    if (!this.parentSecondaryDirtyKey) {
+      const parentSecondaryKey = Reflect.getMetadata(
+        parentSecondaryKeyKey,
+        this.mutable,
+      );
+      if (parentSecondaryKey) {
+        this.parentSecondaryDirtyKey = (mutable) =>
+          mutable[parentSecondaryKey as keyof M] as any;
+      }
     }
     if (this.parentSecondaryDirtyKey) {
       (
