@@ -4,6 +4,7 @@ import {
   Mutable,
   MutationHelper,
   parent,
+  parentSecondaryKey,
 } from "~/immutable";
 import { Buildings } from "./Buildings";
 
@@ -20,6 +21,7 @@ export class HouseBuilding implements Mutable<
   @parent("byId")
   buildings: Buildings;
   @immutable
+  @parentSecondaryKey
   id: number;
   @immutable
   type: "house";
