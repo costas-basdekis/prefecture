@@ -27,15 +27,7 @@ export class GridMutationHelper extends MutationHelper<
   GridImmutable,
   { cellMap: Set<string> },
   ["cellMap", string]
-> {
-  getExtraInitialImmutable() {
-    return {
-      getCells(this: GridImmutable) {
-        return Object.values(this.cellMap);
-      },
-    };
-  }
-}
+> {}
 
 export type CellMap = Record<string, Cell>;
 export type CellMapImmutable = Record<string, CellImmutable>;
@@ -83,7 +75,11 @@ export class Grid implements Mutable<Grid, GridImmutable> {
     }
     this.width = width;
     this.height = height;
-    this.mutationHelper = new GridMutationHelper(this);
+    this.mutationHelper = new GridMutationHelper(this, {
+      getCells(this: GridImmutable) {
+        return Object.values(this.cellMap);
+      },
+    });
   }
 
   get cells(): Cell[] {

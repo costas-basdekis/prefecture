@@ -105,11 +105,11 @@ export class MutationHelper<
   dirtyKeys: DKO;
   lastImmutable: I;
 
-  constructor(mutable: M) {
+  constructor(mutable: M, initialExtraImmutable?: Partial<I>) {
     this.mutable = mutable;
     this.dirty = false;
     this.dirtyKeys = this.getInitialDirtyKeys();
-    this.lastImmutable = this.getInitialImmutable();
+    this.lastImmutable = this.getInitialImmutable(initialExtraImmutable);
   }
 
   getInitialDirtyKeys(): DKO {
@@ -149,10 +149,10 @@ export class MutationHelper<
     return dirtyKeys as this["dirtyKeys"];
   }
 
-  getInitialImmutable(): I {
+  getInitialImmutable(initialExtraImmutable?: Partial<I>): I {
     return {
       ...this.getDefaultInitialImmutable(),
-      ...this.getExtraInitialImmutable(),
+      ...initialExtraImmutable,
     };
   }
 
@@ -204,10 +204,6 @@ export class MutationHelper<
       }
     }
     return immutable as I;
-  }
-
-  getExtraInitialImmutable(): Partial<I> {
-    return {};
   }
 
   markDirty(...keys: DK[]) {
