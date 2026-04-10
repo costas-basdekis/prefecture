@@ -5,12 +5,14 @@ import {
   Mutable,
   MutationHelper,
   parentKey,
+  parentSecondaryKey,
 } from "~/immutable";
 import { People } from "./People";
+import { getDistance } from "../Coords";
 
 export type ImmigrantPersonImmutable = Pick<
   ImmigrantPerson,
-  "id" | "targetBuildingId" | "completion"
+  "id" | "targetBuildingId" | "completionRate" | "completion"
 > &
   Immutable<ImmigrantPerson>;
 
@@ -22,9 +24,12 @@ export class ImmigrantPerson implements Mutable<
   @parentKey("byId")
   people: People;
   @immutable
+  @parentSecondaryKey
   id: number;
   @immutable
   targetBuildingId: number;
+  @immutable
+  completionRate: number;
   @mutable("plainValue")
   completion: number;
 
@@ -35,11 +40,25 @@ export class ImmigrantPerson implements Mutable<
     this.people = people;
     this.id = this.people.createId();
     this.targetBuildingId = targetBuildingId;
+    this.completionRate =
+      1 /
+      getDistance(
+        { x: 0, y: 0 },
+        this.people.game.buildings.byId[this.targetBuildingId].position,
+      );
     this.completion = 0;
     this.mutationHelper = new MutationHelper<
       ImmigrantPerson,
       ImmigrantPersonImmutable
     >(this);
     this.people.add(this);
+  }
+
+  tick() {
+    if (this.completion >= 1) {
+      return;
+    }
+    this.completion = Math.min(1, this.completion + this.completionRate);
+    this.mutationHelper.markDirty("completion");
   }
 }

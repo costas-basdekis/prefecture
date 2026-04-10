@@ -44,4 +44,10 @@ export class People implements Mutable<People, PeopleImmutable> {
     this.mutationHelper.markDirty("nextId", ["byId", person.id]);
     return person;
   }
+
+  tick() {
+    for (const person of Object.values(this.byId)) {
+      person.tick();
+    }
+  }
 }

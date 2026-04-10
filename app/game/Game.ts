@@ -11,6 +11,7 @@ export type GameImmutable = {
   people: PeopleImmutable;
   addRoads(allCoords: Coords[]): GameImmutable;
   addHouses(allCoords: Coords[]): GameImmutable;
+  tick(): GameImmutable;
 };
 
 export class Game implements Mutable<Game, GameImmutable> {
@@ -38,6 +39,12 @@ export class Game implements Mutable<Game, GameImmutable> {
   @methodMutate
   addHouses(allCoords: Coords[]): Game {
     this.grid.addHouses(allCoords);
+    return this;
+  }
+
+  @methodMutate
+  tick(): Game {
+    this.people.tick();
     return this;
   }
 }

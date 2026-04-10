@@ -32,8 +32,8 @@ export function PersonView({
   }
   return (
     <circle
-      cx={position.x}
-      cy={position.y}
+      cx={position.x * 20 + 10}
+      cy={position.y * 20 + 10}
       r={12}
       stroke="black"
       fill="white"
