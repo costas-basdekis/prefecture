@@ -2,6 +2,7 @@ import { Building, Buildings, BuildingsImmutable } from "./buildings";
 import { Coords } from "./Coords";
 import { Grid, GridMakeOptions, GridImmutable } from "./Grid";
 import { methodMutate, Mutable, mutable, MutationHelper } from "../immutable";
+import { People } from "./people";
 
 export type GameImmutable = {
   _mutable: Game;
@@ -17,16 +18,13 @@ export class Game implements Mutable<Game, GameImmutable> {
   grid: Grid;
   @mutable("mutable")
   buildings: Buildings;
+  @mutable("mutable")
+  people: People;
 
-  static make(options: GridMakeOptions): Game {
-    return new this(Grid.make(options), Buildings.make());
-  }
-
-  constructor(grid: Grid, buildings: Buildings) {
-    this.grid = grid;
-    this.grid.game = this;
-    this.buildings = buildings;
-    this.buildings.game = this;
+  constructor(options: GridMakeOptions = { width: 25, height: 25 }) {
+    this.grid = new Grid(this, options);
+    this.buildings = new Buildings(this);
+    this.people = new People(this);
     this.mutationHelper = new MutationHelper<Game, GameImmutable>(this);
   }
 

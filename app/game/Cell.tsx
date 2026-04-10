@@ -33,28 +33,13 @@ export class Cell implements Mutable<Cell, CellImmutable> {
   @mutable("plainValue")
   buildingId: number | null;
 
-  static make(coords: Coords): Cell {
-    return new this({
-      grid: null,
-      ...coords,
-      hasRoad: false,
-      buildingId: null,
-    });
-  }
-
-  constructor({
-    grid,
-    x,
-    y,
-    hasRoad,
-    buildingId,
-  }: Pick<Cell, "x" | "y" | "hasRoad" | "buildingId"> & { grid: Grid | null }) {
-    this.grid = grid!;
+  constructor(grid: Grid, { x, y }: Coords) {
+    this.grid = grid;
     this.x = x;
     this.y = y;
     this.key = makeCoordsKey(this);
-    this.hasRoad = hasRoad;
-    this.buildingId = buildingId;
+    this.hasRoad = false;
+    this.buildingId = null;
     this.mutationHelper = new MutationHelper<Cell, CellImmutable>(this);
   }
 

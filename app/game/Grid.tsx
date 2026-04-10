@@ -36,36 +36,16 @@ export class Grid implements Mutable<Grid, GridImmutable> {
   @immutable
   height: number;
 
-  static make({ width, height }: GridMakeOptions): Grid {
-    return new this({
-      game: null,
-      cellMap: Object.fromEntries(
-        lodash
-          .range(height)
-          .flatMap((y) => lodash.range(width).map((x) => Cell.make({ x, y })))
-          .map((cell) => [cell.key, cell] as const),
-      ),
-      width,
-      height,
-    });
-  }
-
-  constructor({
-    game,
-    cellMap,
-    width,
-    height,
-  }: {
-    game: Game | null;
-    cellMap: Record<string, Cell>;
-    width: number;
-    height: number;
-  }) {
-    this.game = game!;
-    this.cellMap = cellMap;
-    for (const cell of this.cells) {
-      cell.grid = this;
-    }
+  constructor(game: Game, { width, height }: GridMakeOptions) {
+    this.game = game;
+    this.cellMap = Object.fromEntries(
+      lodash
+        .range(height)
+        .flatMap((y) =>
+          lodash.range(width).map((x) => new Cell(this, { x, y })),
+        )
+        .map((cell) => [cell.key, cell] as const),
+    );
     this.width = width;
     this.height = height;
     this.mutationHelper = new MutationHelper<Grid, GridImmutable>(this, {

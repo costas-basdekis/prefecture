@@ -24,14 +24,10 @@ export class Buildings implements Mutable<Buildings, BuildingsImmutable> {
   @mutable("mappedMutable")
   byId: BuildingMap;
 
-  static make(): Buildings {
-    return new this(null, 1, {});
-  }
-
-  constructor(game: Game | null, nextId: number, byId: BuildingMap) {
-    this.game = game!;
-    this.nextId = nextId;
-    this.byId = byId;
+  constructor(game: Game) {
+    this.game = game;
+    this.nextId = 1;
+    this.byId = {};
     this.mutationHelper = new MutationHelper<Buildings, BuildingsImmutable>(
       this,
     );
