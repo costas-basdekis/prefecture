@@ -15,7 +15,7 @@ export class HouseBuildingMutationHelper extends MutationHelper<
     return {};
   }
 
-  getInitialLastImmutable() {
+  getInitialImmutable() {
     return {
       _mutable: this.mutable,
       id: this.mutable.id,

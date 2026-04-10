@@ -16,7 +16,7 @@ export class BuildingsMutationHelper extends MutationHelper<
     return { nextId: false, byId: new Set<number>() };
   }
 
-  getInitialLastImmutable() {
+  getInitialImmutable() {
     return {
       _mutable: this.mutable,
       nextId: this.getForPlainValue("nextId"),

@@ -62,7 +62,7 @@ export class MutationHelper<
     this.mutable = mutable;
     this.dirty = false;
     this.dirtyKeys = this.getInitialDirtyKeys();
-    this.lastImmutable = this.getInitialLastImmutable();
+    this.lastImmutable = this.getInitialImmutable();
   }
 
   getInitialDirtyKeys(): DKO {
@@ -71,7 +71,7 @@ export class MutationHelper<
     );
   }
 
-  getInitialLastImmutable(): I {
+  getInitialImmutable(): I {
     throw new Error(
       `Not implemented ${this.constructor.name}.getInitialLastImmutable`,
     );

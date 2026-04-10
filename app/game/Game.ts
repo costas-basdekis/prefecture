@@ -20,7 +20,7 @@ export class GameMutationHelper extends MutationHelper<
     return { grid: false, buildings: false };
   }
 
-  getInitialLastImmutable() {
+  getInitialImmutable() {
     return {
       _mutable: this.mutable,
       grid: this.getForMutable("grid"),

@@ -25,7 +25,7 @@ export class GridMutationHelper extends MutationHelper<
     return { cellMap: new Set<string>() };
   }
 
-  getInitialLastImmutable() {
+  getInitialImmutable() {
     return {
       _mutable: this.mutable,
       cellMap: this.getForMappedMutable("cellMap"),

@@ -18,7 +18,7 @@ export class CellMutationHelper extends MutationHelper<
     return { hasRoad: false, buildingId: false };
   }
 
-  getInitialLastImmutable() {
+  getInitialImmutable() {
     return {
       _mutable: this.mutable,
       x: this.mutable.x,
