@@ -14,8 +14,7 @@ export type HouseBuildingImmutable = {
 
 export class HouseBuildingMutationHelper extends MutationHelper<
   HouseBuilding,
-  HouseBuildingImmutable,
-  {}
+  HouseBuildingImmutable
 > {}
 
 export class HouseBuilding implements Mutable<

@@ -2,8 +2,8 @@ import "reflect-metadata";
 import { Immutable } from "./Immutable";
 import { Mutable } from "./Mutable";
 
-export type MutableDirtyKeys<M, I, DK> = keyof {
-  [key in keyof M & keyof I & DK as M[key] extends Mutable<any, infer I1>
+export type MutableDirtyKeys<M, I> = keyof {
+  [key in keyof M & keyof I as M[key] extends Mutable<any, infer I1>
     ? I[key] extends I1
       ? key
       : never
@@ -94,15 +94,16 @@ export function parentSecondaryKey(
   Reflect.defineMetadata(parentSecondaryKeyKey, propertyKey, target);
 }
 
-export class MutationHelper<
-  M extends Mutable<M, I>,
-  I extends Immutable<M>,
-  DKO,
-  DK = keyof DKO,
-> {
+export type DirtyKeys = {
+  [key: string]: boolean | Set<string | number>;
+};
+
+export type DirtyKey = string | [string, string | number];
+
+export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
   mutable: M;
   dirty: boolean;
-  dirtyKeys: DKO;
+  dirtyKeys: DirtyKeys;
   lastImmutable: I;
 
   constructor(mutable: M, initialExtraImmutable?: Partial<I>) {
@@ -112,12 +113,12 @@ export class MutationHelper<
     this.lastImmutable = this.getInitialImmutable(initialExtraImmutable);
   }
 
-  getInitialDirtyKeys(): DKO {
+  getInitialDirtyKeys(): DirtyKeys {
     return this.getDefaultInitialDirtyKeys();
   }
 
-  getDefaultInitialDirtyKeys(): this["dirtyKeys"] {
-    const dirtyKeys: Partial<this["dirtyKeys"]> = {};
+  getDefaultInitialDirtyKeys(): DirtyKeys {
+    const dirtyKeys: Partial<DirtyKeys> = {};
     const keysWithMutationType: Set<keyof I> | undefined = Reflect.getMetadata(
       keysWithMutationTypeKey,
       this.mutable,
@@ -206,7 +207,7 @@ export class MutationHelper<
     return immutable as I;
   }
 
-  markDirty(...keys: DK[]) {
+  markDirty(...keys: DirtyKey[]) {
     for (const key of keys) {
       this.markKeyDirty(key);
     }
@@ -241,21 +242,21 @@ export class MutationHelper<
       (
         this.mutable[this.parentKey] as Mutable<any, any>
       ).mutationHelper.markDirty([
-        this.parentDirtyKey,
+        this.parentDirtyKey as string,
         this.parentSecondaryDirtyKey(this.mutable),
       ]);
     } else {
       (
         this.mutable[this.parentKey] as Mutable<any, any>
-      ).mutationHelper.markDirty(this.parentDirtyKey);
+      ).mutationHelper.markDirty(this.parentDirtyKey as string);
     }
   }
 
-  markKeyDirty(key: DK) {
+  markKeyDirty(key: DirtyKey) {
     if (Array.isArray(key)) {
       const [actualKey, secondaryKey] = key;
 
-      const dirtyKeyValue = this.dirtyKeys[actualKey as unknown as keyof DKO];
+      const dirtyKeyValue = this.dirtyKeys[actualKey];
       if (!(dirtyKeyValue instanceof Set)) {
         throw new Error(
           `Dirty key "${key}" of ${this.constructor.name} is not a set`,
@@ -264,13 +265,13 @@ export class MutationHelper<
       dirtyKeyValue.add(secondaryKey);
       return;
     }
-    const dirtyKeyValue = this.dirtyKeys[key as unknown as keyof DKO];
+    const dirtyKeyValue = this.dirtyKeys[key];
     if (typeof dirtyKeyValue !== "boolean") {
       throw new Error(
         `Dirty key "${key}" of ${this.constructor.name} is not a boolean`,
       );
     }
-    this.dirtyKeys[key as unknown as keyof DKO] = true as any;
+    this.dirtyKeys[key] = true as any;
   }
 
   getImmutable(): I {
@@ -322,40 +323,38 @@ export class MutationHelper<
     }
   }
 
-  getForMutable<K extends MutableDirtyKeys<M, I, DK>>(key: K): I[K] {
+  getForMutable<K extends MutableDirtyKeys<M, I>>(key: K): I[K] {
     return (
       this.mutable[key] as Mutable<any, any>
     ).mutationHelper.getImmutable();
   }
 
-  updateForMutable(key: MutableDirtyKeys<M, I, DK>) {
-    const dkoKey = key as any as keyof DKO;
-    if (typeof this.dirtyKeys[dkoKey] !== "boolean") {
+  updateForMutable(key: MutableDirtyKeys<M, I>) {
+    if (typeof this.dirtyKeys[key as any] !== "boolean") {
       throw new Error(
         `Dirty key "${key.toString()}" for ${this.constructor.name} is not a boolean`,
       );
     }
-    if (this.dirtyKeys[dkoKey]) {
+    if (this.dirtyKeys[key as any]) {
       this.lastImmutable[key] = this.getForMutable(key);
-      this.dirtyKeys[dkoKey] = false as DKO[typeof dkoKey];
+      this.dirtyKeys[key as any] = false;
     }
   }
 
-  getForPlainValue<K extends DK & keyof M>(key: K): M[K] {
+  getForPlainValue<K extends keyof M>(key: K): M[K] {
     return this.mutable[key];
   }
 
-  updateForPlainValue(key: DK) {
-    const dkoKey = key as any as keyof DKO;
-    if (typeof this.dirtyKeys[dkoKey] !== "boolean") {
+  updateForPlainValue(key: string) {
+    if (typeof this.dirtyKeys[key] !== "boolean") {
       throw new Error(
-        `Dirty key "${dkoKey.toString()}" for ${this.constructor.name} is not a boolean`,
+        `Dirty key "${key.toString()}" for ${this.constructor.name} is not a boolean`,
       );
     }
-    if (this.dirtyKeys[dkoKey]) {
+    if (this.dirtyKeys[key]) {
       // @ts-ignore
       this.lastImmutable[key] = this.getForPlainValue(key);
-      this.dirtyKeys[dkoKey] = false as DKO[typeof dkoKey];
+      this.dirtyKeys[key] = false;
     }
   }
 
@@ -389,13 +388,12 @@ export class MutationHelper<
     MK extends (string | number) & keyof M[K],
     K extends MappedMutableDirtyKeys<M, I>,
   >(key: K) {
-    const dkoKey = key as any as keyof DKO;
-    if (!(this.dirtyKeys[dkoKey] instanceof Set)) {
+    if (!(this.dirtyKeys[key as any] instanceof Set)) {
       throw new Error(
-        `Dirty key "${dkoKey.toString()}" for ${this.constructor.name} is not a set`,
+        `Dirty key "${key.toString()}" for ${this.constructor.name} is not a set`,
       );
     }
-    const dirtyMappedKeys: Set<MK> = this.dirtyKeys[dkoKey];
+    const dirtyMappedKeys: Set<MK> = this.dirtyKeys[key] as Set<MK>;
     if (dirtyMappedKeys.size) {
       this.lastImmutable[key] = {
         ...this.lastImmutable[key],

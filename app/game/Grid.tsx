@@ -22,12 +22,7 @@ export type GridImmutable = Pick<Grid, "width" | "height"> & {
   getCells(): CellImmutable[];
 } & Immutable<Grid>;
 
-export class GridMutationHelper extends MutationHelper<
-  Grid,
-  GridImmutable,
-  { cellMap: Set<string> },
-  ["cellMap", string]
-> {}
+export class GridMutationHelper extends MutationHelper<Grid, GridImmutable> {}
 
 export type CellMap = Record<string, Cell>;
 export type CellMapImmutable = Record<string, CellImmutable>;

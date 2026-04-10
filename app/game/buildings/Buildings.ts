@@ -14,9 +14,7 @@ export type BuildingsImmutable = Pick<Buildings, "nextId"> & {
 
 export class BuildingsMutationHelper extends MutationHelper<
   Buildings,
-  BuildingsImmutable,
-  { nextId: boolean; byId: Set<number> },
-  "nextId" | ["byId", number]
+  BuildingsImmutable
 > {}
 
 type BuildingMap = Record<number, Building>;

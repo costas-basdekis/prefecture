@@ -17,11 +17,7 @@ export type CellImmutable = Pick<
 > &
   Immutable<Cell>;
 
-export class CellMutationHelper extends MutationHelper<
-  Cell,
-  CellImmutable,
-  { hasRoad: boolean; buildingId: boolean }
-> {}
+export class CellMutationHelper extends MutationHelper<Cell, CellImmutable> {}
 
 export class Cell implements Mutable<Cell, CellImmutable> {
   mutationHelper: CellMutationHelper;

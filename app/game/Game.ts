@@ -11,11 +11,7 @@ export type GameImmutable = {
   addHouses(allCoords: Coords[]): GameImmutable;
 };
 
-export class GameMutationHelper extends MutationHelper<
-  Game,
-  GameImmutable,
-  { grid: boolean; buildings: boolean }
-> {}
+export class GameMutationHelper extends MutationHelper<Game, GameImmutable> {}
 
 export class Game implements Mutable<Game, GameImmutable> {
   mutationHelper: GameMutationHelper;
