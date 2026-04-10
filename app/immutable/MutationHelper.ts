@@ -189,7 +189,20 @@ export class MutationHelper<
   }
 
   markKeyDirty(key: DK) {
-    if (typeof this.dirtyKeys[key as unknown as keyof DKO] !== "boolean") {
+    if (Array.isArray(key)) {
+      const [actualKey, secondaryKey] = key;
+
+      const dirtyKeyValue = this.dirtyKeys[actualKey as unknown as keyof DKO];
+      if (!(dirtyKeyValue instanceof Set)) {
+        throw new Error(
+          `Dirty key "${key}" of ${this.constructor.name} is not a set`,
+        );
+      }
+      dirtyKeyValue.add(secondaryKey);
+      return;
+    }
+    const dirtyKeyValue = this.dirtyKeys[key as unknown as keyof DKO];
+    if (typeof dirtyKeyValue !== "boolean") {
       throw new Error(
         `Dirty key "${key}" of ${this.constructor.name} is not a boolean`,
       );

@@ -10,19 +10,11 @@ export class BuildingsMutationHelper extends MutationHelper<
   Buildings,
   BuildingsImmutable,
   { nextId: boolean; byId: Set<number> },
-  "nextId" | number
+  "nextId" | ["byId", number]
 > {
-  markDirty(...keys: ("nextId" | number)[]): void {
+  markDirty(...keys: ("nextId" | ["byId", number])[]): void {
     super.markDirty(...keys);
     this.mutable.game.mutationHelper.markDirty("buildings");
-  }
-
-  markKeyDirty(key: number | "nextId") {
-    if (typeof key === "string") {
-      super.markKeyDirty(key);
-      return;
-    }
-    this.dirtyKeys.byId.add(key);
   }
 }
 
@@ -57,7 +49,7 @@ export class Buildings implements Mutable<Buildings, BuildingsImmutable> {
     building.buildings = this;
     this.nextId++;
     this.byId[building.id] = building;
-    this.mutationHelper.markDirty("nextId", building.id);
+    this.mutationHelper.markDirty("nextId", ["byId", building.id]);
     return building;
   }
 }

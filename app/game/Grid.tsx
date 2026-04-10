@@ -39,10 +39,6 @@ export class GridMutationHelper extends MutationHelper<
     super.markDirty(...keys);
     this.mutable.game.mutationHelper.markDirty("grid");
   }
-
-  markKeyDirty([, key]: ["cellMap", string]) {
-    this.dirtyKeys.cellMap.add(key);
-  }
 }
 
 export type CellMap = Record<string, Cell>;

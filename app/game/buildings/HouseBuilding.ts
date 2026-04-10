@@ -13,7 +13,7 @@ export class HouseBuildingMutationHelper extends MutationHelper<
 > {
   markDirty(): void {
     super.markDirty();
-    this.mutable.buildings.mutationHelper.markDirty(this.mutable.id);
+    this.mutable.buildings.mutationHelper.markDirty(["byId", this.mutable.id]);
   }
 }
 
