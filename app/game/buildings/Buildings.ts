@@ -47,7 +47,6 @@ export class Buildings implements Mutable<Buildings, BuildingsImmutable> {
 
   add(building: Building): Building {
     this.byId[building.id] = building;
-    this.mutationHelper.markDirty("nextId", ["byId", building.id]);
     return building;
   }
 }

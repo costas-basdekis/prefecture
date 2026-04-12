@@ -7,7 +7,6 @@ import {
 } from "~/immutable";
 import type { Game } from "../Game";
 import { Person, PersonImmutable } from "./Person";
-import { ImmigrantPerson } from "./ImmigrantPerson";
 
 export type PeopleImmutable = Pick<People, "nextId"> & {
   byId: Record<number, PersonImmutable>;
@@ -42,13 +41,11 @@ export class People implements Mutable<People, PeopleImmutable> {
 
   add(person: Person): Person {
     this.byId[person.id] = person;
-    this.mutationHelper.markDirty("nextId", ["byId", person.id]);
     return person;
   }
 
   remove(person: Person) {
     delete this.byId[person.id];
-    this.mutationHelper.markDirty(["byId", person.id]);
   }
 
   tick() {

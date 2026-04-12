@@ -2,7 +2,6 @@ import lodash from "lodash";
 import { Cell, CellImmutable } from "./Cell";
 import { Coords, makeCoordsKey } from "./Coords";
 import type { Game } from "./Game";
-import { Building } from "./buildings";
 import {
   immutable,
   Immutable,

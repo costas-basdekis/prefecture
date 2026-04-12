@@ -54,14 +54,7 @@ export class HouseBuilding extends BaseBuilding<
   }
 
   set immigrant(immigrant: ImmigrantPerson | null) {
-    if (!immigrant) {
-      if (this.immigrantId) {
-        this.immigrantId = null;
-        this.mutationHelper.markDirty("immigrantId");
-      }
-      return;
-    }
-    this.immigrantId = immigrant.id;
+    this.immigrantId = immigrant?.id ?? null;
   }
 
   get immigrant(): ImmigrantPerson | null {
@@ -95,7 +88,6 @@ export class HouseBuilding extends BaseBuilding<
       this.maxOccupantCount,
       this.occupantCount + 5,
     );
-    this.mutationHelper.markDirty("occupantCount");
     this.spawnImmigrantIfNecessary();
   }
 
@@ -126,16 +118,13 @@ export class HouseBuilding extends BaseBuilding<
       return;
     }
     this.maxOccupantCount = HouseBuilding.maxOccupantCountMap[nextLevel];
-    this.mutationHelper.markDirty("maxOccupantCount");
     if (this.occupantCount > this.maxOccupantCount) {
       // TODO: Create emigrant
       this.occupantCount = this.maxOccupantCount;
-      this.mutationHelper.markDirty("occupantCount");
       this.immigrant?.remove();
     } else {
       this.spawnImmigrantIfNecessary();
     }
     this.level = nextLevel;
-    this.mutationHelper.markDirty("level");
   }
 }

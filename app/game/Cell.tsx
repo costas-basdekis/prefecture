@@ -71,11 +71,7 @@ export class Cell implements Mutable<Cell, CellImmutable> {
   }
 
   set building(building: Building | null) {
-    const buildingId = building?.id ?? null;
-    if (this.buildingId !== buildingId) {
-      this.buildingId = buildingId;
-      this.mutationHelper.markDirty("buildingId");
-    }
+    this.buildingId = building?.id ?? null;
   }
 
   addRoad(): Cell {
@@ -86,7 +82,6 @@ export class Cell implements Mutable<Cell, CellImmutable> {
       return this;
     }
     this.hasRoad = true;
-    this.mutationHelper.markDirty("hasRoad");
     return this;
   }
 
@@ -119,7 +114,6 @@ export class Cell implements Mutable<Cell, CellImmutable> {
       this.waterCoverage,
       waterBuilding.waterCoverage,
     ) as WaterCoverage;
-    this.mutationHelper.markDirty("waterCoverage", "waterBuildingIds");
     this.building?.waterCoverageUpdated?.(this);
     return this;
   }

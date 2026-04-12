@@ -50,6 +50,15 @@ export function immutable(target: Object, propertyKey: string | symbol) {
 const keysWithMutationTypeKey = Symbol("keysWithMutationType");
 const mutationTypeKey = Symbol("mutationType");
 
+const mutableStoreMap = new Map<string | symbol, WeakMap<Object, any>>();
+function getMutableStore(propertyKey: string | symbol): WeakMap<Object, any> {
+  let store = mutableStoreMap.get(propertyKey);
+  if (!store) {
+    store = new WeakMap();
+    mutableStoreMap.set(propertyKey, store);
+  }
+  return store;
+}
 export function mutable(type: MutationType) {
   return function (target: Object, propertyKey: string | symbol) {
     const keys: Set<string | symbol> =
@@ -58,7 +67,101 @@ export function mutable(type: MutationType) {
     keys.add(propertyKey);
     Reflect.defineMetadata(keysWithMutationTypeKey, keys, target);
     Reflect.defineMetadata(mutationTypeKey, type, target, propertyKey);
+
+    Object.defineProperty(
+      target,
+      propertyKey,
+      makeMutableProperty(type, propertyKey),
+    );
   };
+}
+
+function makeMutableProperty(
+  type: MutationType,
+  propertyKey: string | symbol,
+): PropertyDescriptor {
+  const store = getMutableStore(propertyKey);
+  return {
+    configurable: true,
+    get: function () {
+      return store.get(this).proxy;
+    },
+    set: function (value) {
+      const previousInfo = store.get(this);
+      if (value === previousInfo?.value) {
+        return;
+      }
+      const self = this as Mutable<any, any>;
+      let info = {
+        value,
+        proxy: makeMutableProxy(value, type, propertyKey, self),
+      };
+      store.set(this, info);
+      if (self.mutationHelper) {
+        switch (type) {
+          case "mappedMutable":
+            self.mutationHelper.markDirty(propertyKey);
+            if (previousInfo) {
+              (this as Mutable<any, any>).mutationHelper.markDirty(
+                ...Object.keys(previousInfo.value).map(
+                  (key) =>
+                    [propertyKey, key] as [string | symbol, string | number],
+                ),
+              );
+            }
+            (this as Mutable<any, any>).mutationHelper.markDirty(
+              ...Object.keys(value).map(
+                (key) =>
+                  [propertyKey, key] as [string | symbol, string | number],
+              ),
+            );
+            break;
+          case "plainValue":
+          case "mutable":
+          case "mappedPlainValue":
+            self.mutationHelper.markDirty(propertyKey);
+            break;
+          default:
+            throw new Error(`Unknown mutable type: ${type}`);
+        }
+      }
+    },
+  };
+}
+
+function makeMutableProxy(
+  value: any,
+  type: MutationType,
+  propertyKey: string | symbol,
+  self: any,
+): any {
+  switch (type) {
+    case "plainValue":
+    case "mutable":
+      return value;
+    case "mappedMutable":
+    case "mappedPlainValue":
+      return new Proxy(value, {
+        set(target, property, subValue, receiver) {
+          if (type === "mappedMutable") {
+            self.mutationHelper.markDirty([propertyKey, property as string]);
+          } else {
+            self.mutationHelper.markDirty(propertyKey);
+          }
+          return Reflect.set(target, property, subValue, receiver);
+        },
+        deleteProperty(target, property) {
+          if (type === "mappedMutable") {
+            self.mutationHelper.markDirty([propertyKey, property as string]);
+          } else {
+            self.mutationHelper.markDirty(propertyKey);
+          }
+          return Reflect.deleteProperty(target, property);
+        },
+      });
+    default:
+      throw new Error(`Unknown mutable type: ${type}`);
+  }
 }
 
 const keysWithMethodMutationTypeKey = Symbol("keysWithMethodMutationType");
@@ -99,10 +202,10 @@ export function parentSecondaryKey(
 }
 
 export type DirtyKeys = {
-  [key: string]: boolean | Set<string | number>;
+  [key: string | symbol]: boolean | Set<string | number>;
 };
 
-export type DirtyKey = string | [string, string | number];
+export type DirtyKey = string | symbol | [string | symbol, string | number];
 
 export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
   mutable: M;
@@ -278,7 +381,7 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
     const dirtyKeyValue = this.dirtyKeys[key];
     if (typeof dirtyKeyValue !== "boolean") {
       throw new Error(
-        `Dirty key "${key}" of ${this.constructor.name} is not a boolean`,
+        `Dirty key "${key.toString()}" of ${this.constructor.name} is not a boolean`,
       );
     }
     this.dirtyKeys[key] = true as any;

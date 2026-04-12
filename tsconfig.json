@@ -23,6 +23,7 @@
     "skipLibCheck": true,
     "strict": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "useDefineForClassFields": false
   }
 }

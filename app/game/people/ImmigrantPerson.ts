@@ -72,7 +72,6 @@ export class ImmigrantPerson implements Mutable<
       return;
     }
     this.completion = Math.min(1, this.completion + this.completionRate);
-    this.mutationHelper.markDirty("completion");
   }
 
   remove() {
