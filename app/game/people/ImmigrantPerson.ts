@@ -13,7 +13,7 @@ import type { HouseBuilding } from "../buildings";
 
 export type ImmigrantPersonImmutable = Pick<
   ImmigrantPerson,
-  "id" | "targetBuildingId" | "completionRate" | "completion"
+  "id" | "type" | "targetBuildingId" | "completionRate" | "completion"
 > &
   Immutable<ImmigrantPerson>;
 
@@ -28,6 +28,8 @@ export class ImmigrantPerson implements Mutable<
   @parentSecondaryKey
   id: number;
   @immutable
+  type: "immigrant";
+  @immutable
   targetBuildingId: number;
   @immutable
   completionRate: number;
@@ -40,6 +42,7 @@ export class ImmigrantPerson implements Mutable<
   ) {
     this.people = people;
     this.id = this.people.createId();
+    this.type = "immigrant";
     this.targetBuildingId = targetBuildingId;
     this.completionRate =
       1 /

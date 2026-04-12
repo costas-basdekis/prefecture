@@ -1,0 +1,5 @@
+.person {
+  &.person-type-immigrant {
+    fill: orange;
+  }
+}

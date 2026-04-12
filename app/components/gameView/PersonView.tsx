@@ -1,3 +1,4 @@
+import "./PersonView.css";
 import { useMemo } from "react";
 import { GameImmutable } from "~/game";
 import { PersonImmutable } from "~/game/people";
@@ -35,6 +36,7 @@ export function PersonView({
       cx={position.x * 20 + 10}
       cy={position.y * 20 + 10}
       r={12}
+      className={`person person-type-${person.type}`}
       stroke="black"
       fill="white"
     />
