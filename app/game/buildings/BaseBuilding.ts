@@ -7,13 +7,14 @@ import {
   parentSecondaryKey,
 } from "~/immutable";
 import type { Buildings } from "./Buildings";
-import type { Coords } from "../Coords";
+import { makeCoordsKey, type Coords } from "../Coords";
+import { Cell } from "../Cell";
 
 export type BaseBuildingOptions = Pick<BaseBuilding<any, any, any>, "position">;
 
 export type BaseBuildingImmutable<B extends BaseBuilding<any, any, any>> = Pick<
   B,
-  "id" | "type" | "position"
+  "id" | "type" | "position" | "positionKey"
 > &
   Immutable<B>;
 
@@ -32,6 +33,8 @@ export abstract class BaseBuilding<
   type: T;
   @immutable
   position: Coords;
+  @immutable
+  positionKey: string;
 
   constructor(
     buildings: Buildings,
@@ -42,7 +45,14 @@ export abstract class BaseBuilding<
     this.id = this.buildings.createId();
     this.type = type;
     this.position = position;
+    this.positionKey = makeCoordsKey(this.position);
+    this.mutationHelper = null!;
+  }
+
+  postInit() {
     this.mutationHelper = new MutationHelper<M, I>(this as unknown as M);
     this.buildings.add(this as any);
   }
+
+  waterCoverageUpdated?(cell: Cell): void;
 }

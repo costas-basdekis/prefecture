@@ -10,6 +10,7 @@ import { Building, BuildingImmutable } from "./Building";
 
 export type BuildingsImmutable = Pick<Buildings, "nextId"> & {
   byId: BuildingMapImmutable;
+  getBuildings(): BuildingImmutable[];
 } & Immutable<Buildings>;
 
 type BuildingMap = Record<number, Building>;
@@ -30,6 +31,11 @@ export class Buildings implements Mutable<Buildings, BuildingsImmutable> {
     this.byId = {};
     this.mutationHelper = new MutationHelper<Buildings, BuildingsImmutable>(
       this,
+      {
+        getBuildings(this: BuildingsImmutable) {
+          return Object.values(this.byId);
+        },
+      },
     );
   }
 

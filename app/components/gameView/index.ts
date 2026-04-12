@@ -1,3 +1,5 @@
+export * from "./buildingView/BuildingView";
+export * from "./BuildingsView";
 export * from "./CellOverlayView";
 export * from "./CellSelectionMode";
 export * from "./CellSelectionModeSelector";

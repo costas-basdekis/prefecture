@@ -31,7 +31,11 @@ export type MutableMutationMethodKeys<M, I> = keyof {
     : never]: M[key];
 };
 
-export type MutationType = "mutable" | "mappedMutable" | "plainValue";
+export type MutationType =
+  | "mutable"
+  | "mappedMutable"
+  | "plainValue"
+  | "mappedPlainValue";
 
 const keysWithNoMutationKey = Symbol("keysWithNoMutation");
 
@@ -133,6 +137,7 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
         switch (mutationType) {
           case "mutable":
           case "plainValue":
+          case "mappedPlainValue":
             // @ts-ignore
             dirtyKeys[key] = false;
             break;
@@ -190,6 +195,9 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
           case "plainValue":
             immutable[key] = this.getForPlainValue(key as any);
             break;
+          case "mappedPlainValue":
+            immutable[key] = this.getForMappedPlainValue(key as any);
+            break;
           default:
             throw new Error(
               `Unknown mutation type "${mutationType}" for ${this.mutable.constructor.name}.${key.toString()}`,
@@ -211,8 +219,10 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
     for (const key of keys) {
       this.markKeyDirty(key);
     }
-    this.dirty = true;
-    this.markParentDirty();
+    if (!this.dirty) {
+      this.dirty = true;
+      this.markParentDirty();
+    }
   }
 
   parentKey?: keyof M;
@@ -315,6 +325,9 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
         case "plainValue":
           this.updateForPlainValue(key as any);
           break;
+        case "mappedPlainValue":
+          this.updateForMappedPlainValue(key as any);
+          break;
         default:
           throw new Error(
             `Unknown mutation type "${mutationType}" for ${this.mutable.constructor.name}.${key.toString()}`,
@@ -354,6 +367,23 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
     if (this.dirtyKeys[key]) {
       // @ts-ignore
       this.lastImmutable[key] = this.getForPlainValue(key);
+      this.dirtyKeys[key] = false;
+    }
+  }
+
+  getForMappedPlainValue<K extends keyof M>(key: K): M[K] {
+    return Array.from(this.mutable[key] as any[]) as any;
+  }
+
+  updateForMappedPlainValue(key: string) {
+    if (typeof this.dirtyKeys[key] !== "boolean") {
+      throw new Error(
+        `Dirty key "${key.toString()}" for ${this.constructor.name} is not a boolean`,
+      );
+    }
+    if (this.dirtyKeys[key]) {
+      // @ts-ignore
+      this.lastImmutable[key] = this.getForMappedPlainValue(key);
       this.dirtyKeys[key] = false;
     }
   }

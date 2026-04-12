@@ -4,6 +4,7 @@ import { GridOverlayView } from "./GridOverlayView";
 import React, { useCallback } from "react";
 import { Tool } from "../toolbox";
 import { PeopleView } from "./PeopleView";
+import { BuildingsView } from "./BuildingsView";
 
 export function GameView({
   game,
@@ -32,6 +33,7 @@ export function GameView({
   return (
     <>
       <GridView game={game} />
+      <BuildingsView game={game} />
       <PeopleView game={game} />
       <GridOverlayView
         game={game}

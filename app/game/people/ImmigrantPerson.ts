@@ -7,9 +7,9 @@ import {
   parentKey,
   parentSecondaryKey,
 } from "~/immutable";
-import { People } from "./People";
+import type { People } from "./People";
 import { getDistance } from "../Coords";
-import { HouseBuilding } from "../buildings";
+import type { HouseBuilding } from "../buildings";
 
 export type ImmigrantPersonImmutable = Pick<
   ImmigrantPerson,
@@ -55,6 +55,14 @@ export class ImmigrantPerson implements Mutable<
     this.people.add(this);
   }
 
+  get targetBuilding(): HouseBuilding | null {
+    return (
+      (this.people.game.buildings.byId[
+        this.targetBuildingId
+      ] as HouseBuilding) ?? null
+    );
+  }
+
   tick() {
     if (this.completion >= 1) {
       (
@@ -65,5 +73,10 @@ export class ImmigrantPerson implements Mutable<
     }
     this.completion = Math.min(1, this.completion + this.completionRate);
     this.mutationHelper.markDirty("completion");
+  }
+
+  remove() {
+    this.people.remove(this);
+    this.targetBuilding?.immigrantRemoved(this);
   }
 }
