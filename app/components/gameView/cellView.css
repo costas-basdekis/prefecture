@@ -13,4 +13,8 @@
   &.with-building-well {
     fill: cyan;
   }
+  
+  &.with-building-farm {
+    fill:burlywood;
+  }
 }

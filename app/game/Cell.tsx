@@ -9,6 +9,8 @@ import {
 } from "~/immutable";
 import {
   Building,
+  FarmBuilding,
+  FarmBuildingOptions,
   HouseBuilding,
   HouseOptions,
   WellBuilding,
@@ -111,5 +113,9 @@ export class Cell implements Mutable<Cell, CellImmutable> {
     ) as WaterCoverage;
     this.building?.waterCoverageUpdated?.(this);
     return this;
+  }
+
+  addFarm(options: FarmBuildingOptions) {
+    this.addBuilding(() => new FarmBuilding(this.grid.game.buildings, options));
   }
 }

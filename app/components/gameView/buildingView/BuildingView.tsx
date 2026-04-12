@@ -1,6 +1,11 @@
 import { GameImmutable } from "~/game";
-import { BuildingImmutable, HouseBuildingImmutable } from "~/game/buildings";
+import {
+  BuildingImmutable,
+  FarmBuildingImmutable,
+  HouseBuildingImmutable,
+} from "~/game/buildings";
 import { HouseBuildingView } from "./HouseBuildingView";
+import { FarmBuildingView } from "./FarmBuildingView";
 
 export type BuildingViewProps<B extends BuildingImmutable> = {
   building: B;
@@ -14,6 +19,12 @@ export function BuildingView(props: BuildingViewProps<BuildingImmutable>) {
       return (
         <HouseBuildingView
           {...(props as BuildingViewProps<HouseBuildingImmutable>)}
+        />
+      );
+    case "farm":
+      return (
+        <FarmBuildingView
+          {...(props as BuildingViewProps<FarmBuildingImmutable>)}
         />
       );
   }

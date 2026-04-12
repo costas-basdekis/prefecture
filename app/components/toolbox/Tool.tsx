@@ -1,13 +1,15 @@
 import type {
+  FarmPlacementTool,
   HousePlacementTool,
   RoadPlacementTool,
   SelectionTool,
+  WellPlacementTool,
 } from "./tools";
-import { WellPlacementTool } from "./tools/WellPlacementTool";
 
 export type Tool =
   | SelectionTool
   | RoadPlacementTool
   | HousePlacementTool
-  | WellPlacementTool;
+  | WellPlacementTool
+  | FarmPlacementTool;
 export type ToolName = Tool["name"];

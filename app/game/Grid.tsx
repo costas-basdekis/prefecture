@@ -10,6 +10,7 @@ import {
   MutationHelper,
   parentKey,
 } from "~/immutable";
+import { FarmBuildingOptions } from "./buildings";
 
 export interface GridMakeOptions {
   width: number;
@@ -75,5 +76,12 @@ export class Grid implements Mutable<Grid, GridImmutable> {
   addWell(coords: Coords) {
     this.cellMap[makeCoordsKey(coords)].addWell({ position: coords });
     return this;
+  }
+
+  addFarm(coords: Coords, options: Pick<FarmBuildingOptions, "crop">) {
+    this.cellMap[makeCoordsKey(coords)].addFarm({
+      position: coords,
+      ...options,
+    });
   }
 }
