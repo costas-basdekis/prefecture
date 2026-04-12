@@ -16,6 +16,7 @@ import {
 } from "./buildings";
 import { Coords, makeCoordsKey } from "./Coords";
 import type { Grid } from "./Grid";
+import { propById } from "~/utils";
 
 export type CellImmutable = Pick<
   Cell,
@@ -46,6 +47,11 @@ export class Cell implements Mutable<Cell, CellImmutable> {
   hasRoad: boolean;
   @mutable("plainValue")
   buildingId: number | null;
+  @propById(
+    "buildingId",
+    (id: number, thisObject: Cell) => thisObject.grid.game.buildings.byId[id],
+  )
+  declare building: Building | null;
   @mutable("plainValue")
   waterCoverage: WaterCoverage;
   @mutable("mappedPlainValue")
@@ -61,17 +67,6 @@ export class Cell implements Mutable<Cell, CellImmutable> {
     this.waterCoverage = 0;
     this.waterBuildingIds = [];
     this.mutationHelper = new MutationHelper<Cell, CellImmutable>(this);
-  }
-
-  get building(): Building | null {
-    if (!this.buildingId) {
-      return null;
-    }
-    return this.grid.game.buildings.byId[this.buildingId];
-  }
-
-  set building(building: Building | null) {
-    this.buildingId = building?.id ?? null;
   }
 
   addRoad(): Cell {

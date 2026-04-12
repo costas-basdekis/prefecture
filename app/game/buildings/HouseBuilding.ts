@@ -7,6 +7,7 @@ import {
   BaseBuildingOptions,
 } from "./BaseBuilding";
 import { Cell } from "../Cell";
+import { propById } from "~/utils";
 
 export type HouseOptions = BaseBuildingOptions;
 
@@ -29,6 +30,12 @@ export class HouseBuilding extends BaseBuilding<
   maxOccupantCount: number;
   @mutable("plainValue")
   immigrantId: number | null;
+  @propById(
+    "immigrantId",
+    (id: number, thisObject: HouseBuilding) =>
+      thisObject.buildings.game.people.byId[id],
+  )
+  declare immigrant: ImmigrantPerson | null;
 
   static maxOccupantCountMap: number[] = [
     0, 3, 7, 12, 18, 25, 33, 42, 52, 63, 75,
@@ -51,17 +58,6 @@ export class HouseBuilding extends BaseBuilding<
 
   get cell(): Cell {
     return this.buildings.game.grid.cellMap[this.positionKey];
-  }
-
-  set immigrant(immigrant: ImmigrantPerson | null) {
-    this.immigrantId = immigrant?.id ?? null;
-  }
-
-  get immigrant(): ImmigrantPerson | null {
-    if (!this.immigrantId) {
-      return null;
-    }
-    return this.buildings.game.people.byId[this.immigrantId] ?? null;
   }
 
   spawnImmigrantIfNecessary() {

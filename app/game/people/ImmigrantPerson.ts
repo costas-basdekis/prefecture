@@ -10,6 +10,7 @@ import {
 import type { People } from "./People";
 import { getDistance } from "../Coords";
 import type { HouseBuilding } from "../buildings";
+import { propById } from "~/utils";
 
 export type ImmigrantPersonImmutable = Pick<
   ImmigrantPerson,
@@ -31,6 +32,13 @@ export class ImmigrantPerson implements Mutable<
   type: "immigrant";
   @immutable
   targetBuildingId: number;
+  @propById(
+    "targetBuildingId",
+    (id: number, thisObject: ImmigrantPerson) =>
+      thisObject.people.game.buildings.byId[id],
+    false,
+  )
+  declare targetBuilding: HouseBuilding;
   @immutable
   completionRate: number;
   @mutable("plainValue")
@@ -56,14 +64,6 @@ export class ImmigrantPerson implements Mutable<
       ImmigrantPersonImmutable
     >(this);
     this.people.add(this);
-  }
-
-  get targetBuilding(): HouseBuilding | null {
-    return (
-      (this.people.game.buildings.byId[
-        this.targetBuildingId
-      ] as HouseBuilding) ?? null
-    );
   }
 
   tick() {
