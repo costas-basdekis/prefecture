@@ -5,11 +5,16 @@ import {
 } from "./buildings";
 import type { Coords } from "./Coords";
 import { Grid, GridMakeOptions, GridImmutable } from "./Grid";
-import { methodMutate, Mutable, mutable, MutationHelper } from "../immutable";
+import {
+  Immutable,
+  methodMutate,
+  Mutable,
+  mutable,
+  MutationHelper,
+} from "../immutable";
 import { People, PeopleImmutable } from "./people";
 
-export type GameImmutable = {
-  _mutable: Game;
+export type GameImmutable = Pick<Game, "tickCount"> & {
   grid: GridImmutable;
   buildings: BuildingsImmutable;
   people: PeopleImmutable;
@@ -21,10 +26,12 @@ export type GameImmutable = {
     options: Pick<FarmBuildingOptions, "crop">,
   ): GameImmutable;
   tick(): GameImmutable;
-};
+} & Immutable<Game>;
 
 export class Game implements Mutable<Game, GameImmutable> {
   mutationHelper: MutationHelper<Game, GameImmutable>;
+  @mutable("plainValue")
+  tickCount: number;
   @mutable("mutable")
   grid: Grid;
   @mutable("mutable")
@@ -33,6 +40,7 @@ export class Game implements Mutable<Game, GameImmutable> {
   people: People;
 
   constructor(options: GridMakeOptions = { width: 25, height: 25 }) {
+    this.tickCount = 0;
     this.grid = new Grid(this, options);
     this.buildings = new Buildings(this);
     this.people = new People(this);
@@ -65,8 +73,9 @@ export class Game implements Mutable<Game, GameImmutable> {
 
   @methodMutate
   tick(): Game {
-    this.people.tick();
-    this.buildings.tick();
+    this.tickCount++;
+    this.people.tick(this.tickCount);
+    this.buildings.tick(this.tickCount);
     return this;
   }
 }

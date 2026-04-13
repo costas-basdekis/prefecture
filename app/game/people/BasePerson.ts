@@ -44,5 +44,5 @@ export class BasePerson<
     this.people.remove(this as any);
   }
 
-  tick?(): void;
+  tick?(tickCount: number): void;
 }

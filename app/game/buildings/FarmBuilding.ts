@@ -6,18 +6,26 @@ import {
 } from "./BaseBuilding";
 import type { Buildings } from "./Buildings";
 import { propById } from "~/utils";
-import { type Person, WorkerFinderPerson } from "../people";
+import { WorkerFinderPerson } from "../people";
+import {
+  type BuildingWithWorkerFinder,
+  MaxWorkerAccessTickCount,
+} from "./BuildingWithWorkerFinder";
+import { Cell } from "../Cell";
 
-export type FarmBuildingOptions = { crop: "wheat" } & BaseBuildingOptions;
+export type FarmBuildingOptions = Pick<FarmBuilding, "crop"> &
+  BaseBuildingOptions;
 
-export type FarmBuildingImmutable = Pick<FarmBuilding, "crop"> &
+export type FarmBuildingImmutable = Pick<
+  FarmBuilding,
+  "crop" | "workerFinderId"
+> &
   BaseBuildingImmutable<FarmBuilding>;
 
-export class FarmBuilding extends BaseBuilding<
-  FarmBuilding,
-  FarmBuildingImmutable,
-  "farm"
-> {
+export class FarmBuilding
+  extends BaseBuilding<FarmBuilding, FarmBuildingImmutable, "farm">
+  implements BuildingWithWorkerFinder
+{
   @immutable
   crop: "wheat";
   @mutable("plainValue")
@@ -27,17 +35,27 @@ export class FarmBuilding extends BaseBuilding<
     (id, thisObject) =>
       thisObject.buildings.game.people.byId[id] as WorkerFinderPerson,
   )
-  declare workerFinder: Person;
+  declare workerFinder: WorkerFinderPerson | null;
+  lastWorkerFinderVisitedByCell: Map<Cell, number>;
+  lastWorkerAccessTickCount: number;
+  @mutable("plainValue")
+  hasWorkerAccess: boolean;
 
   constructor(buildings: Buildings, options: FarmBuildingOptions) {
     super(buildings, "farm", options);
     this.crop = options.crop;
     this.workerFinderId = null;
+    this.lastWorkerFinderVisitedByCell = new Map();
+    this.lastWorkerAccessTickCount = -Infinity;
+    this.hasWorkerAccess = false;
     this.postInit();
     this.spawnWorkerFinder();
   }
 
-  tick() {
+  tick(tickCount: number) {
+    if (tickCount - this.lastWorkerAccessTickCount > MaxWorkerAccessTickCount) {
+      this.hasWorkerAccess = false;
+    }
     this.spawnWorkerFinder();
   }
 
@@ -54,5 +72,14 @@ export class FarmBuilding extends BaseBuilding<
         positionKey: firstCell.key,
       });
     }
+  }
+
+  workerFinderFinished() {
+    this.workerFinder = null;
+  }
+
+  workerFinderPassedHouse(tickCount: number) {
+    this.lastWorkerAccessTickCount = tickCount;
+    this.hasWorkerAccess = true;
   }
 }

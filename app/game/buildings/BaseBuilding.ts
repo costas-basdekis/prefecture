@@ -84,36 +84,22 @@ export abstract class BaseBuilding<
     this.buildings.add(this as any);
   }
 
-  *getCellsAround(
+  getCellsAround(
     dX: number,
     dY: number,
     includeBuilding: boolean = true,
   ): Iterable<Cell> {
-    const seenCells = includeBuilding ? null : new Set(this.cells);
-    for (const x of _.range(
-      this.topLeftPosition.x - dX,
-      this.bottomRightPosition.x + dX,
-    )) {
-      for (const y of _.range(
-        this.topLeftPosition.y - dY,
-        this.bottomRightPosition.y + dY,
-      )) {
-        const cell = this.buildings.game.grid.cellMap[makeCoordsKey({ x, y })];
-        if (!cell) {
-          continue;
-        }
-        if (seenCells && seenCells.has(cell)) {
-          continue;
-        }
-        yield cell;
-        if (seenCells) {
-          seenCells.add(cell);
-        }
-      }
-    }
+    return this.cells[0].getCellsAround(
+      dX,
+      dY,
+      includeBuilding,
+      this.topLeftPosition,
+      this.bottomRightPosition,
+      this.cells,
+    );
   }
 
   waterCoverageUpdated?(cell: Cell): void;
 
-  tick?(): void;
+  tick?(tickCount: number): void;
 }

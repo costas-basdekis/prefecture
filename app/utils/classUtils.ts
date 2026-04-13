@@ -2,6 +2,7 @@ export function propById<C, T, I>(
   idKey: keyof C,
   getter: (this: C, id: I, thisObject: C) => T | null,
   allowSetter: boolean = true,
+  thisIdKey: string = "id",
 ) {
   return function (target: Object, propertyKey: string | symbol) {
     const descriptor: PropertyDescriptor & ThisType<C> = {
@@ -14,7 +15,7 @@ export function propById<C, T, I>(
     };
     if (allowSetter) {
       descriptor.set = function (this: C, value) {
-        this[idKey] = value?.id ?? null;
+        this[idKey] = value?.[thisIdKey] ?? null;
       };
     }
     Object.defineProperty(target, propertyKey, descriptor);

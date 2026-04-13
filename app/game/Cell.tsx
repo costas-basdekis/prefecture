@@ -19,6 +19,7 @@ import {
 import { Coords, makeCoordsKey } from "./Coords";
 import type { Grid } from "./Grid";
 import { propById } from "~/utils";
+import _ from "lodash";
 
 export type CellImmutable = Pick<
   Cell,
@@ -73,6 +74,32 @@ export class Cell implements Mutable<Cell, CellImmutable> {
     this.waterCoverage = 0;
     this.waterBuildingIds = [];
     this.mutationHelper = new MutationHelper<Cell, CellImmutable>(this);
+  }
+
+  *getCellsAround(
+    dX: number,
+    dY: number,
+    includeSelf: boolean = true,
+    topLeft: Coords = this,
+    bottomRight: Coords = this,
+    allCells: Cell[] = [this],
+  ): Iterable<Cell> {
+    const seenCells = includeSelf ? null : new Set<Cell>(allCells);
+    for (const x of _.range(topLeft.x - dX, bottomRight.x + dX + 1)) {
+      for (const y of _.range(topLeft.y - dY, bottomRight.y + dY + 1)) {
+        const cell = this.grid.cellMap[makeCoordsKey({ x, y })];
+        if (!cell) {
+          continue;
+        }
+        if (seenCells && seenCells.has(cell)) {
+          continue;
+        }
+        yield cell;
+        if (seenCells) {
+          seenCells.add(cell);
+        }
+      }
+    }
   }
 
   addRoad(): Cell {

@@ -48,9 +48,9 @@ export class People implements Mutable<People, PeopleImmutable> {
     delete this.byId[person.id];
   }
 
-  tick() {
+  tick(tickCount: number) {
     for (const person of Object.values(this.byId)) {
-      person.tick?.();
+      person.tick?.(tickCount);
     }
   }
 }

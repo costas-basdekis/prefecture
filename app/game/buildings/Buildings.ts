@@ -50,9 +50,9 @@ export class Buildings implements Mutable<Buildings, BuildingsImmutable> {
     return building;
   }
 
-  tick() {
+  tick(tickCount: number) {
     for (const building of Object.values(this.byId)) {
-      building.tick?.();
+      building.tick?.(tickCount);
     }
   }
 }
