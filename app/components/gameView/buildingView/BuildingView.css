@@ -1,0 +1,9 @@
+.building {
+  stroke: grey;
+  stroke-width: 1px;
+  fill: transparent;
+
+  &.building-type-farm {
+    fill: burlywood;
+  }
+}

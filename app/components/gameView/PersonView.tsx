@@ -17,8 +17,8 @@ export function PersonView({
     if (!targetBuilding) {
       return [null, null];
     }
-    return [{ x: 0, y: 0 }, targetBuilding.position];
-  }, [targetBuilding?.position, person.targetBuildingId]);
+    return [{ x: 0, y: 0 }, targetBuilding.positions[0]];
+  }, [targetBuilding?.positions[0], person.targetBuildingId]);
   const position = useMemo(() => {
     if (!startPoint || !endPoint) {
       return null;

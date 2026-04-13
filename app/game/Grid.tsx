@@ -10,7 +10,8 @@ import {
   MutationHelper,
   parentKey,
 } from "~/immutable";
-import { FarmBuildingOptions } from "./buildings";
+import { Building, FarmBuilding, FarmBuildingOptions } from "./buildings";
+import _ from "lodash";
 
 export interface GridMakeOptions {
   width: number;
@@ -66,22 +67,62 @@ export class Grid implements Mutable<Grid, GridImmutable> {
     return this;
   }
 
+  addBuilding(positions: Coords[], makeBuilding: () => Building): boolean {
+    if (
+      positions.some((coords) => {
+        const cell = this.cellMap[makeCoordsKey(coords)];
+        return !cell || !cell.canAddBuilding;
+      })
+    ) {
+      return false;
+    }
+    const building = makeBuilding();
+    const makeBuildingForCell = () => building;
+    for (const cell of building.cells) {
+      cell.addBuilding(makeBuildingForCell);
+    }
+    return true;
+  }
+
   addHouses(allCoords: Coords[]): Grid {
     for (const coords of allCoords) {
-      this.cellMap[makeCoordsKey(coords)].addHouse({ position: coords });
+      this.cellMap[makeCoordsKey(coords)].addHouse({
+        positions: [coords],
+        topLeftPosition: coords,
+        bottomRightPosition: coords,
+        width: 1,
+        height: 1,
+      });
     }
     return this;
   }
 
   addWell(coords: Coords) {
-    this.cellMap[makeCoordsKey(coords)].addWell({ position: coords });
+    this.cellMap[makeCoordsKey(coords)].addWell({
+      positions: [coords],
+      topLeftPosition: coords,
+      bottomRightPosition: coords,
+      width: 1,
+      height: 1,
+    });
     return this;
   }
 
   addFarm(coords: Coords, options: Pick<FarmBuildingOptions, "crop">) {
-    this.cellMap[makeCoordsKey(coords)].addFarm({
-      position: coords,
-      ...options,
-    });
+    const positions = _.range(3).flatMap((dX) =>
+      _.range(3).map((dY) => ({ x: coords.x + dX, y: coords.y + dY })),
+    );
+    this.addBuilding(
+      positions,
+      () =>
+        new FarmBuilding(this.game.buildings, {
+          positions,
+          topLeftPosition: coords,
+          bottomRightPosition: { x: coords.x + 2, y: coords.y + 2 },
+          width: 3,
+          height: 3,
+          ...options,
+        }),
+    );
   }
 }

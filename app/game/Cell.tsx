@@ -27,6 +27,7 @@ export type CellImmutable = Pick<
   | "key"
   | "hasRoad"
   | "buildingId"
+  | "canAddBuilding"
   | "waterCoverage"
   | "waterBuildingIds"
 > &
@@ -55,6 +56,8 @@ export class Cell implements Mutable<Cell, CellImmutable> {
   )
   declare building: Building | null;
   @mutable("plainValue")
+  canAddBuilding: boolean;
+  @mutable("plainValue")
   waterCoverage: WaterCoverage;
   @mutable("mappedPlainValue")
   waterBuildingIds: number[];
@@ -66,30 +69,27 @@ export class Cell implements Mutable<Cell, CellImmutable> {
     this.key = makeCoordsKey(this);
     this.hasRoad = false;
     this.buildingId = null;
+    this.canAddBuilding = true;
     this.waterCoverage = 0;
     this.waterBuildingIds = [];
     this.mutationHelper = new MutationHelper<Cell, CellImmutable>(this);
   }
 
   addRoad(): Cell {
-    if (this.hasRoad) {
-      return this;
-    }
-    if (this.buildingId) {
+    if (!this.canAddBuilding) {
       return this;
     }
     this.hasRoad = true;
+    this.canAddBuilding = false;
     return this;
   }
 
   addBuilding(makeBuilding: () => Building): Cell {
-    if (this.hasRoad) {
-      return this;
-    }
-    if (this.buildingId) {
+    if (!this.canAddBuilding) {
       return this;
     }
     this.building = makeBuilding();
+    this.canAddBuilding = false;
     return this;
   }
 

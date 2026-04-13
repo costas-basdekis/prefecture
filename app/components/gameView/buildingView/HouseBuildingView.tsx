@@ -7,10 +7,10 @@ export function HouseBuildingView({
 }: BuildingViewProps<HouseBuildingImmutable>) {
   const center = useMemo(() => {
     return {
-      x: building.position.x * 20 + 10,
-      y: building.position.y * 20 + 10,
+      x: building.positions[0].x * 20 + 10,
+      y: building.positions[0].y * 20 + 10,
     };
-  }, [building.position]);
+  }, [building.positions[0]]);
   const text = useMemo(() => {
     return `${building.level ?? "?"} (${building.occupantCount ?? "?"}/${building.maxOccupantCount ?? "?"})`;
   }, [building.level, building.occupantCount, building.maxOccupantCount]);

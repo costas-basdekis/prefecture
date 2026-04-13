@@ -56,7 +56,7 @@ export class ImmigrantPerson implements Mutable<
       1 /
       getDistance(
         { x: 0, y: 0 },
-        this.people.game.buildings.byId[this.targetBuildingId].position,
+        this.people.game.buildings.byId[this.targetBuildingId].positions[0],
       );
     this.completion = 0;
     this.mutationHelper = new MutationHelper<

@@ -53,11 +53,7 @@ export class HouseBuilding extends BaseBuilding<
     this.maxOccupantCount = 0;
     this.immigrantId = null;
     this.postInit();
-    this.updateLevel();
-  }
-
-  get cell(): Cell {
-    return this.buildings.game.grid.cellMap[this.positionKey];
+    this.updateLevel(this.cells[0]);
   }
 
   spawnImmigrantIfNecessary() {
@@ -96,11 +92,14 @@ export class HouseBuilding extends BaseBuilding<
     this.updateLevel(cell);
   }
 
-  updateLevel(cell: Cell = this.cell) {
+  updateLevel(_cell: Cell) {
+    const waterCoverage = Math.max(
+      ...this.cells.map((cell) => cell.waterCoverage),
+    );
     const nextLevel = HouseBuilding.requirementsByLevel.findLastIndex(
       (level) => {
         if (level.waterCoverage) {
-          if (cell.waterCoverage < level.waterCoverage) {
+          if (waterCoverage < level.waterCoverage) {
             return false;
           }
         }

@@ -1,3 +1,4 @@
+import "./BuildingView.css";
 import { GameImmutable } from "~/game";
 import {
   BuildingImmutable,
