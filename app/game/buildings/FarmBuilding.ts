@@ -18,7 +18,12 @@ export type FarmBuildingOptions = Pick<FarmBuilding, "crop"> &
 
 export type FarmBuildingImmutable = Pick<
   FarmBuilding,
-  "crop" | "workerFinderId" | "lastWorkerAccessTickCount" | "hasWorkerAccess"
+  | "crop"
+  | "workerFinderId"
+  | "lastWorkerAccessTickCount"
+  | "hasWorkerAccess"
+  | "processRate"
+  | "process"
 > &
   BaseBuildingImmutable<FarmBuilding>;
 
@@ -41,6 +46,10 @@ export class FarmBuilding
   lastWorkerAccessTickCount: number;
   @mutable("plainValue")
   hasWorkerAccess: boolean;
+  @immutable
+  processRate: number;
+  @mutable("plainValue")
+  process: number;
 
   constructor(buildings: Buildings, options: FarmBuildingOptions) {
     super(buildings, "farm", options);
@@ -49,6 +58,8 @@ export class FarmBuilding
     this.lastWorkerFinderVisitedByCell = new Map();
     this.lastWorkerAccessTickCount = -Infinity;
     this.hasWorkerAccess = false;
+    this.processRate = 0.1;
+    this.process = 0;
     this.postInit();
     this.spawnWorkerFinder();
   }
@@ -58,6 +69,9 @@ export class FarmBuilding
       this.hasWorkerAccess = false;
     }
     this.spawnWorkerFinder();
+    if (this.hasWorkerAccess && this.process < 1) {
+      this.process = Math.min(1, this.process + this.processRate);
+    }
   }
 
   spawnWorkerFinder() {

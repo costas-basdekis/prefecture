@@ -17,6 +17,7 @@ export function FarmBuildingView({
       building.crop,
       building.hasWorkerAccess ? `Has workers` : `No access to workers`,
       `(${game.tickCount - building.lastWorkerAccessTickCount} ticks ago)`,
+      `${Math.floor(building.process * 100)}% completed`,
     ];
   }, [game.tickCount, building.crop, building.lastWorkerAccessTickCount]);
   return (
