@@ -6,7 +6,7 @@ import {
   parentKey,
 } from "~/immutable";
 import type { Game } from "../Game";
-import { Person, PersonImmutable } from "./Person";
+import type { Person, PersonImmutable } from "./Person";
 
 export type PeopleImmutable = Pick<People, "nextId"> & {
   byId: Record<number, PersonImmutable>;
@@ -50,7 +50,7 @@ export class People implements Mutable<People, PeopleImmutable> {
 
   tick() {
     for (const person of Object.values(this.byId)) {
-      person.tick();
+      person.tick?.();
     }
   }
 }

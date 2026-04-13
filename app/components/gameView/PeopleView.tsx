@@ -1,5 +1,5 @@
 import { GameImmutable } from "~/game";
-import { PersonView } from "./PersonView";
+import { PersonView } from "../personView";
 
 export function PeopleView({ game }: { game: GameImmutable }) {
   return (

@@ -66,6 +66,7 @@ export class Game implements Mutable<Game, GameImmutable> {
   @methodMutate
   tick(): Game {
     this.people.tick();
+    this.buildings.tick();
     return this;
   }
 }

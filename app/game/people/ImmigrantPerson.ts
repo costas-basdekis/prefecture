@@ -1,16 +1,11 @@
-import {
-  immutable,
-  Immutable,
-  mutable,
-  Mutable,
-  MutationHelper,
-  parentKey,
-  parentSecondaryKey,
-} from "~/immutable";
+import { immutable, Immutable, mutable } from "~/immutable";
 import type { People } from "./People";
 import { getDistance } from "../Coords";
 import type { HouseBuilding } from "../buildings";
 import { propById } from "~/utils";
+import { BasePerson } from "./BasePerson";
+
+export type ImmigrantPersonOptions = Pick<ImmigrantPerson, "targetBuildingId">;
 
 export type ImmigrantPersonImmutable = Pick<
   ImmigrantPerson,
@@ -18,18 +13,11 @@ export type ImmigrantPersonImmutable = Pick<
 > &
   Immutable<ImmigrantPerson>;
 
-export class ImmigrantPerson implements Mutable<
+export class ImmigrantPerson extends BasePerson<
   ImmigrantPerson,
-  ImmigrantPersonImmutable
+  ImmigrantPersonImmutable,
+  "immigrant"
 > {
-  mutationHelper: MutationHelper<ImmigrantPerson, ImmigrantPersonImmutable>;
-  @parentKey("byId")
-  people: People;
-  @immutable
-  @parentSecondaryKey
-  id: number;
-  @immutable
-  type: "immigrant";
   @immutable
   targetBuildingId: number;
   @propById(
@@ -44,13 +32,8 @@ export class ImmigrantPerson implements Mutable<
   @mutable("plainValue")
   completion: number;
 
-  constructor(
-    people: People,
-    { targetBuildingId }: Pick<ImmigrantPerson, "targetBuildingId">,
-  ) {
-    this.people = people;
-    this.id = this.people.createId();
-    this.type = "immigrant";
+  constructor(people: People, { targetBuildingId }: ImmigrantPersonOptions) {
+    super(people, "immigrant");
     this.targetBuildingId = targetBuildingId;
     this.completionRate =
       1 /
@@ -59,11 +42,7 @@ export class ImmigrantPerson implements Mutable<
         this.people.game.buildings.byId[this.targetBuildingId].positions[0],
       );
     this.completion = 0;
-    this.mutationHelper = new MutationHelper<
-      ImmigrantPerson,
-      ImmigrantPersonImmutable
-    >(this);
-    this.people.add(this);
+    this.postInit();
   }
 
   tick() {
@@ -78,7 +57,7 @@ export class ImmigrantPerson implements Mutable<
   }
 
   remove() {
-    this.people.remove(this);
+    super.remove();
     this.targetBuilding?.immigrantRemoved(this);
   }
 }

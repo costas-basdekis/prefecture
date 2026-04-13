@@ -7,4 +7,4 @@ export * from "./CellView";
 export * from "./GameView";
 export * from "./GridOverlayView";
 export * from "./GridView";
-export * from "./PersonView";
+export * from "../personView/ImmigrantPersonView";

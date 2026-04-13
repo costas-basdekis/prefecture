@@ -2,4 +2,8 @@
   &.person-type-immigrant {
     fill: orange;
   }
+
+  &.person-type-workerFinder {
+    fill: yellow;
+  }
 }

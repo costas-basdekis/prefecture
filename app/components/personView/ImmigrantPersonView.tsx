@@ -1,15 +1,11 @@
-import "./PersonView.css";
 import { useMemo } from "react";
-import { GameImmutable } from "~/game";
-import { PersonImmutable } from "~/game/people";
+import { ImmigrantPersonImmutable } from "~/game/people";
+import { PersonViewProps } from "./PersonView";
 
-export function PersonView({
+export function ImmigrantPersonView({
   game,
   person,
-}: {
-  game: GameImmutable;
-  person: PersonImmutable;
-}) {
+}: PersonViewProps<ImmigrantPersonImmutable>) {
   const targetBuilding = useMemo(() => {
     return game.buildings.byId[person.targetBuildingId];
   }, [person.targetBuildingId, game.buildings.byId[person.targetBuildingId]]);

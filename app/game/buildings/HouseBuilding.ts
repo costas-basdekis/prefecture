@@ -6,7 +6,7 @@ import {
   BaseBuildingImmutable,
   BaseBuildingOptions,
 } from "./BaseBuilding";
-import { Cell } from "../Cell";
+import type { Cell } from "../Cell";
 import { propById } from "~/utils";
 
 export type HouseOptions = BaseBuildingOptions;
@@ -56,16 +56,12 @@ export class HouseBuilding extends BaseBuilding<
     this.updateLevel(this.cells[0]);
   }
 
-  spawnImmigrantIfNecessary() {
-    if (this.occupantCount < this.maxOccupantCount) {
-      this.spawnImmigrant();
-    }
-  }
-
   spawnImmigrant() {
-    this.immigrant = new ImmigrantPerson(this.buildings.game.people, {
-      targetBuildingId: this.id,
-    });
+    if (this.occupantCount < this.maxOccupantCount) {
+      this.immigrant = new ImmigrantPerson(this.buildings.game.people, {
+        targetBuildingId: this.id,
+      });
+    }
   }
 
   immigrantArrived(immigrant: ImmigrantPerson) {
@@ -80,12 +76,12 @@ export class HouseBuilding extends BaseBuilding<
       this.maxOccupantCount,
       this.occupantCount + 5,
     );
-    this.spawnImmigrantIfNecessary();
+    this.spawnImmigrant();
   }
 
   immigrantRemoved(_immigrant: ImmigrantPerson) {
     this.immigrant = null;
-    this.spawnImmigrantIfNecessary();
+    this.spawnImmigrant();
   }
 
   waterCoverageUpdated(cell: Cell) {
@@ -118,7 +114,7 @@ export class HouseBuilding extends BaseBuilding<
       this.occupantCount = this.maxOccupantCount;
       this.immigrant?.remove();
     } else {
-      this.spawnImmigrantIfNecessary();
+      this.spawnImmigrant();
     }
     this.level = nextLevel;
   }

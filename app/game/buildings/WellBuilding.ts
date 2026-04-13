@@ -1,4 +1,4 @@
-import { Buildings } from "./Buildings";
+import type { Buildings } from "./Buildings";
 import {
   BaseBuilding,
   BaseBuildingImmutable,

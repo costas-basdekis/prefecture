@@ -49,4 +49,10 @@ export class Buildings implements Mutable<Buildings, BuildingsImmutable> {
     this.byId[building.id] = building;
     return building;
   }
+
+  tick() {
+    for (const building of Object.values(this.byId)) {
+      building.tick?.();
+    }
+  }
 }

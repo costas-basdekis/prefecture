@@ -8,7 +8,7 @@ import {
 } from "~/immutable";
 import type { Buildings } from "./Buildings";
 import { makeCoordsKey, type Coords } from "../Coords";
-import { Cell } from "../Cell";
+import type { Cell } from "../Cell";
 import _ from "lodash";
 
 export type BaseBuildingOptions = Pick<
@@ -90,25 +90,30 @@ export abstract class BaseBuilding<
     includeBuilding: boolean = true,
   ): Iterable<Cell> {
     const seenCells = includeBuilding ? null : new Set(this.cells);
-    for (const position of this.positions) {
-      for (const x of _.range(position.x - 3, position.x + 3)) {
-        for (const y of _.range(position.y - 3, position.y + 3)) {
-          const cell =
-            this.buildings.game.grid.cellMap[makeCoordsKey({ x, y })];
-          if (!cell) {
-            continue;
-          }
-          if (seenCells && seenCells.has(cell)) {
-            continue;
-          }
-          yield cell;
-          if (seenCells) {
-            seenCells.add(cell);
-          }
+    for (const x of _.range(
+      this.topLeftPosition.x - dX,
+      this.bottomRightPosition.x + dX,
+    )) {
+      for (const y of _.range(
+        this.topLeftPosition.y - dY,
+        this.bottomRightPosition.y + dY,
+      )) {
+        const cell = this.buildings.game.grid.cellMap[makeCoordsKey({ x, y })];
+        if (!cell) {
+          continue;
+        }
+        if (seenCells && seenCells.has(cell)) {
+          continue;
+        }
+        yield cell;
+        if (seenCells) {
+          seenCells.add(cell);
         }
       }
     }
   }
 
   waterCoverageUpdated?(cell: Cell): void;
+
+  tick?(): void;
 }
