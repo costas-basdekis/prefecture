@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { FarmBuildingImmutable } from "~/game";
 
 export function FarmBuildingView({
+  game,
   building,
 }: BuildingViewProps<FarmBuildingImmutable>) {
   const center = useMemo(() => {
@@ -11,9 +12,13 @@ export function FarmBuildingView({
       y: (building.topLeftPosition.y + building.height / 2) * 20,
     };
   }, [building.topLeftPosition, building.width, building.height]);
-  const text = useMemo(() => {
-    return building.crop;
-  }, [building.crop]);
+  const textLines = useMemo(() => {
+    return [
+      building.crop,
+      building.hasWorkerAccess ? `Has workers` : `No access to workers`,
+      `(${game.tickCount - building.lastWorkerAccessTickCount} ticks ago)`,
+    ];
+  }, [game.tickCount, building.crop, building.lastWorkerAccessTickCount]);
   return (
     <g className="farm">
       <rect
@@ -32,7 +37,15 @@ export function FarmBuildingView({
         style={{ pointerEvents: "none" }}
         fontSize={6}
       >
-        {text}
+        {textLines.map((line, i) => (
+          <tspan
+            x={center.x}
+            dy={i > 0 ? "1.2em" : `${(-1.2 * (textLines.length - 1)) / 2}em`}
+            key={i}
+          >
+            {line}
+          </tspan>
+        ))}
       </text>
     </g>
   );

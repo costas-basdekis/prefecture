@@ -18,7 +18,7 @@ export type FarmBuildingOptions = Pick<FarmBuilding, "crop"> &
 
 export type FarmBuildingImmutable = Pick<
   FarmBuilding,
-  "crop" | "workerFinderId"
+  "crop" | "workerFinderId" | "lastWorkerAccessTickCount" | "hasWorkerAccess"
 > &
   BaseBuildingImmutable<FarmBuilding>;
 
@@ -37,6 +37,7 @@ export class FarmBuilding
   )
   declare workerFinder: WorkerFinderPerson | null;
   lastWorkerFinderVisitedByCell: Map<Cell, number>;
+  @mutable("plainValue")
   lastWorkerAccessTickCount: number;
   @mutable("plainValue")
   hasWorkerAccess: boolean;
