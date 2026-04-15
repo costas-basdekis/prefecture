@@ -1,4 +1,5 @@
 import {
+  immutable,
   Immutable,
   mutable,
   Mutable,
@@ -8,31 +9,30 @@ import {
 import { Building } from "./Building";
 import { propById } from "~/utils";
 import { GoodsDelivererPerson } from "../people";
-import { Good } from "../goods";
+import type { Good } from "../goods";
 import { BuildingWithProduction } from "./Production";
 
-export type KeysWithGood<T> = keyof {
-  [key in keyof T as T[key] extends Good ? key : never]: T[key];
-};
+export type ProductionDeliveryImmutable = Pick<
+  ProductionDelivery,
+  "goodType" | "goodsDelivererId"
+> &
+  Immutable<ProductionDelivery>;
 
-export type ProductionDeliveryImmutable<
-  B extends Building & BuildingWithProduction,
-> = Pick<ProductionDelivery<B>, "goodsDelivererId"> &
-  Immutable<ProductionDelivery<B>>;
-
-export class ProductionDelivery<
-  B extends Building & BuildingWithProduction,
-> implements Mutable<ProductionDelivery<B>, ProductionDeliveryImmutable<B>> {
+export class ProductionDelivery implements Mutable<
+  ProductionDelivery,
+  ProductionDeliveryImmutable
+> {
   mutationHelper: MutationHelper<
-    ProductionDelivery<B>,
-    ProductionDeliveryImmutable<B>
+    ProductionDelivery,
+    ProductionDeliveryImmutable
   >;
   @parentKey("productionDelivery")
-  building: B;
-  goodKey: KeysWithGood<B>;
+  building: Building & BuildingWithProduction;
+  @immutable
+  goodType: Good;
   @mutable("plainValue")
   goodsDelivererId: number | null;
-  @propById<ProductionDelivery<B>, GoodsDelivererPerson, number>(
+  @propById<ProductionDelivery, GoodsDelivererPerson, number>(
     "goodsDelivererId",
     (id, thisObject) =>
       thisObject.building.buildings.game.people.byId[
@@ -41,13 +41,13 @@ export class ProductionDelivery<
   )
   declare goodsDeliverer: GoodsDelivererPerson | null;
 
-  constructor(building: B, goodKey: KeysWithGood<B>) {
+  constructor(building: Building & BuildingWithProduction, goodType: Good) {
     this.building = building;
-    this.goodKey = goodKey;
+    this.goodType = goodType;
     this.goodsDelivererId = null;
     this.mutationHelper = new MutationHelper<
-      ProductionDelivery<B>,
-      ProductionDeliveryImmutable<B>
+      ProductionDelivery,
+      ProductionDeliveryImmutable
     >(this);
   }
 
@@ -61,7 +61,7 @@ export class ProductionDelivery<
             sourceBuildingId: this.building.id,
             targetBuildingId: null,
             positionKey: firstCell.key,
-            goodType: this.building[this.goodKey] as Good,
+            goodType: this.goodType,
             goodAmount: 1,
           },
         );

@@ -19,7 +19,7 @@ export class People implements Mutable<People, PeopleImmutable> {
   game: Game;
   @mutable("plainValue")
   nextId: number;
-  @mutable("mappedMutable")
+  @mutable("mutableMap")
   byId: Record<number, Person>;
 
   constructor(game: Game) {

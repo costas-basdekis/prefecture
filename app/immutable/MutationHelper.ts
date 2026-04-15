@@ -33,9 +33,10 @@ export type MutableMutationMethodKeys<M, I> = keyof {
 
 export type MutationType =
   | "mutable"
-  | "mappedMutable"
+  | "mutableMap"
   | "plainValue"
-  | "mappedPlainValue";
+  | "plainValueArray"
+  | "plainValueMap";
 
 const keysWithNoMutationKey = Symbol("keysWithNoMutation");
 
@@ -99,7 +100,7 @@ function makeMutableProperty(
       store.set(this, info);
       if (self.mutationHelper) {
         switch (type) {
-          case "mappedMutable":
+          case "mutableMap":
             self.mutationHelper.markDirty(propertyKey);
             if (previousInfo) {
               (this as Mutable<any, any>).mutationHelper.markDirty(
@@ -118,7 +119,8 @@ function makeMutableProperty(
             break;
           case "plainValue":
           case "mutable":
-          case "mappedPlainValue":
+          case "plainValueArray":
+          case "plainValueMap":
             self.mutationHelper.markDirty(propertyKey);
             break;
           default:
@@ -139,11 +141,12 @@ function makeMutableProxy(
     case "plainValue":
     case "mutable":
       return value;
-    case "mappedMutable":
-    case "mappedPlainValue":
+    case "mutableMap":
+    case "plainValueArray":
+    case "plainValueMap":
       return new Proxy(value, {
         set(target, property, subValue, receiver) {
-          if (type === "mappedMutable") {
+          if (type === "mutableMap") {
             self.mutationHelper.markDirty([propertyKey, property as string]);
           } else {
             self.mutationHelper.markDirty(propertyKey);
@@ -151,7 +154,7 @@ function makeMutableProxy(
           return Reflect.set(target, property, subValue, receiver);
         },
         deleteProperty(target, property) {
-          if (type === "mappedMutable") {
+          if (type === "mutableMap") {
             self.mutationHelper.markDirty([propertyKey, property as string]);
           } else {
             self.mutationHelper.markDirty(propertyKey);
@@ -240,11 +243,12 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
         switch (mutationType) {
           case "mutable":
           case "plainValue":
-          case "mappedPlainValue":
+          case "plainValueArray":
+          case "plainValueMap":
             // @ts-ignore
             dirtyKeys[key] = false;
             break;
-          case "mappedMutable":
+          case "mutableMap":
             // @ts-ignore
             dirtyKeys[key] = new Set();
             break;
@@ -292,14 +296,18 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
           case "mutable":
             immutable[key] = this.getForMutable(key as any);
             break;
-          case "mappedMutable":
-            immutable[key] = this.getForMappedMutable(key as any) as any;
+          case "mutableMap":
+            immutable[key] = this.getForMutableMap(key as any) as any;
             break;
           case "plainValue":
             immutable[key] = this.getForPlainValue(key as any);
             break;
-          case "mappedPlainValue":
-            immutable[key] = this.getForMappedPlainValue(key as any);
+          case "plainValueArray":
+            immutable[key] = this.getForPlainValueArray(key as any);
+            break;
+            break;
+          case "plainValueMap":
+            immutable[key] = this.getForPlainValueMap(key as any);
             break;
           default:
             throw new Error(
@@ -422,14 +430,17 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
         case "mutable":
           this.updateForMutable(key as any);
           break;
-        case "mappedMutable":
-          this.updateForMappedMutable(key as never);
+        case "mutableMap":
+          this.updateForMutableMap(key as never);
           break;
         case "plainValue":
           this.updateForPlainValue(key as any);
           break;
-        case "mappedPlainValue":
-          this.updateForMappedPlainValue(key as any);
+        case "plainValueArray":
+          this.updateForPlainValueArray(key as any);
+          break;
+        case "plainValueMap":
+          this.updateForPlainValueMap(key as any);
           break;
         default:
           throw new Error(
@@ -474,11 +485,11 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
     }
   }
 
-  getForMappedPlainValue<K extends keyof M>(key: K): M[K] {
+  getForPlainValueArray<K extends keyof M>(key: K): M[K] {
     return Array.from(this.mutable[key] as any[]) as any;
   }
 
-  updateForMappedPlainValue(key: string) {
+  updateForPlainValueArray(key: string) {
     if (typeof this.dirtyKeys[key] !== "boolean") {
       throw new Error(
         `Dirty key "${key.toString()}" for ${this.constructor.name} is not a boolean`,
@@ -486,12 +497,29 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
     }
     if (this.dirtyKeys[key]) {
       // @ts-ignore
-      this.lastImmutable[key] = this.getForMappedPlainValue(key);
+      this.lastImmutable[key] = this.getForPlainValueArray(key);
       this.dirtyKeys[key] = false;
     }
   }
 
-  getForMappedMutable<
+  getForPlainValueMap<K extends keyof M>(key: K): M[K] {
+    return { ...this.mutable[key] };
+  }
+
+  updateForPlainValueMap(key: string) {
+    if (typeof this.dirtyKeys[key] !== "boolean") {
+      throw new Error(
+        `Dirty key "${key.toString()}" for ${this.constructor.name} is not a boolean`,
+      );
+    }
+    if (this.dirtyKeys[key]) {
+      // @ts-ignore
+      this.lastImmutable[key] = this.getForPlainValueMap(key);
+      this.dirtyKeys[key] = false;
+    }
+  }
+
+  getForMutableMap<
     MK extends (string | number) & keyof M[K],
     K extends MappedMutableDirtyKeys<M, I>,
   >(key: K, mappedKeys?: Set<MK>): Record<MK, any> {
@@ -519,7 +547,7 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
     }
   }
 
-  updateForMappedMutable<
+  updateForMutableMap<
     MK extends (string | number) & keyof M[K],
     K extends MappedMutableDirtyKeys<M, I>,
   >(key: K) {
@@ -532,7 +560,7 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
     if (dirtyMappedKeys.size) {
       this.lastImmutable[key] = {
         ...this.lastImmutable[key],
-        ...this.getForMappedMutable(key, dirtyMappedKeys),
+        ...this.getForMutableMap(key, dirtyMappedKeys),
       };
       for (const mappedKey of dirtyMappedKeys) {
         // @ts-ignore

@@ -1,5 +1,6 @@
 import type {
   FarmPlacementTool,
+  GranaryPlacementTool,
   HousePlacementTool,
   RoadPlacementTool,
   SelectionTool,
@@ -11,5 +12,6 @@ export type Tool =
   | RoadPlacementTool
   | HousePlacementTool
   | WellPlacementTool
-  | FarmPlacementTool;
+  | FarmPlacementTool
+  | GranaryPlacementTool;
 export type ToolName = Tool["name"];

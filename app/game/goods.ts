@@ -1,2 +1,3 @@
 export type FarmGood = "wheat";
-export type Good = FarmGood;
+export type FoodGood = FarmGood;
+export type Good = FoodGood;

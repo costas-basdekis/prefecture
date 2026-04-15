@@ -6,4 +6,8 @@
   &.building-type-farm {
     fill: burlywood;
   }
+
+  &.building-type-granary {
+    fill: yellow;
+  }
 }

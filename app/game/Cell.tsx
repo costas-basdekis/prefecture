@@ -60,7 +60,7 @@ export class Cell implements Mutable<Cell, CellImmutable> {
   canAddBuilding: boolean;
   @mutable("plainValue")
   waterCoverage: WaterCoverage;
-  @mutable("mappedPlainValue")
+  @mutable("plainValueArray")
   waterBuildingIds: number[];
 
   constructor(grid: Grid, { x, y }: Coords) {

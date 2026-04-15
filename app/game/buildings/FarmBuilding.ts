@@ -26,8 +26,8 @@ export type FarmBuildingOptions = Pick<FarmBuilding, "crop"> &
 
 export type FarmBuildingImmutable = Pick<FarmBuilding, "crop"> & {
   workSearch: WorkSearchImmutable;
-  production: ProductionImmutable<FarmBuilding>;
-  productionDelivery: ProductionDeliveryImmutable<FarmBuilding>;
+  production: ProductionImmutable;
+  productionDelivery: ProductionDeliveryImmutable;
 } & BaseBuildingImmutable<FarmBuilding>;
 
 export class FarmBuilding
@@ -39,19 +39,16 @@ export class FarmBuilding
   @mutable("mutable")
   workSearch: WorkSearch;
   @mutable("mutable")
-  production: Production<FarmBuilding>;
+  production: Production;
   @mutable("mutable")
-  productionDelivery: ProductionDelivery<FarmBuilding>;
+  productionDelivery: ProductionDelivery;
 
   constructor(buildings: Buildings, options: FarmBuildingOptions) {
     super(buildings, "farm", options);
     this.crop = options.crop;
     this.workSearch = new WorkSearch(this);
-    this.production = new Production<FarmBuilding>(this, 0.1, 1);
-    this.productionDelivery = new ProductionDelivery<FarmBuilding>(
-      this,
-      "crop",
-    );
+    this.production = new Production(this, 0.1, 1);
+    this.productionDelivery = new ProductionDelivery(this, this.crop);
     this.postInit();
   }
 

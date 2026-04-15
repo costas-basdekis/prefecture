@@ -22,7 +22,7 @@ export class Buildings implements Mutable<Buildings, BuildingsImmutable> {
   game: Game;
   @mutable("plainValue")
   nextId: number;
-  @mutable("mappedMutable")
+  @mutable("mutableMap")
   byId: BuildingMap;
 
   constructor(game: Game) {

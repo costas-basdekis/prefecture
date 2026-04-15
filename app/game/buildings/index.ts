@@ -2,6 +2,7 @@ export * from "./BaseBuilding";
 export * from "./Building";
 export * from "./Buildings";
 export * from "./FarmBuilding";
+export * from "./GranaryBuilding";
 export * from "./HouseBuilding";
 export * from "./Production";
 export * from "./ProductionDelivery";

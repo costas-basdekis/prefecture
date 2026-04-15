@@ -1,5 +1,6 @@
 export * from "./BaseTool";
 export * from "./FarmPlacementTool";
+export * from "./GranaryPlacementTool";
 export * from "./HousePlacementTool";
 export * from "./RoadPlacementTool";
 export * from "./SelectionTool";

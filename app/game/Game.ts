@@ -25,6 +25,7 @@ export type GameImmutable = Pick<Game, "tickCount"> & {
     coords: Coords,
     options: Pick<FarmBuildingOptions, "crop">,
   ): GameImmutable;
+  addGranary(coords: Coords): GameImmutable;
   tick(): GameImmutable;
 } & Immutable<Game>;
 
@@ -68,6 +69,12 @@ export class Game implements Mutable<Game, GameImmutable> {
   @methodMutate
   addFarm(coords: Coords, options: Pick<FarmBuildingOptions, "crop">): Game {
     this.grid.addFarm(coords, options);
+    return this;
+  }
+
+  @methodMutate
+  addGranary(coords: Coords): Game {
+    this.grid.addGranary(coords);
     return this;
   }
 

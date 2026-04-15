@@ -12,6 +12,7 @@ import {
 } from "~/immutable";
 import { Building, FarmBuilding, FarmBuildingOptions } from "./buildings";
 import _ from "lodash";
+import { GranaryBuilding } from "./buildings/GranaryBuilding";
 
 export interface GridMakeOptions {
   width: number;
@@ -30,7 +31,7 @@ export class Grid implements Mutable<Grid, GridImmutable> {
   mutationHelper: MutationHelper<Grid, GridImmutable>;
   @parentKey("grid")
   game: Game;
-  @mutable("mappedMutable")
+  @mutable("mutableMap")
   cellMap: CellMap;
   @immutable
   width: number;
@@ -122,6 +123,23 @@ export class Grid implements Mutable<Grid, GridImmutable> {
           width: 3,
           height: 3,
           ...options,
+        }),
+    );
+  }
+
+  addGranary(coords: Coords) {
+    const positions = _.range(3).flatMap((dX) =>
+      _.range(3).map((dY) => ({ x: coords.x + dX, y: coords.y + dY })),
+    );
+    this.addBuilding(
+      positions,
+      () =>
+        new GranaryBuilding(this.game.buildings, {
+          positions,
+          topLeftPosition: coords,
+          bottomRightPosition: { x: coords.x + 2, y: coords.y + 2 },
+          width: 3,
+          height: 3,
         }),
     );
   }

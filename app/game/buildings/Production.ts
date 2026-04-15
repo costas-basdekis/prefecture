@@ -10,19 +10,19 @@ import { Building } from "./Building";
 import { BuildingWithWorkerFinder } from "./WorkSearch";
 
 export interface BuildingWithProduction {
-  production: Production<any>;
+  production: Production;
 }
 
-export type ProductionImmutable<B extends Building & BuildingWithWorkerFinder> =
-  Pick<Production<B>, "process" | "maxProcess" | "maxProcess"> &
-    Immutable<Production<B>>;
+export type ProductionImmutable = Pick<
+  Production,
+  "process" | "maxProcess" | "maxProcess"
+> &
+  Immutable<Production>;
 
-export class Production<
-  B extends Building & BuildingWithWorkerFinder,
-> implements Mutable<Production<B>, ProductionImmutable<B>> {
-  mutationHelper: MutationHelper<Production<B>, ProductionImmutable<B>>;
+export class Production implements Mutable<Production, ProductionImmutable> {
+  mutationHelper: MutationHelper<Production, ProductionImmutable>;
   @parentKey("production")
-  building: B;
+  building: Building & BuildingWithWorkerFinder;
   @immutable
   processRate: number;
   @immutable
@@ -30,15 +30,18 @@ export class Production<
   @mutable("plainValue")
   process: number;
 
-  constructor(building: B, processRate: number, maxProcess: number) {
+  constructor(
+    building: Building & BuildingWithWorkerFinder,
+    processRate: number,
+    maxProcess: number,
+  ) {
     this.building = building;
     this.processRate = processRate;
     this.process = 0;
     this.maxProcess = maxProcess;
-    this.mutationHelper = new MutationHelper<
-      Production<B>,
-      ProductionImmutable<B>
-    >(this);
+    this.mutationHelper = new MutationHelper<Production, ProductionImmutable>(
+      this,
+    );
   }
 
   tick(_tickCount: number) {
