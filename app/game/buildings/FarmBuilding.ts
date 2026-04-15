@@ -6,7 +6,7 @@ import {
 } from "./BaseBuilding";
 import type { Buildings } from "./Buildings";
 import { propById } from "~/utils";
-import { WorkerFinderPerson } from "../people";
+import { GoodsDelivererPerson, WorkerFinderPerson } from "../people";
 import {
   type BuildingWithWorkerFinder,
   MaxWorkerAccessTickCount,
@@ -50,6 +50,14 @@ export class FarmBuilding
   processRate: number;
   @mutable("plainValue")
   process: number;
+  @mutable("plainValue")
+  goodsDelivererId: number | null;
+  @propById<FarmBuilding, GoodsDelivererPerson, number>(
+    "goodsDelivererId",
+    (id, thisObject) =>
+      thisObject.buildings.game.people.byId[id] as GoodsDelivererPerson,
+  )
+  declare goodsDeliverer: GoodsDelivererPerson | null;
 
   constructor(buildings: Buildings, options: FarmBuildingOptions) {
     super(buildings, "farm", options);
@@ -60,6 +68,7 @@ export class FarmBuilding
     this.hasWorkerAccess = false;
     this.processRate = 0.1;
     this.process = 0;
+    this.goodsDelivererId = null;
     this.postInit();
     this.spawnWorkerFinder();
   }
@@ -72,13 +81,27 @@ export class FarmBuilding
     if (this.hasWorkerAccess && this.process < 1) {
       this.process = Math.min(1, this.process + this.processRate);
     }
+    if (this.process === 1 && !this.goodsDelivererId) {
+      const firstCell = this.findFirstNeighbouringRoad();
+      if (firstCell) {
+        this.goodsDeliverer = new GoodsDelivererPerson(
+          this.buildings.game.people,
+          {
+            sourceBuildingId: this.id,
+            targetBuildingId: null,
+            positionKey: firstCell.key,
+            goodType: this.crop,
+            goodAmount: 1,
+          },
+        );
+        this.process = 0;
+      }
+    }
   }
 
   spawnWorkerFinder() {
     if (!this.workerFinderId) {
-      const firstCell = Array.from(this.getCellsAround(1, 1, false)).find(
-        (cell) => cell.hasRoad,
-      );
+      const firstCell = this.findFirstNeighbouringRoad();
       if (!firstCell) {
         return;
       }

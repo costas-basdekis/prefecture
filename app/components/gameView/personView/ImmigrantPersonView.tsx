@@ -33,8 +33,6 @@ export function ImmigrantPersonView({
       cy={position.y * 20 + 10}
       r={12}
       className={`person person-type-${person.type}`}
-      stroke="black"
-      fill="white"
     />
   );
 }

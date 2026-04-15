@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { GameController } from "./components/GameController";
+import { GameController } from "./components";
 
 function GameSvg({ children }: { children: ReactNode }) {
   return (

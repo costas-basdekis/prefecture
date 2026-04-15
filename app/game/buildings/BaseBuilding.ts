@@ -99,6 +99,14 @@ export abstract class BaseBuilding<
     );
   }
 
+  findFirstNeighbouringRoad(): Cell | null {
+    return (
+      Array.from(this.getCellsAround(1, 1, false)).find(
+        (cell) => cell.hasRoad,
+      ) ?? null
+    );
+  }
+
   waterCoverageUpdated?(cell: Cell): void;
 
   tick?(tickCount: number): void;

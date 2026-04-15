@@ -1,9 +1,15 @@
 .person {
+  stroke: black;
+  
   &.person-type-immigrant {
     fill: orange;
   }
 
   &.person-type-workerFinder {
     fill: yellow;
+  }
+
+  &.person-type-goodsDeliverer {
+    fill: brown;
   }
 }

@@ -1,5 +1,6 @@
 import { BuildingViewProps } from "./BuildingView";
 import { useMemo } from "react";
+import { MultilineText } from "~/components/generic";
 import { FarmBuildingImmutable } from "~/game";
 
 export function FarmBuildingView({
@@ -29,25 +30,12 @@ export function FarmBuildingView({
         width={20 * building.width}
         height={20 * building.height}
       ></rect>
-      <text
-        x={center.x}
-        y={center.y}
+      <MultilineText
+        center={center}
         fill={"black"}
-        textAnchor="middle"
-        dominantBaseline="middle"
-        style={{ pointerEvents: "none" }}
         fontSize={6}
-      >
-        {textLines.map((line, i) => (
-          <tspan
-            x={center.x}
-            dy={i > 0 ? "1.2em" : `${(-1.2 * (textLines.length - 1)) / 2}em`}
-            key={i}
-          >
-            {line}
-          </tspan>
-        ))}
-      </text>
+        textLines={textLines}
+      />
     </g>
   );
 }
