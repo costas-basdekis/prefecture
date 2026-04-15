@@ -87,3 +87,13 @@ export class WorkSearch implements Mutable<WorkSearch, WorkSearchImmutable> {
     this.building.workerFinderPassedHouse?.(tickCount);
   }
 }
+
+export const WorkSearchUtils = {
+  hasWorkerAccess(building: Building): boolean {
+    return (
+      "workSearch" in building &&
+      building.workSearch instanceof WorkSearch &&
+      building.workSearch.hasWorkerAccess
+    );
+  },
+};

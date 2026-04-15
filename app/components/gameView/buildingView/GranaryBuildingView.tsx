@@ -14,9 +14,9 @@ export function GranaryBuildingView({
     };
   }, [building.topLeftPosition, building.width, building.height]);
   const textLines = useMemo(() => {
-    const contentsEntries = Object.entries(building.contents).filter(
-      ([, amount]) => amount > 0,
-    );
+    const contentsEntries = Object.entries(
+      building.contentStore.contents,
+    ).filter(([, amount]) => amount > 0);
     return [
       building.workSearch.hasWorkerAccess
         ? `Has workers`
@@ -31,7 +31,7 @@ export function GranaryBuildingView({
     game.tickCount,
     building.workSearch.hasWorkerAccess,
     building.workSearch.lastWorkerAccessTickCount,
-    building.contents,
+    building.contentStore.contents,
   ]);
   return (
     <g className="Granary">

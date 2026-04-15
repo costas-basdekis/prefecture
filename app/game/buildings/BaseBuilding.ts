@@ -107,6 +107,14 @@ export abstract class BaseBuilding<
     );
   }
 
+  getPathFrom(cell: Cell): Cell[] | null {
+    const roadCell = this.findFirstNeighbouringRoad();
+    if (!roadCell) {
+      return null;
+    }
+    return roadCell.getPathFrom(cell);
+  }
+
   waterCoverageUpdated?(cell: Cell): void;
 
   tick?(tickCount: number): void;

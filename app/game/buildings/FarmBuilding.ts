@@ -11,6 +11,7 @@ import {
 } from "./WorkSearch";
 import { WorkSearch } from "./WorkSearch";
 import {
+  BuildingWithProductionDelivery,
   ProductionDelivery,
   ProductionDeliveryImmutable,
 } from "./ProductionDelivery";
@@ -32,7 +33,10 @@ export type FarmBuildingImmutable = Pick<FarmBuilding, "crop"> & {
 
 export class FarmBuilding
   extends BaseBuilding<FarmBuilding, FarmBuildingImmutable, "farm">
-  implements BuildingWithWorkerFinder, BuildingWithProduction
+  implements
+    BuildingWithWorkerFinder,
+    BuildingWithProduction,
+    BuildingWithProductionDelivery
 {
   @immutable
   crop: FarmGood;

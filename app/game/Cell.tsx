@@ -20,6 +20,7 @@ import { Coords, makeCoordsKey } from "./Coords";
 import type { Grid } from "./Grid";
 import { propById } from "~/utils";
 import _ from "lodash";
+import { CellSearch } from "./CellSearch";
 
 export type CellImmutable = Pick<
   Cell,
@@ -100,6 +101,25 @@ export class Cell implements Mutable<Cell, CellImmutable> {
         }
       }
     }
+  }
+
+  getAdjacentRoads(): Cell[] {
+    return this.getAdjacentCells().filter((cell) => cell.hasRoad);
+  }
+
+  getAdjacentCells(): Cell[] {
+    return [
+      { x: this.x - 1, y: this.y },
+      { x: this.x + 1, y: this.y },
+      { x: this.x, y: this.y - 1 },
+      { x: this.x, y: this.y + 1 },
+    ]
+      .map((coords) => this.grid.cellMap[makeCoordsKey(coords)])
+      .filter((cell) => cell);
+  }
+
+  getPathFrom(cell: Cell): Cell[] | null {
+    return CellSearch.search(cell, this);
   }
 
   addRoad(): Cell {

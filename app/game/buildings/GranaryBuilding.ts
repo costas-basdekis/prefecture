@@ -1,4 +1,4 @@
-import { immutable, mutable } from "~/immutable";
+import { mutable } from "~/immutable";
 import {
   BaseBuilding,
   BaseBuildingImmutable,
@@ -6,34 +6,33 @@ import {
 } from "./BaseBuilding";
 import { Buildings } from "./Buildings";
 import { WorkSearch, WorkSearchImmutable } from "./WorkSearch";
-import { FoodGood } from "../goods";
+import { FoodGood, foodGoods } from "../goods";
+import {
+  BuildingWithContents,
+  ContentStore,
+  ContentStoreImmutable,
+} from "./ContentStore";
 
 export type GranaryBuildingOptions = BaseBuildingOptions;
 
-export type GranaryBuildingImmutable = Pick<
-  GranaryBuilding,
-  "capacity" | "contents"
-> & {
+export type GranaryBuildingImmutable = {
   workSearch: WorkSearchImmutable;
+  contentStore: ContentStoreImmutable<FoodGood>;
 } & BaseBuildingImmutable<GranaryBuilding>;
 
-export class GranaryBuilding extends BaseBuilding<
-  GranaryBuilding,
-  GranaryBuildingImmutable,
-  "granary"
-> {
+export class GranaryBuilding
+  extends BaseBuilding<GranaryBuilding, GranaryBuildingImmutable, "granary">
+  implements BuildingWithContents<FoodGood>
+{
   @mutable("mutable")
   workSearch: WorkSearch;
-  @immutable
-  capacity: number;
-  @mutable("plainValueMap")
-  contents: Partial<Record<FoodGood, number>>;
+  @mutable("mutable")
+  contentStore: ContentStore<FoodGood>;
 
   constructor(buildings: Buildings, options: GranaryBuildingOptions) {
     super(buildings, "granary", options);
     this.workSearch = new WorkSearch(this);
-    this.capacity = 32;
-    this.contents = {};
+    this.contentStore = new ContentStore<FoodGood>(this, foodGoods, 32);
     this.postInit();
   }
 

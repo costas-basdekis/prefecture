@@ -9,8 +9,12 @@ import {
 import { Building } from "./Building";
 import { propById } from "~/utils";
 import { GoodsDelivererPerson } from "../people";
-import type { Good } from "../goods";
+import { goods, type Good } from "../goods";
 import { BuildingWithProduction } from "./Production";
+
+export interface BuildingWithProductionDelivery {
+  productionDelivery: ProductionDelivery;
+}
 
 export type ProductionDeliveryImmutable = Pick<
   ProductionDelivery,
@@ -67,6 +71,12 @@ export class ProductionDelivery implements Mutable<
         );
         this.building.production.process--;
       }
+    }
+  }
+
+  goodsDelivererFinished(goodsDeliverer: GoodsDelivererPerson) {
+    if (this.goodsDeliverer === goodsDeliverer) {
+      this.goodsDeliverer = null;
     }
   }
 }
