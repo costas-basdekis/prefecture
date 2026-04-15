@@ -4,6 +4,7 @@ import { propById } from "~/utils";
 import type { Building } from "../buildings";
 import type { People } from "./People";
 import type { Cell } from "../Cell";
+import type { Good } from "../goods";
 
 export type GoodsDelivererPersonOptions = Pick<
   GoodsDelivererPerson,
@@ -46,7 +47,7 @@ export class GoodsDelivererPerson extends BasePerson<
   )
   declare targetBuilding: Building | null;
   @immutable
-  goodType: "wheat";
+  goodType: Good;
   @mutable("plainValue")
   goodAmount: number;
   @mutable("plainValue")
