@@ -57,7 +57,7 @@ export class WorkerFinderPerson extends BasePerson<
     this.firstTickCount = people.game.tickCount;
     this.maxDuration = 20;
     this.lastWorkerFinderVisitedByCell =
-      this.sourceBuilding.lastWorkerFinderVisitedByCell;
+      this.sourceBuilding.workSearch.lastWorkerFinderVisitedByCell;
     this.lastWorkerFinderVisitedByCell.set(
       this.cell,
       this.people.game.tickCount,
@@ -69,7 +69,7 @@ export class WorkerFinderPerson extends BasePerson<
   tick(tickCount: number) {
     if (tickCount > this.firstTickCount + this.maxDuration) {
       this.remove();
-      this.sourceBuilding.workerFinderFinished();
+      this.sourceBuilding.workSearch.workerFinderFinished();
       return;
     }
     const nextCells = Array.from(this.cell.getCellsAround(1, 1, false)).filter(
@@ -94,7 +94,9 @@ export class WorkerFinderPerson extends BasePerson<
           cell.building?.type === "house" && cell.building.occupantCount > 0,
       )
     ) {
-      this.sourceBuilding.workerFinderPassedHouse(this.people.game.tickCount);
+      this.sourceBuilding.workSearch.workerFinderPassedHouse(
+        this.people.game.tickCount,
+      );
     }
   }
 }

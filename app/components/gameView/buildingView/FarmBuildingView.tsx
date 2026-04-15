@@ -16,11 +16,17 @@ export function FarmBuildingView({
   const textLines = useMemo(() => {
     return [
       building.crop,
-      building.hasWorkerAccess ? `Has workers` : `No access to workers`,
-      `(${game.tickCount - building.lastWorkerAccessTickCount} ticks ago)`,
+      building.workSearch.hasWorkerAccess
+        ? `Has workers`
+        : `No access to workers`,
+      `(${game.tickCount - building.workSearch.lastWorkerAccessTickCount} ticks ago)`,
       `${Math.floor(building.process * 100)}% completed`,
     ];
-  }, [game.tickCount, building.crop, building.lastWorkerAccessTickCount]);
+  }, [
+    game.tickCount,
+    building.crop,
+    building.workSearch.lastWorkerAccessTickCount,
+  ]);
   return (
     <g className="farm">
       <rect
