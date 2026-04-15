@@ -4,6 +4,7 @@ import {
   mutable,
   Mutable,
   MutationHelper,
+  parentKey,
 } from "~/immutable";
 import { Building } from "./Building";
 import { BuildingWithWorkerFinder } from "./WorkSearch";
@@ -20,6 +21,7 @@ export class Production<
   B extends Building & BuildingWithWorkerFinder,
 > implements Mutable<Production<B>, ProductionImmutable<B>> {
   mutationHelper: MutationHelper<Production<B>, ProductionImmutable<B>>;
+  @parentKey("production")
   building: B;
   @immutable
   processRate: number;

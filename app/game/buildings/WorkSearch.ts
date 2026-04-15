@@ -1,4 +1,10 @@
-import { Immutable, mutable, Mutable, MutationHelper } from "~/immutable";
+import {
+  Immutable,
+  mutable,
+  Mutable,
+  MutationHelper,
+  parentKey,
+} from "~/immutable";
 import { Building } from "./Building";
 import { propById } from "~/utils";
 import { WorkerFinderPerson } from "../people";
@@ -12,12 +18,16 @@ export interface BuildingWithWorkerFinder {
 
 export const MaxWorkerAccessTickCount = 50;
 
-export type WorkSearchImmutable = Immutable<WorkSearch>;
+export type WorkSearchImmutable = Pick<
+  WorkSearch,
+  "workerFinderId" | "lastWorkerAccessTickCount" | "hasWorkerAccess"
+> &
+  Immutable<WorkSearch>;
 
 export class WorkSearch implements Mutable<WorkSearch, WorkSearchImmutable> {
   mutationHelper: MutationHelper<WorkSearch, WorkSearchImmutable>;
+  @parentKey("workSearch")
   building: Building & BuildingWithWorkerFinder;
-
   @mutable("plainValue")
   workerFinderId: number | null;
   @propById<WorkSearch, WorkerFinderPerson, number>(

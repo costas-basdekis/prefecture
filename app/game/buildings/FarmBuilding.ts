@@ -5,9 +5,15 @@ import {
   BaseBuildingOptions,
 } from "./BaseBuilding";
 import type { Buildings } from "./Buildings";
-import { type BuildingWithWorkerFinder } from "./WorkSearch";
+import {
+  WorkSearchImmutable,
+  type BuildingWithWorkerFinder,
+} from "./WorkSearch";
 import { WorkSearch } from "./WorkSearch";
-import { ProductionDelivery } from "./ProductionDelivery";
+import {
+  ProductionDelivery,
+  ProductionDeliveryImmutable,
+} from "./ProductionDelivery";
 import type { FarmGood } from "../goods";
 import {
   type BuildingWithProduction,
@@ -18,11 +24,10 @@ import {
 export type FarmBuildingOptions = Pick<FarmBuilding, "crop"> &
   BaseBuildingOptions;
 
-export type FarmBuildingImmutable = Pick<
-  FarmBuilding,
-  "crop" | "workSearch" | "productionDelivery"
-> & {
+export type FarmBuildingImmutable = Pick<FarmBuilding, "crop"> & {
+  workSearch: WorkSearchImmutable;
   production: ProductionImmutable<FarmBuilding>;
+  productionDelivery: ProductionDeliveryImmutable<FarmBuilding>;
 } & BaseBuildingImmutable<FarmBuilding>;
 
 export class FarmBuilding

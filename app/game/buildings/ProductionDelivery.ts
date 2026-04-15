@@ -1,4 +1,10 @@
-import { Immutable, mutable, Mutable, MutationHelper } from "~/immutable";
+import {
+  Immutable,
+  mutable,
+  Mutable,
+  MutationHelper,
+  parentKey,
+} from "~/immutable";
 import { Building } from "./Building";
 import { propById } from "~/utils";
 import { GoodsDelivererPerson } from "../people";
@@ -11,7 +17,8 @@ export type KeysWithGood<T> = keyof {
 
 export type ProductionDeliveryImmutable<
   B extends Building & BuildingWithProduction,
-> = Immutable<ProductionDelivery<B>>;
+> = Pick<ProductionDelivery<B>, "goodsDelivererId"> &
+  Immutable<ProductionDelivery<B>>;
 
 export class ProductionDelivery<
   B extends Building & BuildingWithProduction,
@@ -20,6 +27,7 @@ export class ProductionDelivery<
     ProductionDelivery<B>,
     ProductionDeliveryImmutable<B>
   >;
+  @parentKey("productionDelivery")
   building: B;
   goodKey: KeysWithGood<B>;
   @mutable("plainValue")
