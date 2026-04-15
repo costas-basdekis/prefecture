@@ -3,14 +3,11 @@ import { Building } from "./Building";
 import { propById } from "~/utils";
 import { GoodsDelivererPerson } from "../people";
 import { Good } from "../goods";
+import { BuildingWithProduction } from "./Production";
 
 export type KeysWithGood<T> = keyof {
   [key in keyof T as T[key] extends Good ? key : never]: T[key];
 };
-
-export interface BuildingWithProduction {
-  process: number;
-}
 
 export type ProductionDeliveryImmutable<
   B extends Building & BuildingWithProduction,
@@ -47,7 +44,7 @@ export class ProductionDelivery<
   }
 
   tick(_tickCount: number) {
-    if (this.building.process >= 1 && !this.goodsDelivererId) {
+    if (this.building.production.process >= 1 && !this.goodsDelivererId) {
       const firstCell = this.building.findFirstNeighbouringRoad();
       if (firstCell) {
         this.goodsDeliverer = new GoodsDelivererPerson(
@@ -60,7 +57,7 @@ export class ProductionDelivery<
             goodAmount: 1,
           },
         );
-        this.building.process--;
+        this.building.production.process--;
       }
     }
   }

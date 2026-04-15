@@ -7,20 +7,23 @@ import {
 import type { Buildings } from "./Buildings";
 import { type BuildingWithWorkerFinder } from "./WorkSearch";
 import { WorkSearch } from "./WorkSearch";
-import {
-  BuildingWithProduction,
-  ProductionDelivery,
-} from "./ProductionDelivery";
+import { ProductionDelivery } from "./ProductionDelivery";
 import type { FarmGood } from "../goods";
+import {
+  type BuildingWithProduction,
+  Production,
+  ProductionImmutable,
+} from "./Production";
 
 export type FarmBuildingOptions = Pick<FarmBuilding, "crop"> &
   BaseBuildingOptions;
 
 export type FarmBuildingImmutable = Pick<
   FarmBuilding,
-  "crop" | "workSearch" | "processRate" | "process" | "productionDelivery"
-> &
-  BaseBuildingImmutable<FarmBuilding>;
+  "crop" | "workSearch" | "productionDelivery"
+> & {
+  production: ProductionImmutable<FarmBuilding>;
+} & BaseBuildingImmutable<FarmBuilding>;
 
 export class FarmBuilding
   extends BaseBuilding<FarmBuilding, FarmBuildingImmutable, "farm">
@@ -30,10 +33,8 @@ export class FarmBuilding
   crop: FarmGood;
   @mutable("mutable")
   workSearch: WorkSearch;
-  @immutable
-  processRate: number;
-  @mutable("plainValue")
-  process: number;
+  @mutable("mutable")
+  production: Production<FarmBuilding>;
   @mutable("mutable")
   productionDelivery: ProductionDelivery<FarmBuilding>;
 
@@ -41,8 +42,7 @@ export class FarmBuilding
     super(buildings, "farm", options);
     this.crop = options.crop;
     this.workSearch = new WorkSearch(this);
-    this.processRate = 0.1;
-    this.process = 0;
+    this.production = new Production<FarmBuilding>(this, 0.1, 1);
     this.productionDelivery = new ProductionDelivery<FarmBuilding>(
       this,
       "crop",
@@ -52,9 +52,7 @@ export class FarmBuilding
 
   tick(tickCount: number) {
     this.workSearch.tick(tickCount);
-    if (this.workSearch.hasWorkerAccess && this.process < 1) {
-      this.process = Math.min(1, this.process + this.processRate);
-    }
+    this.production.tick(tickCount);
     this.productionDelivery.tick(tickCount);
   }
 }
