@@ -8,6 +8,15 @@ import _ from "lodash";
 import { immutable } from "~/immutable";
 import type { WaterCoverage } from "../Cell";
 
+declare module "./Building" {
+  interface BuildingDefinitions {
+    well: WellBuilding;
+  }
+  interface BuildingImmutableDefinitions {
+    well: WellBuildingImmutable;
+  }
+}
+
 export type WellOptions = BaseBuildingOptions;
 
 export type WellBuildingImmutable = BaseBuildingImmutable<WellBuilding>;

@@ -1,24 +1,30 @@
 import { useCallback } from "react";
 import { CellSelectionMode, CellSelectionModeSelector } from "../../gameView";
 import { BaseTool } from "./BaseTool";
-import { Tool } from "../Tool";
+import { Tool } from "./Tool";
+import { toolsByName } from "./toolsByName";
+
+declare module "./Tool" {
+  interface ToolDefinitions {
+    selection: SelectionTool;
+  }
+}
 
 export class SelectionTool extends BaseTool {
-  name: "selection";
+  name: "selection" = "selection";
+  label = "Selection";
   mode: CellSelectionMode | undefined;
 
   constructor(mode: CellSelectionMode = "line-xy") {
     super();
-    this.name = "selection";
     this.mode = mode;
-    this.renderOptions = this.renderOptions.bind(this);
   }
 
   changeMode(mode: CellSelectionMode): SelectionTool {
     return new SelectionTool(mode);
   }
 
-  renderOptions({ onChange }: { onChange: (tool: Tool) => void }) {
+  renderOptions = ({ onChange }: { onChange: (tool: Tool) => void }) => {
     const onSelectionModeChange = useCallback(
       (selectionMode: CellSelectionMode) => {
         onChange(this.changeMode(selectionMode));
@@ -34,7 +40,9 @@ export class SelectionTool extends BaseTool {
         />
       </>
     );
-  }
+  };
 
   onSelection() {}
 }
+
+toolsByName.selection = new SelectionTool();

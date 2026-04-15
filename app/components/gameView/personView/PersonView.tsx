@@ -1,9 +1,6 @@
 import "./PersonView.css";
 import { GameImmutable, PersonImmutable } from "~/game";
-import { ImmigrantPersonView } from "./ImmigrantPersonView";
-import { WorkerFinderPersonView } from "./WorkerFinderPersonView";
-import { GoodsDelivererPersonView } from "./GoodsDelivererPersonView";
-import { unreachableCase } from "~/utils";
+import { personViewByType } from "./personViewByType";
 
 export interface PersonViewProps<P extends PersonImmutable> {
   game: GameImmutable;
@@ -11,16 +8,9 @@ export interface PersonViewProps<P extends PersonImmutable> {
 }
 
 export function PersonView({ game, person }: PersonViewProps<PersonImmutable>) {
-  switch (person.type) {
-    case "immigrant":
-      return <ImmigrantPersonView game={game} person={person} />;
-    case "workerFinder":
-      return <WorkerFinderPersonView game={game} person={person} />;
-    case "goodsDeliverer":
-      return <GoodsDelivererPersonView game={game} person={person} />;
+  const PersonViewForType = personViewByType[person.type];
+  if (!PersonViewForType) {
+    throw new Error(`Unknown person type ${person.type}`);
   }
-  throw unreachableCase(
-    person["type"],
-    `Unknown person type ${person["type"]}`,
-  );
+  return <PersonViewForType game={game} person={person} />;
 }

@@ -12,6 +12,15 @@ import type { People } from "./People";
 import type { Cell } from "../Cell";
 import type { Good } from "../goods";
 
+declare module "./Person" {
+  interface PersonDefinitions {
+    goodsDeliverer: GoodsDelivererPerson;
+  }
+  interface PersonImmutableDefinitions {
+    goodsDeliverer: GoodsDelivererPersonImmutable;
+  }
+}
+
 export type GoodsDelivererPersonOptions = Pick<
   GoodsDelivererPerson,
   | "sourceBuildingId"

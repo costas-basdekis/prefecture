@@ -1,15 +1,17 @@
-import { useCallback, ChangeEvent } from "react";
+import { useCallback, ChangeEvent, useMemo } from "react";
 import { Coords, GameImmutable } from "../../game";
-import {
-  FarmPlacementTool,
-  GranaryPlacementTool,
-  HousePlacementTool,
-  RoadPlacementTool,
-  SelectionTool,
-  WellPlacementTool,
-} from "./tools";
-import { Tool, ToolName } from "./Tool";
-import { unreachableCase } from "~/utils";
+import { toolsByName } from "./tools";
+import { Tool, ToolName } from "./tools/Tool";
+import _ from "lodash";
+
+const toolOrder: ToolName[] = [
+  "selection",
+  "road-placement",
+  "house-placement",
+  "well-placement",
+  "farm-placement",
+  "granary-placement",
+];
 
 export function ToolSelector({
   tool,
@@ -21,87 +23,34 @@ export function ToolSelector({
   const innerOnChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
       const toolName = e.target.value as ToolName;
-      switch (toolName) {
-        case "selection":
-          onChange(new SelectionTool());
-          return;
-        case "road-placement":
-          onChange(new RoadPlacementTool());
-          return;
-        case "house-placement":
-          onChange(new HousePlacementTool());
-          return;
-        case "well-placement":
-          onChange(new WellPlacementTool());
-          return;
-        case "farm-placement":
-          onChange(new FarmPlacementTool());
-          return;
-        case "granary-placement":
-          onChange(new GranaryPlacementTool());
-          return;
+      const toolForName = toolsByName[toolName];
+      if (!toolForName) {
+        throw new Error(`Unknown tool ${toolName}`);
       }
-      throw unreachableCase(toolName, `Unknown tool name "${toolName}"`);
+      onChange(toolForName);
     },
     [onChange],
   );
+  const orderedTools = useMemo(() => {
+    return _.sortBy(Object.values(toolsByName), (tool) => {
+      const order = toolOrder.indexOf(tool.name);
+      return order === -1 ? Infinity : order;
+    });
+  }, []);
   return (
     <>
       <div>
-        <label>
-          <input
-            type={"radio"}
-            value={"selection"}
-            checked={tool.name === "selection"}
-            onChange={innerOnChange}
-          />
-          Select
-        </label>
-        <label>
-          <input
-            type={"radio"}
-            value={"road-placement"}
-            checked={tool.name === "road-placement"}
-            onChange={innerOnChange}
-          />
-          Road
-        </label>
-        <label>
-          <input
-            type={"radio"}
-            value={"house-placement"}
-            checked={tool.name === "house-placement"}
-            onChange={innerOnChange}
-          />
-          House
-        </label>
-        <label>
-          <input
-            type={"radio"}
-            value={"well-placement"}
-            checked={tool.name === "well-placement"}
-            onChange={innerOnChange}
-          />
-          Well
-        </label>
-        <label>
-          <input
-            type={"radio"}
-            value={"farm-placement"}
-            checked={tool.name === "farm-placement"}
-            onChange={innerOnChange}
-          />
-          Farm
-        </label>
-        <label>
-          <input
-            type={"radio"}
-            value={"granary-placement"}
-            checked={tool.name === "granary-placement"}
-            onChange={innerOnChange}
-          />
-          Granary
-        </label>
+        {orderedTools.map((displayTool) => (
+          <label key={displayTool.name}>
+            <input
+              type={"radio"}
+              value={displayTool.name}
+              checked={tool.name === displayTool.name}
+              onChange={innerOnChange}
+            />
+            {displayTool.label}
+          </label>
+        ))}
       </div>
       <tool.renderOptions onChange={onChange} />
     </>

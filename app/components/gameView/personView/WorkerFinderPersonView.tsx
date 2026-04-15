@@ -2,6 +2,7 @@ import { WorkerFinderPersonImmutable } from "~/game";
 import { PersonViewProps } from "./PersonView";
 import { MultilineText } from "~/components/generic";
 import { useMemo } from "react";
+import { personViewByType } from "./personViewByType";
 
 export function WorkerFinderPersonView({
   game,
@@ -28,3 +29,5 @@ export function WorkerFinderPersonView({
     </g>
   );
 }
+
+personViewByType.workerFinder = WorkerFinderPersonView;

@@ -1,6 +1,7 @@
 import { HouseBuildingImmutable } from "~/game/buildings";
 import { BuildingViewProps } from "./BuildingView";
 import { useMemo } from "react";
+import { buildingViewByType } from "./buildingViewByType";
 
 export function HouseBuildingView({
   building,
@@ -28,3 +29,5 @@ export function HouseBuildingView({
     </text>
   );
 }
+
+buildingViewByType.house = HouseBuildingView;

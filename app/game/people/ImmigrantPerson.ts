@@ -5,6 +5,15 @@ import type { HouseBuilding } from "../buildings";
 import { propById } from "~/utils";
 import { BasePerson } from "./BasePerson";
 
+declare module "./Person" {
+  interface PersonDefinitions {
+    immigrant: ImmigrantPerson;
+  }
+  interface PersonImmutableDefinitions {
+    immigrant: ImmigrantPersonImmutable;
+  }
+}
+
 export type ImmigrantPersonOptions = Pick<ImmigrantPerson, "targetBuildingId">;
 
 export type ImmigrantPersonImmutable = Pick<

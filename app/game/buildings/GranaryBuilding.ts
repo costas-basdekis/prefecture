@@ -13,6 +13,15 @@ import {
   ContentStoreImmutable,
 } from "./ContentStore";
 
+declare module "./Building" {
+  interface BuildingDefinitions {
+    granary: GranaryBuilding;
+  }
+  interface BuildingImmutableDefinitions {
+    granary: GranaryBuildingImmutable;
+  }
+}
+
 export type GranaryBuildingOptions = BaseBuildingOptions;
 
 export type GranaryBuildingImmutable = {

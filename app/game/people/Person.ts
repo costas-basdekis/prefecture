@@ -1,18 +1,6 @@
-import {
-  GoodsDelivererPerson,
-  GoodsDelivererPersonImmutable,
-} from "./GoodsDelivererPerson";
-import { ImmigrantPerson, ImmigrantPersonImmutable } from "./ImmigrantPerson";
-import {
-  WorkerFinderPerson,
-  WorkerFinderPersonImmutable,
-} from "./WorkerFinderPerson";
+export interface PersonDefinitions {}
+export interface PersonImmutableDefinitions {}
 
-export type Person =
-  | ImmigrantPerson
-  | WorkerFinderPerson
-  | GoodsDelivererPerson;
+export type Person = PersonDefinitions[keyof PersonDefinitions];
 export type PersonImmutable =
-  | ImmigrantPersonImmutable
-  | WorkerFinderPersonImmutable
-  | GoodsDelivererPersonImmutable;
+  PersonImmutableDefinitions[keyof PersonImmutableDefinitions];

@@ -2,6 +2,7 @@ import { GoodsDelivererPersonImmutable } from "~/game";
 import { PersonViewProps } from "./PersonView";
 import { MultilineText } from "~/components/generic";
 import { useMemo } from "react";
+import { personViewByType } from "./personViewByType";
 
 export function GoodsDelivererPersonView({
   game,
@@ -31,3 +32,5 @@ export function GoodsDelivererPersonView({
     </g>
   );
 }
+
+personViewByType.goodsDeliverer = GoodsDelivererPersonView;

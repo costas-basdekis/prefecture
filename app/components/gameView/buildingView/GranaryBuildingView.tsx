@@ -2,6 +2,7 @@ import { BuildingViewProps } from "./BuildingView";
 import { useMemo } from "react";
 import { MultilineText } from "~/components/generic";
 import { GranaryBuildingImmutable } from "~/game";
+import { buildingViewByType } from "./buildingViewByType";
 
 export function GranaryBuildingView({
   game,
@@ -51,3 +52,5 @@ export function GranaryBuildingView({
     </g>
   );
 }
+
+buildingViewByType.granary = GranaryBuildingView;

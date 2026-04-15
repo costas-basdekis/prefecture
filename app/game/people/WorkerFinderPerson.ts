@@ -6,6 +6,15 @@ import { BasePerson, BasePersonImmutable } from "./BasePerson";
 import _ from "lodash";
 import { Cell } from "../Cell";
 
+declare module "./Person" {
+  interface PersonDefinitions {
+    workerFinder: WorkerFinderPerson;
+  }
+  interface PersonImmutableDefinitions {
+    workerFinder: WorkerFinderPersonImmutable;
+  }
+}
+
 export type WorkerFinderOptions = Pick<
   WorkerFinderPerson,
   "sourceBuildingId" | "positionKey"

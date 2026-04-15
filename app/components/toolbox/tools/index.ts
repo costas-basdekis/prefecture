@@ -4,4 +4,6 @@ export * from "./GranaryPlacementTool";
 export * from "./HousePlacementTool";
 export * from "./RoadPlacementTool";
 export * from "./SelectionTool";
+export * from "./Tool";
+export * from "./toolsByName";
 export * from "./WellPlacementTool";

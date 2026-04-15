@@ -22,6 +22,15 @@ import {
   ProductionImmutable,
 } from "./Production";
 
+declare module "./Building" {
+  interface BuildingDefinitions {
+    farm: FarmBuilding;
+  }
+  interface BuildingImmutableDefinitions {
+    farm: FarmBuildingImmutable;
+  }
+}
+
 export type FarmBuildingOptions = Pick<FarmBuilding, "crop"> &
   BaseBuildingOptions;
 

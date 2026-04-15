@@ -1,15 +1,6 @@
-import { FarmBuilding, FarmBuildingImmutable } from "./FarmBuilding";
-import { GranaryBuilding, GranaryBuildingImmutable } from "./GranaryBuilding";
-import { HouseBuilding, HouseBuildingImmutable } from "./HouseBuilding";
-import { WellBuilding, WellBuildingImmutable } from "./WellBuilding";
+export interface BuildingDefinitions {}
+export interface BuildingImmutableDefinitions {}
 
-export type Building =
-  | HouseBuilding
-  | WellBuilding
-  | FarmBuilding
-  | GranaryBuilding;
+export type Building = BuildingDefinitions[keyof BuildingDefinitions];
 export type BuildingImmutable =
-  | HouseBuildingImmutable
-  | WellBuildingImmutable
-  | FarmBuildingImmutable
-  | GranaryBuildingImmutable;
+  BuildingImmutableDefinitions[keyof BuildingImmutableDefinitions];

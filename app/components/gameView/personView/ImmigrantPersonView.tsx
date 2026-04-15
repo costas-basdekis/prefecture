@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { ImmigrantPersonImmutable } from "~/game/people";
 import { PersonViewProps } from "./PersonView";
+import { personViewByType } from "./personViewByType";
 
 export function ImmigrantPersonView({
   game,
@@ -36,3 +37,5 @@ export function ImmigrantPersonView({
     />
   );
 }
+
+personViewByType.immigrant = ImmigrantPersonView;

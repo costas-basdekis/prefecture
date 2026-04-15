@@ -1,23 +1,26 @@
 import { CellSelectionMode } from "~/components/gameView";
 import { BaseTool } from "./BaseTool";
 import { OnSelectionProps } from "../ToolSelector";
+import { toolsByName } from "./toolsByName";
+
+declare module "./Tool" {
+  interface ToolDefinitions {
+    granary: GranaryPlacementTool;
+  }
+}
 
 export class GranaryPlacementTool extends BaseTool {
-  name: "granary-placement";
-  mode: CellSelectionMode;
-
-  constructor() {
-    super();
-    this.name = "granary-placement";
-    this.mode = "endpoint";
-    this.onSelection = this.onSelection.bind(this);
-  }
+  name: "granary-placement" = "granary-placement";
+  label = "Granary";
+  mode: CellSelectionMode = "endpoint";
 
   renderOptions() {
     return null;
   }
 
-  onSelection({ setGame, allCoords: [coords] }: OnSelectionProps) {
+  onSelection = ({ setGame, allCoords: [coords] }: OnSelectionProps) => {
     setGame((game) => game.addGranary(coords));
-  }
+  };
 }
+
+toolsByName["granary-placement"] = new GranaryPlacementTool();

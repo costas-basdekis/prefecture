@@ -9,6 +9,15 @@ import {
 import type { Cell } from "../Cell";
 import { propById } from "~/utils";
 
+declare module "./Building" {
+  interface BuildingDefinitions {
+    house: HouseBuilding;
+  }
+  interface BuildingImmutableDefinitions {
+    house: HouseBuildingImmutable;
+  }
+}
+
 export type HouseOptions = BaseBuildingOptions;
 
 export type HouseBuildingImmutable = Pick<

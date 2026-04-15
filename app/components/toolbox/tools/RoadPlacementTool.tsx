@@ -6,25 +6,30 @@ import {
 } from "../../gameView";
 import { OnSelectionProps } from "../ToolSelector";
 import { BaseTool } from "./BaseTool";
-import { Tool } from "../Tool";
+import { Tool } from "./Tool";
+import { toolsByName } from "./toolsByName";
+
+declare module "./Tool" {
+  interface ToolDefinitions {
+    road: RoadPlacementTool;
+  }
+}
 
 export class RoadPlacementTool extends BaseTool {
-  name: "road-placement";
+  name: "road-placement" = "road-placement";
+  label = "Road";
   mode: CellSelectionMode;
 
   constructor(mode: CellSelectionMode = "line-xy") {
     super();
-    this.name = "road-placement";
     this.mode = mode;
-    this.renderOptions = this.renderOptions.bind(this);
-    this.onSelection = this.onSelection.bind(this);
   }
 
   changeMode(mode: CellSelectionMode): RoadPlacementTool {
     return new RoadPlacementTool(mode);
   }
 
-  renderOptions({ onChange }: { onChange: (tool: Tool) => void }) {
+  renderOptions = ({ onChange }: { onChange: (tool: Tool) => void }) => {
     const onSelectionModeChange = useCallback(
       (selectionMode: CellSelectionMode) => {
         onChange(this.changeMode(selectionMode));
@@ -41,9 +46,11 @@ export class RoadPlacementTool extends BaseTool {
         />
       </>
     );
-  }
+  };
 
-  onSelection({ setGame, allCoords }: OnSelectionProps) {
+  onSelection = ({ setGame, allCoords }: OnSelectionProps) => {
     setGame((game) => game.addRoads(allCoords));
-  }
+  };
 }
+
+toolsByName["road-placement"] = new RoadPlacementTool();
