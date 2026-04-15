@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import { Immutable } from "./Immutable";
 import { Mutable } from "./Mutable";
+import { unreachableCase } from "~/utils";
 
 export type MutableDirtyKeys<M, I> = keyof {
   [key in keyof M & keyof I as M[key] extends Mutable<any, infer I1>
@@ -124,7 +125,7 @@ function makeMutableProperty(
             self.mutationHelper.markDirty(propertyKey);
             break;
           default:
-            throw new Error(`Unknown mutable type: ${type}`);
+            throw unreachableCase(type, `Unknown mutable type: ${type}`);
         }
       }
     },
@@ -163,7 +164,7 @@ function makeMutableProxy(
         },
       });
     default:
-      throw new Error(`Unknown mutable type: ${type}`);
+      throw unreachableCase(type, `Unknown mutable type: ${type}`);
   }
 }
 
@@ -253,7 +254,8 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
             dirtyKeys[key] = new Set();
             break;
           default:
-            throw new Error(
+            throw unreachableCase(
+              mutationType,
               `Unknown mutation type "${mutationType}" for ${this.mutable.constructor.name}.${key.toString()}`,
             );
         }
@@ -310,7 +312,8 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
             immutable[key] = this.getForPlainValueMap(key as any);
             break;
           default:
-            throw new Error(
+            throw unreachableCase(
+              mutationType,
               `Unknown mutation type "${mutationType}" for ${this.mutable.constructor.name}.${key.toString()}`,
             );
         }
@@ -443,7 +446,8 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
           this.updateForPlainValueMap(key as any);
           break;
         default:
-          throw new Error(
+          throw unreachableCase(
+            mutationType,
             `Unknown mutation type "${mutationType}" for ${this.mutable.constructor.name}.${key.toString()}`,
           );
       }

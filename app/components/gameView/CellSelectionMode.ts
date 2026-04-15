@@ -1,5 +1,6 @@
 import _ from "lodash";
 import { Coords, makeCoordsKey } from "~/game/Coords";
+import { unreachableCase } from "~/utils";
 
 export const cellSelectionModeNames = {
   "line-xy": "Line (X first)",
@@ -99,5 +100,8 @@ export function selectCells(
     case "endopoints":
       return [startCoords, endCoords];
   }
-  throw new Error(`Uknown selection mode "${selectionMode}"`);
+  throw unreachableCase(
+    selectionMode,
+    `Uknown selection mode "${selectionMode}"`,
+  );
 }

@@ -9,6 +9,7 @@ import {
   WellPlacementTool,
 } from "./tools";
 import { Tool, ToolName } from "./Tool";
+import { unreachableCase } from "~/utils";
 
 export function ToolSelector({
   tool,
@@ -40,7 +41,7 @@ export function ToolSelector({
           onChange(new GranaryPlacementTool());
           return;
       }
-      throw new Error(`Unknown tool name "${toolName}"`);
+      throw unreachableCase(toolName, `Unknown tool name "${toolName}"`);
     },
     [onChange],
   );
