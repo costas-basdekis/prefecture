@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { Immutable } from "./Immutable";
 import { Mutable } from "./Mutable";
 import { unreachableCase } from "~/utils";
+import { GameImmutable } from "~/game";
 
 export type MutableDirtyKeys<M, I> = keyof {
   [key in keyof M & keyof I as M[key] extends Mutable<any, infer I1>
@@ -222,6 +223,31 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
     this.dirty = false;
     this.dirtyKeys = this.getInitialDirtyKeys();
     this.lastImmutable = this.getInitialImmutable(initialExtraImmutable);
+  }
+
+  /* Get a mutator method to prevent updates if we are not looking at the latest immutable */
+  getIfAtLatestMutator(
+    callback: (func: (newImmutable: I) => I) => void,
+  ): (newImmutableOrFunc: I | ((game: I) => I)) => void {
+    return (newImmutableOrFunc: I | ((game: I) => I)) => {
+      callback((immutable: I) =>
+        this.mutateIfAtLatest(immutable, newImmutableOrFunc),
+      );
+    };
+  }
+
+  /* Prevent updates if we are not looking at the latest immutable */
+  mutateIfAtLatest(
+    immutable: I,
+    newImmutableOrFunc: I | ((immutable: I) => I),
+  ) {
+    if (this.lastImmutable !== immutable) {
+      return this.lastImmutable;
+    }
+    if (typeof newImmutableOrFunc === "function") {
+      return newImmutableOrFunc(immutable);
+    }
+    return newImmutableOrFunc;
   }
 
   getInitialDirtyKeys(): DirtyKeys {

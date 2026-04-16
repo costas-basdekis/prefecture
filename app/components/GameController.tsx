@@ -1,5 +1,5 @@
 import { FC, ReactNode, useCallback, useMemo, useState } from "react";
-import { Game, GameImmutable } from "~/game";
+import { Game } from "~/game";
 import { Tool, SelectionTool, ToolSelector } from "./toolbox";
 import { GameView } from "./gameView";
 
@@ -16,18 +16,8 @@ export function GameController({
   }, []);
   const [game, innerSetGame] = useState(initialImmutableGame);
   // We need to prevent double actions in React dev
-  const setGame = useCallback(
-    (gameOrFunc: GameImmutable | ((game: GameImmutable) => GameImmutable)) => {
-      innerSetGame((game) => {
-        if (mutableGame.mutationHelper.lastImmutable !== game) {
-          return mutableGame.mutationHelper.lastImmutable;
-        }
-        if (typeof gameOrFunc === "function") {
-          return gameOrFunc(game);
-        }
-        return gameOrFunc;
-      });
-    },
+  const setGame = useMemo(
+    () => mutableGame.mutationHelper.getIfAtLatestMutator(innerSetGame),
     [innerSetGame],
   );
   const [tool, setTool] = useState<Tool>(new SelectionTool());
