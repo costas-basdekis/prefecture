@@ -6,7 +6,7 @@ import {
 } from "./BaseBuilding";
 import _ from "lodash";
 import { immutable } from "~/immutable";
-import type { WaterCoverage } from "../Cell";
+import type { WaterCoverageLevel } from "./WaterCoverage";
 
 declare module "./Building" {
   interface BuildingDefinitions {
@@ -27,14 +27,12 @@ export class WellBuilding extends BaseBuilding<
   "well"
 > {
   @immutable
-  waterCoverage: WaterCoverage;
+  waterCoverage: WaterCoverageLevel;
 
   constructor(buildings: Buildings, options: BaseBuildingOptions) {
     super(buildings, "well", options);
     this.waterCoverage = 1;
     this.postInit();
-    for (const cell of this.getCellsAround(3, 3)) {
-      cell.addWaterCoverage(this);
-    }
+    this.buildings.game.grid.waterCoverage.add(this, this.getCellsAround(3, 3));
   }
 }

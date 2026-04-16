@@ -21,21 +21,13 @@ import type { Grid } from "./Grid";
 import { propById } from "~/utils";
 import _ from "lodash";
 import { CellSearch } from "./CellSearch";
+import { CellWaterCoverage } from "./buildings/WaterCoverage";
 
 export type CellImmutable = Pick<
   Cell,
-  | "x"
-  | "y"
-  | "key"
-  | "hasRoad"
-  | "buildingId"
-  | "canAddBuilding"
-  | "waterCoverage"
-  | "waterBuildingIds"
+  "x" | "y" | "key" | "hasRoad" | "buildingId" | "canAddBuilding"
 > &
   Immutable<Cell>;
-
-export type WaterCoverage = 0 | 1;
 
 export class Cell implements Mutable<Cell, CellImmutable> {
   mutationHelper: MutationHelper<Cell, CellImmutable>;
@@ -59,10 +51,6 @@ export class Cell implements Mutable<Cell, CellImmutable> {
   declare building: Building | null;
   @mutable("plainValue")
   canAddBuilding: boolean;
-  @mutable("plainValue")
-  waterCoverage: WaterCoverage;
-  @mutable("plainValueArray")
-  waterBuildingIds: number[];
 
   constructor(grid: Grid, { x, y }: Coords) {
     this.grid = grid;
@@ -72,8 +60,6 @@ export class Cell implements Mutable<Cell, CellImmutable> {
     this.hasRoad = false;
     this.buildingId = null;
     this.canAddBuilding = true;
-    this.waterCoverage = 0;
-    this.waterBuildingIds = [];
     this.mutationHelper = new MutationHelper<Cell, CellImmutable>(this);
   }
 
@@ -152,14 +138,8 @@ export class Cell implements Mutable<Cell, CellImmutable> {
     );
   }
 
-  addWaterCoverage(waterBuilding: WellBuilding): Cell {
-    this.waterBuildingIds.push(waterBuilding.id);
-    this.waterCoverage = Math.max(
-      this.waterCoverage,
-      waterBuilding.waterCoverage,
-    ) as WaterCoverage;
-    this.building?.waterCoverageUpdated?.(this);
-    return this;
+  get waterCoverage(): CellWaterCoverage {
+    return this.grid.waterCoverage.get(this);
   }
 
   addFarm(options: FarmBuildingOptions) {

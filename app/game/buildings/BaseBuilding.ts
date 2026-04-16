@@ -115,7 +115,5 @@ export abstract class BaseBuilding<
     return roadCell.getPathFrom(cell);
   }
 
-  waterCoverageUpdated?(cell: Cell): void;
-
   tick?(tickCount: number): void;
 }

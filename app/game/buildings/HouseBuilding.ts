@@ -1,6 +1,6 @@
 import { mutable } from "~/immutable";
 import type { Buildings } from "./Buildings";
-import { ImmigrantPerson } from "../people";
+import { ImmigrantPerson, Person } from "../people";
 import {
   BaseBuilding,
   BaseBuildingImmutable,
@@ -8,6 +8,7 @@ import {
 } from "./BaseBuilding";
 import type { Cell } from "../Cell";
 import { propById } from "~/utils";
+import { CellWaterCoverage } from "./WaterCoverage";
 
 declare module "./Building" {
   interface BuildingDefinitions {
@@ -62,6 +63,10 @@ export class HouseBuilding extends BaseBuilding<
     this.maxOccupantCount = 0;
     this.immigrantId = null;
     this.postInit();
+    this.buildings.game.grid.waterCoverage.registerOnLevelUpdated(
+      this.onWaterCoverageUpdated.bind(this),
+      this.cells,
+    );
     this.updateLevel(this.cells[0]);
   }
 
@@ -70,11 +75,13 @@ export class HouseBuilding extends BaseBuilding<
       this.immigrant = new ImmigrantPerson(this.buildings.game.people, {
         targetBuildingId: this.id,
       });
+      this.immigrant.onRemoved.register(this.immigrantRemoved.bind(this));
+      this.immigrant.onArrived.register(this.onImmigrantArrived.bind(this));
     }
   }
 
-  immigrantArrived(immigrant: ImmigrantPerson) {
-    if (this.immigrant !== immigrant) {
+  onImmigrantArrived(immigrant: ImmigrantPerson) {
+    if (this.immigrantId !== immigrant.id) {
       return;
     }
     this.immigrant = null;
@@ -88,18 +95,20 @@ export class HouseBuilding extends BaseBuilding<
     this.spawnImmigrant();
   }
 
-  immigrantRemoved(_immigrant: ImmigrantPerson) {
-    this.immigrant = null;
-    this.spawnImmigrant();
+  immigrantRemoved(immigrant: Person) {
+    if (this.immigrantId === immigrant.id) {
+      this.immigrant = null;
+      this.spawnImmigrant();
+    }
   }
 
-  waterCoverageUpdated(cell: Cell) {
-    this.updateLevel(cell);
+  onWaterCoverageUpdated(waterCoverage: CellWaterCoverage) {
+    this.updateLevel(waterCoverage.cell);
   }
 
   updateLevel(_cell: Cell) {
     const waterCoverage = Math.max(
-      ...this.cells.map((cell) => cell.waterCoverage),
+      ...this.cells.map((cell) => cell.waterCoverage.level),
     );
     const nextLevel = HouseBuilding.requirementsByLevel.findLastIndex(
       (level) => {

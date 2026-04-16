@@ -1,9 +1,9 @@
-import { immutable, Immutable, mutable } from "~/immutable";
+import { immutable, mutable } from "~/immutable";
 import type { People } from "./People";
 import { getDistance } from "../Coords";
 import type { HouseBuilding } from "../buildings";
 import { propById } from "~/utils";
-import { BasePerson } from "./BasePerson";
+import { BasePerson, BasePersonImmutable } from "./BasePerson";
 
 declare module "./Person" {
   interface PersonDefinitions {
@@ -20,7 +20,7 @@ export type ImmigrantPersonImmutable = Pick<
   ImmigrantPerson,
   "id" | "type" | "targetBuildingId" | "completionRate" | "completion"
 > &
-  Immutable<ImmigrantPerson>;
+  BasePersonImmutable<ImmigrantPerson>;
 
 export class ImmigrantPerson extends BasePerson<
   ImmigrantPerson,
@@ -41,6 +41,8 @@ export class ImmigrantPerson extends BasePerson<
   @mutable("plainValue")
   completion: number;
 
+  onArrived = this.eventsManager.add<(person: ImmigrantPerson) => void>();
+
   constructor(people: People, { targetBuildingId }: ImmigrantPersonOptions) {
     super(people, "immigrant");
     this.targetBuildingId = targetBuildingId;
@@ -56,17 +58,10 @@ export class ImmigrantPerson extends BasePerson<
 
   tick() {
     if (this.completion >= 1) {
-      (
-        this.people.game.buildings.byId[this.targetBuildingId] as HouseBuilding
-      ).immigrantArrived(this);
+      this.onArrived.trigger(this);
       this.people.remove(this);
       return;
     }
     this.completion = Math.min(1, this.completion + this.completionRate);
-  }
-
-  remove() {
-    super.remove();
-    this.targetBuilding?.immigrantRemoved(this);
   }
 }

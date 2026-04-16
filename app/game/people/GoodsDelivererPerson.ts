@@ -3,7 +3,6 @@ import { BasePerson, BasePersonImmutable } from "./BasePerson";
 import { propById } from "~/utils";
 import {
   BuildingWithContents,
-  BuildingWithProductionDelivery,
   ContentStoreUtils,
   WorkSearchUtils,
   type Building,
@@ -53,7 +52,7 @@ export class GoodsDelivererPerson extends BasePerson<
     (id: number, thisObject: GoodsDelivererPerson) =>
       thisObject.people.game.buildings.byId[id],
   )
-  declare sourceBuilding: Building & BuildingWithProductionDelivery;
+  declare sourceBuilding: Building;
   @immutable
   targetBuildingId: number | null;
   @propById(
@@ -80,6 +79,8 @@ export class GoodsDelivererPerson extends BasePerson<
   declare cell: Cell;
   @immutable
   speed: number;
+
+  onFinished = this.eventsManager.add<(person: GoodsDelivererPerson) => void>();
 
   constructor(
     people: People,
@@ -122,7 +123,7 @@ export class GoodsDelivererPerson extends BasePerson<
           this.path = null;
           this.pathIndex = 0;
         } else {
-          this.sourceBuilding.productionDelivery.goodsDelivererFinished(this);
+          this.onFinished.trigger(this);
           this.remove();
         }
       }
@@ -154,7 +155,7 @@ export class GoodsDelivererPerson extends BasePerson<
     } else {
       const path = this.sourceBuilding.getPathFrom(this.cell);
       if (!path) {
-        this.sourceBuilding.productionDelivery.goodsDelivererFinished(this);
+        this.onFinished.trigger(this);
         this.remove();
         return;
       }

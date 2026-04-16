@@ -8,8 +8,8 @@ import {
 } from "~/immutable";
 import { Building } from "./Building";
 import { propById } from "~/utils";
-import { GoodsDelivererPerson } from "../people";
-import { goods, type Good } from "../goods";
+import { GoodsDelivererPerson, Person } from "../people";
+import { type Good } from "../goods";
 import { BuildingWithProduction } from "./Production";
 
 export interface BuildingWithProductionDelivery {
@@ -36,14 +36,12 @@ export class ProductionDelivery implements Mutable<
   goodType: Good;
   @mutable("plainValue")
   goodsDelivererId: number | null;
-  @propById<ProductionDelivery, GoodsDelivererPerson, number>(
+  @propById<ProductionDelivery, Person, number>(
     "goodsDelivererId",
     (id, thisObject) =>
-      thisObject.building.buildings.game.people.byId[
-        id
-      ] as GoodsDelivererPerson,
+      thisObject.building.buildings.game.people.byId[id] as Person,
   )
-  declare goodsDeliverer: GoodsDelivererPerson | null;
+  declare goodsDeliverer: Person | null;
 
   constructor(building: Building & BuildingWithProduction, goodType: Good) {
     this.building = building;
@@ -69,13 +67,16 @@ export class ProductionDelivery implements Mutable<
             goodAmount: 1,
           },
         );
+        this.goodsDeliverer.onRemoved.register(
+          this.goodsDelivererRemoved.bind(this),
+        );
         this.building.production.process--;
       }
     }
   }
 
-  goodsDelivererFinished(goodsDeliverer: GoodsDelivererPerson) {
-    if (this.goodsDeliverer === goodsDeliverer) {
+  goodsDelivererRemoved(person: Person) {
+    if (this.goodsDelivererId === person.id) {
       this.goodsDeliverer = null;
     }
   }

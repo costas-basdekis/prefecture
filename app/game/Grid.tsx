@@ -13,6 +13,7 @@ import {
 import { Building, FarmBuilding, FarmBuildingOptions } from "./buildings";
 import _ from "lodash";
 import { GranaryBuilding } from "./buildings/GranaryBuilding";
+import { WaterCoverage } from "./buildings/WaterCoverage";
 
 export interface GridMakeOptions {
   width: number;
@@ -37,6 +38,7 @@ export class Grid implements Mutable<Grid, GridImmutable> {
   width: number;
   @immutable
   height: number;
+  waterCoverage: WaterCoverage;
 
   constructor(game: Game, { width, height }: GridMakeOptions) {
     this.game = game;
@@ -50,6 +52,7 @@ export class Grid implements Mutable<Grid, GridImmutable> {
     );
     this.width = width;
     this.height = height;
+    this.waterCoverage = new WaterCoverage(this);
     this.mutationHelper = new MutationHelper<Grid, GridImmutable>(this, {
       getCells(this: GridImmutable) {
         return Object.values(this.cellMap);

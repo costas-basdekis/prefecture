@@ -7,6 +7,8 @@ import {
   parentSecondaryKey,
 } from "~/immutable";
 import type { People } from "./People";
+import { EventsManager, OnEvent } from "../events";
+import { Person } from "./Person";
 
 export type BasePersonImmutable<P extends BasePerson<any, any, any>> = Pick<
   P,
@@ -14,7 +16,7 @@ export type BasePersonImmutable<P extends BasePerson<any, any, any>> = Pick<
 > &
   Immutable<P>;
 
-export class BasePerson<
+export abstract class BasePerson<
   M extends Mutable<M, I>,
   I extends Immutable<M>,
   T extends string,
@@ -27,6 +29,9 @@ export class BasePerson<
   id: number;
   @immutable
   type: T;
+
+  eventsManager = new EventsManager();
+  onRemoved = this.eventsManager.add<(person: Person) => void>();
 
   constructor(people: People, type: T) {
     this.people = people;
@@ -41,7 +46,9 @@ export class BasePerson<
   }
 
   remove() {
+    this.onRemoved.trigger(this as any);
     this.people.remove(this as any);
+    this.onRemoved.clear();
   }
 
   tick?(tickCount: number): void;

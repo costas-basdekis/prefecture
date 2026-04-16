@@ -56,6 +56,8 @@ export class WorkerFinderPerson extends BasePerson<
   maxDuration: number;
   lastWorkerFinderVisitedByCell: Map<Cell, number>;
 
+  onPassedHouse = this.eventsManager.add<(tickCount: number) => void>();
+
   constructor(
     people: People,
     { sourceBuildingId, positionKey }: WorkerFinderOptions,
@@ -78,7 +80,6 @@ export class WorkerFinderPerson extends BasePerson<
   tick(tickCount: number) {
     if (tickCount > this.firstTickCount + this.maxDuration) {
       this.remove();
-      this.sourceBuilding.workSearch.workerFinderFinished();
       return;
     }
     const nextCells = Array.from(this.cell.getCellsAround(1, 1, false)).filter(
@@ -103,7 +104,8 @@ export class WorkerFinderPerson extends BasePerson<
           cell.building?.type === "house" && cell.building.occupantCount > 0,
       )
     ) {
-      this.sourceBuilding.workSearch.workerFinderPassedHouse(
+      this.onPassedHouse.trigger(this.people.game.tickCount);
+      this.sourceBuilding.workSearch.onWorkerFinderPassedHouse(
         this.people.game.tickCount,
       );
     }

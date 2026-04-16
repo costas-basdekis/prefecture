@@ -7,13 +7,11 @@ import {
 } from "~/immutable";
 import { Building } from "./Building";
 import { propById } from "~/utils";
-import { WorkerFinderPerson } from "../people";
+import { Person, WorkerFinderPerson } from "../people";
 import { Cell } from "../Cell";
 
 export interface BuildingWithWorkerFinder {
   workSearch: WorkSearch;
-  workerFinderFinished?(): void;
-  workerFinderPassedHouse?(tickCount: number): void;
 }
 
 export const MaxWorkerAccessTickCount = 50;
@@ -73,18 +71,24 @@ export class WorkSearch implements Mutable<WorkSearch, WorkSearchImmutable> {
           positionKey: firstCell.key,
         },
       );
+      this.workerFinder.onRemoved.register(
+        this.onWorkerFinderFinished.bind(this),
+      );
+      this.workerFinder.onPassedHouse.register(
+        this.onWorkerFinderPassedHouse.bind(this),
+      );
     }
   }
 
-  workerFinderFinished() {
-    this.workerFinder = null;
-    this.building.workerFinderFinished?.();
+  onWorkerFinderFinished(person: Person) {
+    if (this.workerFinderId === person.id) {
+      this.workerFinder = null;
+    }
   }
 
-  workerFinderPassedHouse(tickCount: number) {
+  onWorkerFinderPassedHouse(tickCount: number) {
     this.lastWorkerAccessTickCount = tickCount;
     this.hasWorkerAccess = true;
-    this.building.workerFinderPassedHouse?.(tickCount);
   }
 }
 
