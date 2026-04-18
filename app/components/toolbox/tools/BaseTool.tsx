@@ -9,4 +9,5 @@ export abstract class BaseTool {
   }: {
     onChange: (tool: Tool) => void;
   }): ReactNode;
+  size?: { width: number; height: number };
 }

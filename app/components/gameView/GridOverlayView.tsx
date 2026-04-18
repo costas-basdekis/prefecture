@@ -8,6 +8,7 @@ export function GridOverlayView({
   game,
   onSelection,
   selectionMode,
+  size,
 }: {
   game: GameImmutable;
   onSelection?: (
@@ -16,15 +17,30 @@ export function GridOverlayView({
     allCoords: Coords[],
   ) => void;
   selectionMode?: CellSelectionMode;
+  size?: { width: number; height: number };
 }) {
   const [startCoords, setStartCoords] = useState<Coords | null>(null);
   const [endCoords, setEndCoords] = useState<Coords | null>(null);
   const allCoords = useMemo(() => {
+    if (size) {
+      if (selectionMode !== "endpoint") {
+        throw new Error(
+          `Only 'endpoing' selection mode is allowed when size is provided, not '${selectionMode}'`,
+        );
+      }
+      if (!endCoords) {
+        return [];
+      }
+      return selectCells("square", endCoords, {
+        x: endCoords.x + size.width - 1,
+        y: endCoords.y + size.height - 1,
+      });
+    }
     if (!selectionMode || !startCoords || !endCoords) {
       return [];
     }
     return selectCells(selectionMode, startCoords, endCoords);
-  }, [startCoords, endCoords]);
+  }, [selectionMode, size, startCoords, endCoords]);
   const allCoordsByKey = useMemo(() => {
     return Object.fromEntries(
       allCoords.map((coords) => [makeCoordsKey(coords), coords]),
@@ -42,7 +58,7 @@ export function GridOverlayView({
   );
   const onCellMouseMove = useCallback(
     (cell: CellImmutable) => {
-      if (selectionMode && startCoords) {
+      if (selectionMode && (size || startCoords)) {
         setEndCoords({ x: cell.x, y: cell.y });
       }
     },

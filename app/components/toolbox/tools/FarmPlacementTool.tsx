@@ -13,6 +13,7 @@ export class FarmPlacementTool extends BaseTool {
   name: "farm-placement" = "farm-placement";
   label = "Farm";
   mode: CellSelectionMode = "endpoint";
+  size = { width: 3, height: 3 };
 
   renderOptions() {
     return null;

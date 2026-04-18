@@ -37,7 +37,8 @@ export function GameView({
       <PeopleView game={game} />
       <GridOverlayView
         game={game}
-        selectionMode={"mode" in tool ? tool.mode : undefined}
+        selectionMode={tool.mode}
+        size={tool.size}
         onSelection={onSelection}
       />
     </>

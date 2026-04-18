@@ -13,6 +13,7 @@ export class GranaryPlacementTool extends BaseTool {
   name: "granary-placement" = "granary-placement";
   label = "Granary";
   mode: CellSelectionMode = "endpoint";
+  size = { width: 3, height: 3 };
 
   renderOptions() {
     return null;
