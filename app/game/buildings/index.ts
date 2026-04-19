@@ -6,6 +6,7 @@ export * from "./FarmBuilding";
 export * from "./GranaryBuilding";
 export * from "./HouseBuilding";
 export * from "./Production";
+export * from "./ProductionBuilding";
 export * from "./ProductionDelivery";
 export * from "./WellBuilding";
 export * from "./WorkSearch";

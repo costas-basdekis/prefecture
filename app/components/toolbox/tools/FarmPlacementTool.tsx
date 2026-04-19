@@ -20,7 +20,7 @@ export class FarmPlacementTool extends BaseTool {
   }
 
   onSelection = ({ setGame, allCoords: [coords] }: OnSelectionProps) => {
-    setGame((game) => game.addFarm(coords, { crop: "wheat" }));
+    setGame((game) => game.addFarm(coords, { productionOutput: "wheat" }));
   };
 }
 

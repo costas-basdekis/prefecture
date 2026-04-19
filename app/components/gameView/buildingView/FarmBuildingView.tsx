@@ -16,7 +16,7 @@ export function FarmBuildingView({
   }, [building.topLeftPosition, building.width, building.height]);
   const textLines = useMemo(() => {
     return [
-      building.crop,
+      building.productionOutput,
       building.workSearch.hasWorkerAccess
         ? `Has workers`
         : `No access to workers`,
@@ -25,7 +25,7 @@ export function FarmBuildingView({
     ];
   }, [
     game.tickCount,
-    building.crop,
+    building.productionOutput,
     building.workSearch.lastWorkerAccessTickCount,
     building.production.process,
   ]);

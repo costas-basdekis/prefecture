@@ -112,7 +112,10 @@ export class Grid implements Mutable<Grid, GridImmutable> {
     return this;
   }
 
-  addFarm(coords: Coords, options: Pick<FarmBuildingOptions, "crop">) {
+  addFarm(
+    coords: Coords,
+    options: Pick<FarmBuildingOptions, "productionOutput">,
+  ) {
     const positions = _.range(3).flatMap((dX) =>
       _.range(3).map((dY) => ({ x: coords.x + dX, y: coords.y + dY })),
     );

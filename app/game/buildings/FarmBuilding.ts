@@ -1,26 +1,10 @@
-import { immutable, mutable } from "~/immutable";
-import {
-  BaseBuilding,
-  BaseBuildingImmutable,
-  BaseBuildingOptions,
-} from "./BaseBuilding";
 import type { Buildings } from "./Buildings";
-import {
-  WorkSearchImmutable,
-  type BuildingWithWorkerFinder,
-} from "./WorkSearch";
-import { WorkSearch } from "./WorkSearch";
-import {
-  BuildingWithProductionDelivery,
-  ProductionDelivery,
-  ProductionDeliveryImmutable,
-} from "./ProductionDelivery";
 import type { FarmGood } from "../goods";
 import {
-  type BuildingWithProduction,
-  Production,
-  ProductionImmutable,
-} from "./Production";
+  ProductionBuilding,
+  ProductionBuildingImmutable,
+  ProductionBuildingOptions,
+} from "./ProductionBuilding";
 
 declare module "./Building" {
   interface BuildingDefinitions {
@@ -31,43 +15,20 @@ declare module "./Building" {
   }
 }
 
-export type FarmBuildingOptions = Pick<FarmBuilding, "crop"> &
-  BaseBuildingOptions;
+export type FarmBuildingOptions = Pick<FarmBuilding, "productionOutput"> &
+  ProductionBuildingOptions;
 
-export type FarmBuildingImmutable = Pick<FarmBuilding, "crop"> & {
-  workSearch: WorkSearchImmutable;
-  production: ProductionImmutable;
-  productionDelivery: ProductionDeliveryImmutable;
-} & BaseBuildingImmutable<FarmBuilding>;
+export type FarmBuildingImmutable = ProductionBuildingImmutable<FarmBuilding>;
 
-export class FarmBuilding
-  extends BaseBuilding<FarmBuilding, FarmBuildingImmutable, "farm">
-  implements
-    BuildingWithWorkerFinder,
-    BuildingWithProduction,
-    BuildingWithProductionDelivery
-{
-  @immutable
-  crop: FarmGood;
-  @mutable("mutable")
-  workSearch: WorkSearch;
-  @mutable("mutable")
-  production: Production;
-  @mutable("mutable")
-  productionDelivery: ProductionDelivery;
+export class FarmBuilding extends ProductionBuilding<
+  FarmBuilding,
+  FarmBuildingImmutable,
+  "farm"
+> {
+  declare productionOutput: FarmGood;
 
   constructor(buildings: Buildings, options: FarmBuildingOptions) {
-    super(buildings, "farm", options);
-    this.crop = options.crop;
-    this.workSearch = new WorkSearch(this);
-    this.production = new Production(this, 0.1, 1);
-    this.productionDelivery = new ProductionDelivery(this, this.crop);
+    super(buildings, "farm", options.productionOutput, options);
     this.postInit();
-  }
-
-  tick(tickCount: number) {
-    this.workSearch.tick(tickCount);
-    this.production.tick(tickCount);
-    this.productionDelivery.tick(tickCount);
   }
 }
