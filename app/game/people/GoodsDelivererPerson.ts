@@ -42,8 +42,6 @@ export class GoodsDelivererPerson extends BaseGridPerson<
   goodAmount: number;
   mission: GoodsDelivererPersonMission;
 
-  onFinished = this.eventsManager.add<(person: GoodsDelivererPerson) => void>();
-
   constructor(
     people: People,
     { goodType, goodAmount, mission, ...rest }: GoodsDelivererPersonOptions,
@@ -57,7 +55,6 @@ export class GoodsDelivererPerson extends BaseGridPerson<
 
   tick(_tickCount: number): void {
     if (this.mission.tick(_tickCount)) {
-      this.onFinished.trigger(this);
       this.remove();
     }
   }
