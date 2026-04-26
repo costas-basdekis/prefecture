@@ -8,9 +8,10 @@ import {
 } from "~/immutable";
 import { Building } from "./Building";
 import { propById } from "~/utils";
-import { GoodsDelivererPerson, Person } from "../people";
+import { Person } from "../people";
 import { type Good } from "../goods";
 import { BuildingWithProduction } from "./Production";
+import { DeliverToAcceptingStoreMission } from "../people/missions";
 
 export interface BuildingWithProductionDelivery {
   productionDelivery: ProductionDelivery;
@@ -57,14 +58,15 @@ export class ProductionDelivery implements Mutable<
     if (this.building.production.process >= 1 && !this.goodsDelivererId) {
       const firstCell = this.building.findFirstNeighbouringRoad();
       if (firstCell) {
-        this.goodsDeliverer = new GoodsDelivererPerson(
+        this.goodsDeliverer = DeliverToAcceptingStoreMission.makePerson(
           this.building.buildings.game.people,
           {
-            sourceBuildingId: this.building.id,
-            targetBuildingId: null,
             positionKey: firstCell.key,
             goodType: this.goodType,
             goodAmount: 1,
+          },
+          {
+            sourceBuildingId: this.building.id,
           },
         );
         this.goodsDeliverer.onRemoved.register(

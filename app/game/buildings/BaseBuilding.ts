@@ -115,5 +115,18 @@ export abstract class BaseBuilding<
     return roadCell.getPathFrom(cell);
   }
 
+  static getClosestBuildingAndPath<
+    B extends BaseBuilding<any, any, any> = BaseBuilding<any, any, any>,
+  >(candidates: B[], start: Cell): [B, Cell[]] | null {
+    const reachableStoresAndPaths = candidates
+      .map((building) => [building, building.getPathFrom(start)] as const)
+      .filter(([, path]) => path) as [B, Cell[]][];
+    return (
+      reachableStoresAndPaths.sort(
+        ([, leftPath], [, rightPath]) => leftPath.length - rightPath.length,
+      )[0] ?? null
+    );
+  }
+
   tick?(tickCount: number): void;
 }
