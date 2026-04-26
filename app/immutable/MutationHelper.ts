@@ -47,6 +47,17 @@ export function immutable(target: Object, propertyKey: string | symbol) {
     new Set<string | symbol>(
       Reflect.getMetadata(keysWithNoMutationKey, target),
     );
+  if (keys.has(propertyKey)) {
+    throw new Error(
+      `Immutable key was already defined (${propertyKey.toString()}) for ${target}`,
+    );
+  }
+  const mutableKeys = Reflect.getOwnMetadata(keysWithMutationTypeKey, target);
+  if (mutableKeys?.has(propertyKey)) {
+    throw new Error(
+      `Immutable key was already defined (${propertyKey.toString()}) as mutable for ${target}`,
+    );
+  }
   keys.add(propertyKey);
   Reflect.defineMetadata(keysWithNoMutationKey, keys, target);
 }
@@ -70,6 +81,17 @@ export function mutable(type: MutationType) {
       new Set<string | symbol>(
         Reflect.getMetadata(keysWithMutationTypeKey, target),
       );
+    if (keys.has(propertyKey)) {
+      throw new Error(
+        `Mutable key was already defined (${propertyKey.toString()}) for ${target}`,
+      );
+    }
+    const immutableKeys = Reflect.getMetadata(keysWithNoMutationKey, target);
+    if (immutableKeys?.has(propertyKey)) {
+      throw new Error(
+        `Mutable key was already defined (${propertyKey.toString()}) as immutable for ${target}`,
+      );
+    }
     keys.add(propertyKey);
     Reflect.defineMetadata(keysWithMutationTypeKey, keys, target);
     Reflect.defineMetadata(mutationTypeKey, type, target, propertyKey);
@@ -208,6 +230,12 @@ export function parentSecondaryKey(
   target: Object,
   propertyKey: string | symbol,
 ) {
+  const existingParentInfo = Reflect.getMetadata(parentSecondaryKeyKey, target);
+  if (existingParentInfo) {
+    throw new Error(
+      `Parent secondary key was already defined (${existingParentInfo.parentKey}) for ${target}`,
+    );
+  }
   Reflect.defineMetadata(parentSecondaryKeyKey, propertyKey, target);
 }
 
