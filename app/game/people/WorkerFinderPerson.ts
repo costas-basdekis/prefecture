@@ -1,8 +1,12 @@
-import { immutable, mutable } from "~/immutable";
+import { immutable } from "~/immutable";
 import type { People } from "./People";
 import { propById } from "~/utils";
 import type { BuildingWithWorkerFinder } from "../buildings";
-import { BasePerson, BasePersonImmutable } from "./BasePerson";
+import {
+  BaseGridPersonImmutable,
+  BaseGridPersonOptions,
+  BaseGridPerson,
+} from "./BaseGridPerson";
 import _ from "lodash";
 import { Cell } from "../Cell";
 
@@ -15,18 +19,13 @@ declare module "./Person" {
   }
 }
 
-export type WorkerFinderOptions = Pick<
-  WorkerFinderPerson,
-  "sourceBuildingId" | "positionKey"
->;
+export type WorkerFinderOptions = Pick<WorkerFinderPerson, "sourceBuildingId"> &
+  BaseGridPersonOptions;
 
-export type WorkerFinderPersonImmutable = Pick<
-  WorkerFinderPerson,
-  "positionKey"
-> &
-  BasePersonImmutable<WorkerFinderPerson>;
+export type WorkerFinderPersonImmutable =
+  BaseGridPersonImmutable<WorkerFinderPerson>;
 
-export class WorkerFinderPerson extends BasePerson<
+export class WorkerFinderPerson extends BaseGridPerson<
   WorkerFinderPerson,
   WorkerFinderPersonImmutable,
   "workerFinder"
@@ -37,19 +36,9 @@ export class WorkerFinderPerson extends BasePerson<
     "sourceBuildingId",
     (id: number, thisObject: WorkerFinderPerson) =>
       thisObject.people.game.buildings.byId[id] as BuildingWithWorkerFinder,
-    false,
+    { allowSetter: false },
   )
   declare sourceBuilding: BuildingWithWorkerFinder;
-  @mutable("plainValue")
-  positionKey: string;
-  @propById(
-    "positionKey",
-    (positionKey: string, thisObject: WorkerFinderPerson) =>
-      thisObject.people.game.grid.cellMap[positionKey],
-    true,
-    "key",
-  )
-  declare cell: Cell;
   @immutable
   firstTickCount: number;
   @immutable
@@ -60,11 +49,10 @@ export class WorkerFinderPerson extends BasePerson<
 
   constructor(
     people: People,
-    { sourceBuildingId, positionKey }: WorkerFinderOptions,
+    { sourceBuildingId, ...rest }: WorkerFinderOptions,
   ) {
-    super(people, "workerFinder");
+    super(people, "workerFinder", 1, rest);
     this.sourceBuildingId = sourceBuildingId;
-    this.positionKey = positionKey;
     this.firstTickCount = people.game.tickCount;
     this.maxDuration = 20;
     this.lastWorkerFinderVisitedByCell =

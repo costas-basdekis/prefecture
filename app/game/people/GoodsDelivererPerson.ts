@@ -1,12 +1,15 @@
-import { immutable, mutable } from "~/immutable";
-import { BasePerson, BasePersonImmutable } from "./BasePerson";
-import { propById } from "~/utils";
+import { mutable } from "~/immutable";
 import {
   BuildingWithContents,
   ContentStoreUtils,
   WorkSearchUtils,
   type Building,
 } from "../buildings";
+import {
+  BaseGridPersonImmutable,
+  BaseGridPersonOptions,
+  BaseGridPerson,
+} from "./BaseGridPerson";
 import type { People } from "./People";
 import type { Cell } from "../Cell";
 import type { Good } from "../goods";
@@ -22,25 +25,17 @@ declare module "./Person" {
 
 export type GoodsDelivererPersonOptions = Pick<
   GoodsDelivererPerson,
-  | "sourceBuildingId"
-  | "targetBuildingId"
-  | "positionKey"
-  | "goodType"
-  | "goodAmount"
->;
+  "sourceBuildingId" | "targetBuildingId" | "goodType" | "goodAmount"
+> &
+  BaseGridPersonOptions;
 
 export type GoodsDelivererPersonImmutable = Pick<
   GoodsDelivererPerson,
-  | "positionKey"
-  | "sourceBuildingId"
-  | "targetBuildingId"
-  | "goodType"
-  | "goodAmount"
-  | "speed"
+  "sourceBuildingId" | "targetBuildingId" | "goodType" | "goodAmount"
 > &
-  BasePersonImmutable<GoodsDelivererPerson>;
+  BaseGridPersonImmutable<GoodsDelivererPerson>;
 
-export class GoodsDelivererPerson extends BasePerson<
+export class GoodsDelivererPerson extends BaseGridPerson<
   GoodsDelivererPerson,
   GoodsDelivererPersonImmutable,
   "goodsDeliverer"
@@ -67,18 +62,6 @@ export class GoodsDelivererPerson extends BasePerson<
   goodType: Good;
   @mutable("plainValue")
   goodAmount: number;
-  @mutable("plainValue")
-  positionKey: string;
-  @propById(
-    "positionKey",
-    (key: string, thisObject: GoodsDelivererPerson) =>
-      thisObject.people.game.grid.cellMap[key],
-    true,
-    "key",
-  )
-  declare cell: Cell;
-  @immutable
-  speed: number;
 
   onFinished = this.eventsManager.add<(person: GoodsDelivererPerson) => void>();
 
@@ -87,20 +70,18 @@ export class GoodsDelivererPerson extends BasePerson<
     {
       sourceBuildingId,
       targetBuildingId,
-      positionKey,
       goodType,
       goodAmount,
+      ...rest
     }: GoodsDelivererPersonOptions,
   ) {
-    super(people, "goodsDeliverer");
+    super(people, "goodsDeliverer", 1, rest);
     this.sourceBuildingId = sourceBuildingId;
     this.targetBuildingId = targetBuildingId;
-    this.positionKey = positionKey;
     this.path = null;
     this.pathIndex = 0;
     this.goodType = goodType;
     this.goodAmount = goodAmount;
-    this.speed = 1;
     this.postInit();
   }
 

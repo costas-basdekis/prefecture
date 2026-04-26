@@ -7,8 +7,10 @@ import {
   parentSecondaryKey,
 } from "~/immutable";
 import type { People } from "./People";
-import { EventsManager, OnEvent } from "../events";
+import { EventsManager } from "../events";
 import { Person } from "./Person";
+
+export type BasePersonOptions = {};
 
 export type BasePersonImmutable<P extends BasePerson<any, any, any>> = Pick<
   P,

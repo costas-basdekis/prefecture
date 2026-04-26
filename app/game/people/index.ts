@@ -1,3 +1,4 @@
+export * from "./BaseGridPerson";
 export * from "./BasePerson";
 export * from "./GoodsDelivererPerson";
 export * from "./ImmigrantPerson";
