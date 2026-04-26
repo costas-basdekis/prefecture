@@ -33,7 +33,7 @@ export class ImmigrantPerson extends BasePerson<
     "targetBuildingId",
     (id: number, thisObject: ImmigrantPerson) =>
       thisObject.people.game.buildings.byId[id],
-    false,
+    { allowSetter: false },
   )
   declare targetBuilding: HouseBuilding;
   @immutable
