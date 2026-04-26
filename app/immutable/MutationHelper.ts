@@ -2,7 +2,6 @@ import "reflect-metadata";
 import { Immutable } from "./Immutable";
 import { Mutable } from "./Mutable";
 import { unreachableCase } from "~/utils";
-import { GameImmutable } from "~/game";
 
 export type MutableDirtyKeys<M, I> = keyof {
   [key in keyof M & keyof I as M[key] extends Mutable<any, infer I1>
@@ -44,8 +43,10 @@ const keysWithNoMutationKey = Symbol("keysWithNoMutation");
 
 export function immutable(target: Object, propertyKey: string | symbol) {
   const keys: Set<string | symbol> =
-    Reflect.getMetadata(keysWithNoMutationKey, target) ??
-    new Set<string | symbol>();
+    Reflect.getOwnMetadata(keysWithNoMutationKey, target) ??
+    new Set<string | symbol>(
+      Reflect.getMetadata(keysWithNoMutationKey, target),
+    );
   keys.add(propertyKey);
   Reflect.defineMetadata(keysWithNoMutationKey, keys, target);
 }
@@ -65,8 +66,10 @@ function getMutableStore(propertyKey: string | symbol): WeakMap<Object, any> {
 export function mutable(type: MutationType) {
   return function (target: Object, propertyKey: string | symbol) {
     const keys: Set<string | symbol> =
-      Reflect.getMetadata(keysWithMutationTypeKey, target) ??
-      new Set<string | symbol>();
+      Reflect.getOwnMetadata(keysWithMutationTypeKey, target) ??
+      new Set<string | symbol>(
+        Reflect.getMetadata(keysWithMutationTypeKey, target),
+      );
     keys.add(propertyKey);
     Reflect.defineMetadata(keysWithMutationTypeKey, keys, target);
     Reflect.defineMetadata(mutationTypeKey, type, target, propertyKey);
@@ -173,8 +176,10 @@ const keysWithMethodMutationTypeKey = Symbol("keysWithMethodMutationType");
 
 export function methodMutate(target: Object, propertyKey: string | symbol) {
   const keys: Set<string | symbol> =
-    Reflect.getMetadata(keysWithMethodMutationTypeKey, target) ??
-    new Set<string | symbol>();
+    Reflect.getOwnMetadata(keysWithMethodMutationTypeKey, target) ??
+    new Set<string | symbol>(
+      Reflect.getMetadata(keysWithMethodMutationTypeKey, target),
+    );
   keys.add(propertyKey);
   Reflect.defineMetadata(keysWithMethodMutationTypeKey, keys, target);
 }
