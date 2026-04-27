@@ -5,6 +5,7 @@ export * from "./ContentStore";
 export * from "./FarmBuilding";
 export * from "./GranaryBuilding";
 export * from "./HouseBuilding";
+export * from "./MarketBuilding";
 export * from "./Production";
 export * from "./ProductionBuilding";
 export * from "./ProductionDelivery";

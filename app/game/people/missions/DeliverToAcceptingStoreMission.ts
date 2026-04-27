@@ -74,6 +74,7 @@ export class DeliverToAcceptingStoreMission extends BaseGoodsDelivererMission {
             step.targetBuilding!,
             this.goodType,
             this.goodAmount,
+            true,
           )
         ) {
           this.stateAndStep = this.findTarget();

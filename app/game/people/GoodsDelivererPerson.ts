@@ -6,7 +6,10 @@ import {
 } from "./BaseGridPerson";
 import type { People } from "./People";
 import type { Good } from "../goods";
-import { DeliverToAcceptingStoreMission } from "./missions";
+import {
+  DeliverToAcceptingStoreMission,
+  FetchFromAvailableStoreMission,
+} from "./missions";
 
 declare module "./Person" {
   interface PersonDefinitions {
@@ -29,7 +32,9 @@ export type GoodsDelivererPersonImmutable = Pick<
 > &
   BaseGridPersonImmutable<GoodsDelivererPerson>;
 
-export type GoodsDelivererPersonMission = DeliverToAcceptingStoreMission;
+export type GoodsDelivererPersonMission =
+  | DeliverToAcceptingStoreMission
+  | FetchFromAvailableStoreMission;
 
 export class GoodsDelivererPerson extends BaseGridPerson<
   GoodsDelivererPerson,

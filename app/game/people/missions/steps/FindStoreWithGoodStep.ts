@@ -9,38 +9,40 @@ import type { Cell } from "../../../Cell";
 import { Game } from "../../../Game";
 import type { Good } from "../../../goods";
 import { BaseGridPerson } from "../../BaseGridPerson";
-import { BaseMissionStep, MissionStepTick } from "./BaseMissionStep";
+import { BaseMissionStep } from "./BaseMissionStep";
 
-export class FindStoreWithSpaceStep extends BaseMissionStep {
+export class FindStoreWithGoodStep extends BaseMissionStep {
   readonly goodType: Good;
-  readonly goodAmount: number;
+  readonly maxAmount: number;
 
   constructor(
     game: Game,
     person: BaseGridPerson<any, any, any>,
     goodType: Good,
-    goodAmount: number,
+    maxAmount: number,
   ) {
     super(game, person);
     this.goodType = goodType;
-    this.goodAmount = goodAmount;
+    this.maxAmount = maxAmount;
   }
 
   tick(
     _tickCount: number,
-  ): MissionStepTick<{ building: Building; path: Cell[] }> {
-    const acceptingStores = Object.values(this.game.buildings.byId).filter(
+  ):
+    | { done: false; result: null }
+    | { done: true; result: { building: Building; path: Cell[] } } {
+    const availableStores = Object.values(this.game.buildings.byId).filter(
       (building) =>
         WorkSearchUtils.hasWorkerAccess(building) &&
-        ContentStoreUtils.hasRoomFor(
+        ContentStoreUtils.hasAmount(
           building,
           this.goodType,
-          this.goodAmount,
+          this.maxAmount,
           true,
         ),
     ) as (Building & BuildingWithContents<any>)[];
     const closestBuildingAndPath = BaseBuilding.getClosestBuildingAndPath(
-      acceptingStores,
+      availableStores,
       this.person.cell,
     );
     if (!closestBuildingAndPath) {

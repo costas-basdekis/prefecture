@@ -10,10 +10,16 @@ import {
   MutationHelper,
   parentKey,
 } from "~/immutable";
-import { Building, FarmBuilding, FarmBuildingOptions } from "./buildings";
+import {
+  BaseBuildingOptions,
+  Building,
+  FarmBuilding,
+  FarmBuildingOptions,
+} from "./buildings";
 import _ from "lodash";
 import { GranaryBuilding } from "./buildings/GranaryBuilding";
 import { WaterCoverage } from "./buildings/WaterCoverage";
+import { MarketBuilding } from "./buildings/MarketBuilding";
 
 export interface GridMakeOptions {
   width: number;
@@ -88,27 +94,39 @@ export class Grid implements Mutable<Grid, GridImmutable> {
     return true;
   }
 
+  makeRectangleBuildingOptions(
+    coords: Coords,
+    width: number,
+    height: number,
+  ): BaseBuildingOptions {
+    const positions = _.range(width).flatMap((dX) =>
+      _.range(height).map((dY) => ({ x: coords.x + dX, y: coords.y + dY })),
+    );
+    return {
+      positions,
+      topLeftPosition: coords,
+      bottomRightPosition: {
+        x: coords.x + width - 1,
+        y: coords.y + height - 1,
+      },
+      width,
+      height,
+    };
+  }
+
   addHouses(allCoords: Coords[]): Grid {
     for (const coords of allCoords) {
-      this.cellMap[makeCoordsKey(coords)].addHouse({
-        positions: [coords],
-        topLeftPosition: coords,
-        bottomRightPosition: coords,
-        width: 1,
-        height: 1,
-      });
+      this.cellMap[makeCoordsKey(coords)].addHouse(
+        this.makeRectangleBuildingOptions(coords, 1, 1),
+      );
     }
     return this;
   }
 
   addWell(coords: Coords) {
-    this.cellMap[makeCoordsKey(coords)].addWell({
-      positions: [coords],
-      topLeftPosition: coords,
-      bottomRightPosition: coords,
-      width: 1,
-      height: 1,
-    });
+    this.cellMap[makeCoordsKey(coords)].addWell(
+      this.makeRectangleBuildingOptions(coords, 1, 1),
+    );
     return this;
   }
 
@@ -116,37 +134,30 @@ export class Grid implements Mutable<Grid, GridImmutable> {
     coords: Coords,
     options: Pick<FarmBuildingOptions, "productionOutput">,
   ) {
-    const positions = _.range(3).flatMap((dX) =>
-      _.range(3).map((dY) => ({ x: coords.x + dX, y: coords.y + dY })),
-    );
+    const buildingOptions = this.makeRectangleBuildingOptions(coords, 3, 3);
     this.addBuilding(
-      positions,
+      buildingOptions.positions,
       () =>
         new FarmBuilding(this.game.buildings, {
-          positions,
-          topLeftPosition: coords,
-          bottomRightPosition: { x: coords.x + 2, y: coords.y + 2 },
-          width: 3,
-          height: 3,
+          ...buildingOptions,
           ...options,
         }),
     );
   }
 
   addGranary(coords: Coords) {
-    const positions = _.range(3).flatMap((dX) =>
-      _.range(3).map((dY) => ({ x: coords.x + dX, y: coords.y + dY })),
-    );
+    const buildingOptions = this.makeRectangleBuildingOptions(coords, 3, 3);
     this.addBuilding(
-      positions,
-      () =>
-        new GranaryBuilding(this.game.buildings, {
-          positions,
-          topLeftPosition: coords,
-          bottomRightPosition: { x: coords.x + 2, y: coords.y + 2 },
-          width: 3,
-          height: 3,
-        }),
+      buildingOptions.positions,
+      () => new GranaryBuilding(this.game.buildings, buildingOptions),
+    );
+  }
+
+  addMarket(coords: Coords) {
+    const buildingOptions = this.makeRectangleBuildingOptions(coords, 2, 2);
+    this.addBuilding(
+      buildingOptions.positions,
+      () => new MarketBuilding(this.game.buildings, buildingOptions),
     );
   }
 }

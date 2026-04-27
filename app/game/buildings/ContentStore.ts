@@ -15,7 +15,11 @@ export type BuildingWithContents<G extends Good> = {
 
 export type ContentStoreImmutable<G extends Good> = Pick<
   ContentStore<G>,
-  "acceptableGoods" | "capacity" | "contents" | "emptySpace"
+  | "acceptableGoods"
+  | "acceptsExternalDeliveries"
+  | "capacity"
+  | "contents"
+  | "emptySpace"
 > &
   Immutable<ContentStore<G>>;
 
@@ -29,6 +33,10 @@ export class ContentStore<G extends Good> implements Mutable<
   @immutable
   acceptableGoods: readonly G[];
   @immutable
+  acceptsExternalDeliveries: boolean;
+  @immutable
+  allowsExternalPickups: boolean;
+  @immutable
   capacity: number;
   @mutable("plainValueMap")
   contents: Partial<Record<G, number>>;
@@ -38,6 +46,8 @@ export class ContentStore<G extends Good> implements Mutable<
   constructor(
     building: Building & BuildingWithContents<G>,
     acceptableGoods: readonly G[],
+    acceptsExternalDeliveries: boolean,
+    allowsExternalPickups: boolean,
     capacity: number,
   ) {
     this.building = building;
@@ -45,24 +55,33 @@ export class ContentStore<G extends Good> implements Mutable<
     this.capacity = capacity;
     this.contents = {};
     this.emptySpace = capacity;
+    this.acceptsExternalDeliveries = acceptsExternalDeliveries;
+    this.allowsExternalPickups = allowsExternalPickups;
     this.mutationHelper = new MutationHelper<
       ContentStore<G>,
       ContentStoreImmutable<G>
     >(this);
   }
 
-  hasRoomFor(good: Good, amount: number): boolean {
+  hasRoomFor(good: Good, amount: number, externalDelivery: boolean): boolean {
     if (this.emptySpace < amount) {
       return false;
     }
-    if (!this.acceptableGoods.includes(good as any)) {
+    if (externalDelivery && !this.acceptableGoods.includes(good as any)) {
       return false;
     }
     return true;
   }
 
-  store(good: Good, amount: number): boolean {
-    if (!this.hasRoomFor(good, amount)) {
+  hasAmount(good: Good, maxAmount: number, externalPickup: boolean): number {
+    if (externalPickup && !this.allowsExternalPickups) {
+      return 0;
+    }
+    return Math.min(maxAmount, this.contents[good as G] ?? 0);
+  }
+
+  store(good: Good, amount: number, externalDelivery: boolean): boolean {
+    if (!this.hasRoomFor(good, amount, externalDelivery)) {
       return false;
     }
     const acceptableGood = good as G;
@@ -71,21 +90,62 @@ export class ContentStore<G extends Good> implements Mutable<
     this.emptySpace -= amount;
     return true;
   }
+
+  take(good: Good, maxAmount: number, externalPickup: boolean): number {
+    const amount = this.hasAmount(good, maxAmount, externalPickup);
+    if (!amount) {
+      return amount;
+    }
+    this.contents[good as G]! -= amount;
+    return amount;
+  }
 }
 
 export const ContentStoreUtils = {
-  hasRoomFor(building: Building, good: Good, amount: number): boolean {
+  hasRoomFor(
+    building: Building,
+    good: Good,
+    amount: number,
+    externalDelivery: boolean,
+  ): boolean {
     return (
       "contentStore" in building &&
       building.contentStore instanceof ContentStore &&
-      building.contentStore.hasRoomFor(good, amount)
+      building.contentStore.hasRoomFor(good, amount, externalDelivery)
     );
   },
-  store(building: Building, good: Good, amount: number): boolean {
+  hasAmount(
+    building: Building,
+    good: Good,
+    maxAmount: number,
+    externalPickup: boolean,
+  ): number {
+    return "contentStore" in building &&
+      building.contentStore instanceof ContentStore
+      ? building.contentStore.hasAmount(good, maxAmount, externalPickup)
+      : 0;
+  },
+  store(
+    building: Building,
+    good: Good,
+    amount: number,
+    externalDelivery: boolean,
+  ): boolean {
     return (
       "contentStore" in building &&
       building.contentStore instanceof ContentStore &&
-      building.contentStore.store(good, amount)
+      building.contentStore.store(good, amount, externalDelivery)
     );
+  },
+  take(
+    building: Building,
+    good: Good,
+    maxAmount: number,
+    externalPickup: boolean,
+  ): number {
+    return "contentStore" in building &&
+      building.contentStore instanceof ContentStore
+      ? building.contentStore.take(good, maxAmount, externalPickup)
+      : 0;
   },
 };

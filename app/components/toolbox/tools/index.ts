@@ -2,6 +2,7 @@ export * from "./BaseTool";
 export * from "./FarmPlacementTool";
 export * from "./GranaryPlacementTool";
 export * from "./HousePlacementTool";
+export * from "./MarketPlacementTool";
 export * from "./RoadPlacementTool";
 export * from "./SelectionTool";
 export * from "./Tool";

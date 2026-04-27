@@ -41,7 +41,13 @@ export class GranaryBuilding
   constructor(buildings: Buildings, options: GranaryBuildingOptions) {
     super(buildings, "granary", options);
     this.workSearch = new WorkSearch(this);
-    this.contentStore = new ContentStore<FoodGood>(this, foodGoods, 32);
+    this.contentStore = new ContentStore<FoodGood>(
+      this,
+      foodGoods,
+      true,
+      true,
+      32,
+    );
     this.postInit();
   }
 

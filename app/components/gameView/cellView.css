@@ -14,7 +14,9 @@
     fill: cyan;
   }
   
-  &.with-building-farm {
+  &.with-building-farm,
+  &.with-building-granary,
+  &.with-building-market {
     stroke: none;
   }
 }

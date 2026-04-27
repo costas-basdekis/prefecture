@@ -10,4 +10,8 @@
   &.building-type-granary {
     fill: yellow;
   }
+
+  &.building-type-market {
+    fill: green;
+  }
 }
