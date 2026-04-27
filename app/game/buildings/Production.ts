@@ -7,7 +7,7 @@ import {
   parentKey,
 } from "~/immutable";
 import { Building } from "./Building";
-import { BuildingWithWorkerFinder } from "./WorkSearch";
+import { BuildingWithWorkSearch } from "./WorkSearch";
 
 export interface BuildingWithProduction {
   production: Production;
@@ -22,7 +22,7 @@ export type ProductionImmutable = Pick<
 export class Production implements Mutable<Production, ProductionImmutable> {
   mutationHelper: MutationHelper<Production, ProductionImmutable>;
   @parentKey("production")
-  building: Building & BuildingWithWorkerFinder;
+  building: Building & BuildingWithWorkSearch;
   @immutable
   processRate: number;
   @immutable
@@ -31,7 +31,7 @@ export class Production implements Mutable<Production, ProductionImmutable> {
   process: number;
 
   constructor(
-    building: Building & BuildingWithWorkerFinder,
+    building: Building & BuildingWithWorkSearch,
     processRate: number,
     maxProcess: number,
   ) {

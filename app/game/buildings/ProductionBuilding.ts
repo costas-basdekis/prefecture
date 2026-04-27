@@ -5,10 +5,7 @@ import {
   BaseBuildingOptions,
 } from "./BaseBuilding";
 import type { Buildings } from "./Buildings";
-import {
-  WorkSearchImmutable,
-  type BuildingWithWorkerFinder,
-} from "./WorkSearch";
+import { WorkSearchImmutable, type BuildingWithWorkSearch } from "./WorkSearch";
 import { WorkSearch } from "./WorkSearch";
 import {
   BuildingWithProductionDelivery,
@@ -43,7 +40,7 @@ export abstract class ProductionBuilding<
     T
   >
   implements
-    BuildingWithWorkerFinder,
+    BuildingWithWorkSearch,
     BuildingWithProduction,
     BuildingWithProductionDelivery
 {

@@ -7,10 +7,10 @@ import {
 } from "~/immutable";
 import { Building } from "./Building";
 import { propById } from "~/utils";
-import { Person, WorkerFinderPerson } from "../people";
+import { Person, WandererPerson } from "../people";
 import { Cell } from "../Cell";
 
-export interface BuildingWithWorkerFinder {
+export interface BuildingWithWorkSearch {
   workSearch: WorkSearch;
 }
 
@@ -25,22 +25,22 @@ export type WorkSearchImmutable = Pick<
 export class WorkSearch implements Mutable<WorkSearch, WorkSearchImmutable> {
   mutationHelper: MutationHelper<WorkSearch, WorkSearchImmutable>;
   @parentKey("workSearch")
-  building: Building & BuildingWithWorkerFinder;
+  building: Building & BuildingWithWorkSearch;
   @mutable("plainValue")
   workerFinderId: number | null;
-  @propById<WorkSearch, WorkerFinderPerson, number>(
+  @propById<WorkSearch, WandererPerson, number>(
     "workerFinderId",
     (id, thisObject) =>
-      thisObject.building.buildings.game.people.byId[id] as WorkerFinderPerson,
+      thisObject.building.buildings.game.people.byId[id] as WandererPerson,
   )
-  declare workerFinder: WorkerFinderPerson | null;
+  declare workerFinder: WandererPerson | null;
   lastWorkerFinderVisitedByCell: Map<Cell, number>;
   @mutable("plainValue")
   lastWorkerAccessTickCount: number;
   @mutable("plainValue")
   hasWorkerAccess: boolean;
 
-  constructor(building: Building & BuildingWithWorkerFinder) {
+  constructor(building: Building & BuildingWithWorkSearch) {
     this.building = building;
     this.workerFinderId = null;
     this.lastWorkerFinderVisitedByCell = new Map();
@@ -64,11 +64,13 @@ export class WorkSearch implements Mutable<WorkSearch, WorkSearchImmutable> {
       if (!firstCell) {
         return;
       }
-      this.workerFinder = new WorkerFinderPerson(
+      this.workerFinder = new WandererPerson(
         this.building.buildings.game.people,
         {
+          secondaryType: "workerFinder",
           sourceBuildingId: this.building.id,
           positionKey: firstCell.key,
+          lastVisitedByCell: this.lastWorkerFinderVisitedByCell,
         },
       );
       this.workerFinder.onRemoved.register(

@@ -1,13 +1,13 @@
-import { WorkerFinderPersonImmutable } from "~/game";
+import { WandererPersonImmutable } from "~/game";
 import { PersonViewProps } from "./PersonView";
 import { MultilineText } from "~/components/generic";
 import { useMemo } from "react";
 import { personViewByType } from "./personViewByType";
 
-export function WorkerFinderPersonView({
+export function WandererPersonView({
   game,
   person,
-}: PersonViewProps<WorkerFinderPersonImmutable>) {
+}: PersonViewProps<WandererPersonImmutable>) {
   const cell = game.grid.cellMap[person.positionKey];
   const center = useMemo(() => {
     return { x: cell.x * 20 + 10, y: cell.y * 20 + 10 };
@@ -18,7 +18,7 @@ export function WorkerFinderPersonView({
         cx={center.x}
         cy={center.y}
         r={12}
-        className={`person person-type-${person.type}`}
+        className={`person person-type-${person.type}-${person.secondaryType}`}
       />
       <MultilineText
         center={center}
@@ -30,4 +30,4 @@ export function WorkerFinderPersonView({
   );
 }
 
-personViewByType.workerFinder = WorkerFinderPersonView;
+personViewByType.wanderer = WandererPersonView;

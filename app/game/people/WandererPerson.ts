@@ -1,7 +1,7 @@
 import { immutable } from "~/immutable";
 import type { People } from "./People";
 import { propById } from "~/utils";
-import type { BuildingWithWorkerFinder, HouseUtils } from "../buildings";
+import { HouseUtils, type Building } from "../buildings";
 import {
   BaseGridPersonImmutable,
   BaseGridPersonOptions,
@@ -12,57 +12,63 @@ import { Cell } from "../Cell";
 
 declare module "./Person" {
   interface PersonDefinitions {
-    workerFinder: WorkerFinderPerson;
+    wanderer: WandererPerson;
   }
   interface PersonImmutableDefinitions {
-    workerFinder: WorkerFinderPersonImmutable;
+    wanderer: WandererPersonImmutable;
   }
 }
 
-export type WorkerFinderOptions = Pick<WorkerFinderPerson, "sourceBuildingId"> &
+export type WandererOptions = Pick<
+  WandererPerson,
+  "secondaryType" | "sourceBuildingId" | "lastVisitedByCell"
+> &
   BaseGridPersonOptions;
 
-export type WorkerFinderPersonImmutable =
-  BaseGridPersonImmutable<WorkerFinderPerson>;
+export type WandererPersonImmutable = Pick<WandererPerson, "secondaryType"> &
+  BaseGridPersonImmutable<WandererPerson>;
 
-export class WorkerFinderPerson extends BaseGridPerson<
-  WorkerFinderPerson,
-  WorkerFinderPersonImmutable,
-  "workerFinder"
+export class WandererPerson extends BaseGridPerson<
+  WandererPerson,
+  WandererPersonImmutable,
+  "wanderer"
 > {
+  @immutable
+  secondaryType: string;
   @immutable
   sourceBuildingId: number;
   @propById(
     "sourceBuildingId",
-    (id: number, thisObject: WorkerFinderPerson) =>
-      thisObject.people.game.buildings.byId[id] as BuildingWithWorkerFinder,
+    (id: number, thisObject: WandererPerson) =>
+      thisObject.people.game.buildings.byId[id] as Building,
     { allowSetter: false },
   )
-  declare sourceBuilding: BuildingWithWorkerFinder;
+  declare sourceBuilding: Building;
   @immutable
   firstTickCount: number;
   @immutable
   maxDuration: number;
-  lastWorkerFinderVisitedByCell: Map<Cell, number>;
+  lastVisitedByCell: Map<Cell, number>;
 
   onPassedHouse = this.eventsManager.add<(tickCount: number) => void>();
 
   constructor(
     people: People,
-    { sourceBuildingId, ...rest }: WorkerFinderOptions,
+    {
+      secondaryType,
+      sourceBuildingId,
+      lastVisitedByCell,
+      ...rest
+    }: WandererOptions,
   ) {
-    super(people, "workerFinder", 1, rest);
+    super(people, "wanderer", 1, rest);
+    this.secondaryType = secondaryType;
     this.sourceBuildingId = sourceBuildingId;
     this.firstTickCount = people.game.tickCount;
     this.maxDuration = 20;
-    this.lastWorkerFinderVisitedByCell =
-      this.sourceBuilding.workSearch.lastWorkerFinderVisitedByCell;
-    this.lastWorkerFinderVisitedByCell.set(
-      this.cell,
-      this.people.game.tickCount,
-    );
+    this.lastVisitedByCell = lastVisitedByCell;
+    this.lastVisitedByCell.set(this.cell, this.people.game.tickCount);
     this.postInit();
-    this.checkForWorkerAccess();
   }
 
   tick(tickCount: number) {
@@ -75,17 +81,13 @@ export class WorkerFinderPerson extends BaseGridPerson<
     );
     const nextCell = _.minBy(
       nextCells,
-      (cell) => this.lastWorkerFinderVisitedByCell.get(cell) ?? 0,
+      (cell) => this.lastVisitedByCell.get(cell) ?? 0,
     );
     if (!nextCell) {
       return;
     }
     this.cell = nextCell;
-    this.lastWorkerFinderVisitedByCell.set(nextCell, tickCount);
-    this.checkForWorkerAccess();
-  }
-
-  checkForWorkerAccess() {
+    this.lastVisitedByCell.set(nextCell, tickCount);
     if (
       Array.from(this.cell.getCellsAround(2, 2, false)).some(
         HouseUtils.cellHasOccupants,
