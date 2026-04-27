@@ -93,9 +93,6 @@ export class WorkerFinderPerson extends BaseGridPerson<
       )
     ) {
       this.onPassedHouse.trigger(this.people.game.tickCount);
-      this.sourceBuilding.workSearch.onWorkerFinderPassedHouse(
-        this.people.game.tickCount,
-      );
     }
   }
 }
