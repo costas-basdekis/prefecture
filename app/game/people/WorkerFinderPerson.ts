@@ -1,7 +1,7 @@
 import { immutable } from "~/immutable";
 import type { People } from "./People";
 import { propById } from "~/utils";
-import type { BuildingWithWorkerFinder } from "../buildings";
+import type { BuildingWithWorkerFinder, HouseUtils } from "../buildings";
 import {
   BaseGridPersonImmutable,
   BaseGridPersonOptions,
@@ -88,8 +88,7 @@ export class WorkerFinderPerson extends BaseGridPerson<
   checkForWorkerAccess() {
     if (
       Array.from(this.cell.getCellsAround(2, 2, false)).some(
-        (cell) =>
-          cell.building?.type === "house" && cell.building.occupantCount > 0,
+        HouseUtils.cellHasOccupants,
       )
     ) {
       this.onPassedHouse.trigger(this.people.game.tickCount);

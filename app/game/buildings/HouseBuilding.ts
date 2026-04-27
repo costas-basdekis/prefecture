@@ -9,6 +9,7 @@ import {
 import type { Cell } from "../Cell";
 import { propById } from "~/utils";
 import { CellWaterCoverage } from "./WaterCoverage";
+import { Building } from "./Building";
 
 declare module "./Building" {
   interface BuildingDefinitions {
@@ -137,3 +138,12 @@ export class HouseBuilding extends BaseBuilding<
     this.level = nextLevel;
   }
 }
+
+export const HouseUtils = {
+  cellHasOccupants(cell: Cell): boolean {
+    return HouseUtils.hasOccupants(cell.building);
+  },
+  hasOccupants(house: Building | null): boolean {
+    return !!house && house.type === "house" && house.occupantCount > 0;
+  },
+};
