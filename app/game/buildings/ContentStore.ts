@@ -13,6 +13,13 @@ export type BuildingWithContents<G extends Good> = {
   contentStore: ContentStore<G>;
 };
 
+export type ContentStoreOptions<G extends Good> = {
+  acceptableGoods: readonly G[];
+  acceptsExternalDeliveries: boolean;
+  allowsExternalPickups: boolean;
+  capacity: number;
+};
+
 export type ContentStoreImmutable<G extends Good> = Pick<
   ContentStore<G>,
   | "acceptableGoods"
@@ -45,10 +52,12 @@ export class ContentStore<G extends Good> implements Mutable<
 
   constructor(
     building: Building & BuildingWithContents<G>,
-    acceptableGoods: readonly G[],
-    acceptsExternalDeliveries: boolean,
-    allowsExternalPickups: boolean,
-    capacity: number,
+    {
+      acceptableGoods,
+      acceptsExternalDeliveries,
+      allowsExternalPickups,
+      capacity,
+    }: ContentStoreOptions<G>,
   ) {
     this.building = building;
     this.acceptableGoods = acceptableGoods;

@@ -52,7 +52,12 @@ export class MarketBuilding
   constructor(buildings: Buildings, options: MarketBuildingOptions) {
     super(buildings, "market", options);
     this.workSearch = new WorkSearch(this as any);
-    this.contentStore = new ContentStore<FoodGood>(this, [], false, false, 32);
+    this.contentStore = new ContentStore<FoodGood>(this, {
+      acceptableGoods: [],
+      acceptsExternalDeliveries: false,
+      allowsExternalPickups: false,
+      capacity: 32,
+    });
     this.foodFetcherId = null;
     this.postInit();
   }
