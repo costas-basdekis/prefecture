@@ -8,6 +8,7 @@ import {
 } from "~/immutable";
 import { Building } from "./Building";
 import { Good } from "../goods";
+import _ from "lodash";
 
 export type BuildingWithContents<G extends Good> = {
   contentStore: ContentStore<G>;
@@ -87,6 +88,13 @@ export class ContentStore<G extends Good> implements Mutable<
       return 0;
     }
     return Math.min(maxAmount, this.contents[good as G] ?? 0);
+  }
+
+  isEmpty(): boolean {
+    return _.every(
+      Object.values(this.contents),
+      (amount: number) => amount === 0,
+    );
   }
 
   store(good: Good, amount: number, externalDelivery: boolean): boolean {

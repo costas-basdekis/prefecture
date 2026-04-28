@@ -8,8 +8,8 @@ import {
 } from "./BaseBuilding";
 import type { Cell } from "../Cell";
 import { propById } from "~/utils";
-import { CellWaterCoverage } from "./WaterCoverage";
 import { Building } from "./Building";
+import { Good } from "../goods";
 
 declare module "./Building" {
   interface BuildingDefinitions {
@@ -39,6 +39,10 @@ export class HouseBuilding extends BaseBuilding<
   occupantCount: number;
   @mutable("plainValue")
   maxOccupantCount: number;
+  @mutable("plainValueMap")
+  resources: Partial<Record<Good, number>>;
+  @mutable("plainValueMap")
+  maxResourcesPerOccupant: Partial<Record<Good, number>>;
   @mutable("plainValue")
   immigrantId: number | null;
   @propById(
@@ -51,23 +55,40 @@ export class HouseBuilding extends BaseBuilding<
   static maxOccupantCountMap: number[] = [
     0, 3, 7, 12, 18, 25, 33, 42, 52, 63, 75,
   ];
-  static requirementsByLevel: Partial<{ waterCoverage: number }>[] = [
+  static maxResourcesPerOccupant: Partial<Record<Good, number>> = {
+    wheat: 0.1,
+  };
+  static requirementsByLevel: Partial<{
+    waterCoverage: number;
+    resources: Good[];
+  }>[] = [
     {},
     {},
     { waterCoverage: 1 },
+    { waterCoverage: 1, resources: ["wheat"] },
   ];
+  static maxResourcesPerOccupantPerLevel: Partial<Record<Good, number>>[] =
+    this.requirementsByLevel.map((level) =>
+      Object.fromEntries(
+        (level.resources ?? []).map((good) => [
+          good,
+          this.maxResourcesPerOccupant[good],
+        ]),
+      ),
+    );
 
   constructor(buildings: Buildings, options: BaseBuildingOptions) {
     super(buildings, "house", options);
     this.level = 0;
     this.occupantCount = 0;
     this.maxOccupantCount = 0;
+    this.resources = {};
+    this.maxResourcesPerOccupant = {};
     this.immigrantId = null;
     this.postInit();
-    this.buildings.game.grid.waterCoverage.registerOnLevelUpdated(
-      this.onWaterCoverageUpdated.bind(this),
-      this.cells,
-    );
+  }
+
+  tick(_tickCount: number) {
     this.updateLevel(this.cells[0]);
   }
 
@@ -103,10 +124,6 @@ export class HouseBuilding extends BaseBuilding<
     }
   }
 
-  onWaterCoverageUpdated(waterCoverage: CellWaterCoverage) {
-    this.updateLevel(waterCoverage.cell);
-  }
-
   updateLevel(_cell: Cell) {
     const waterCoverage = Math.max(
       ...this.cells.map((cell) => cell.waterCoverage.level),
@@ -115,6 +132,13 @@ export class HouseBuilding extends BaseBuilding<
       (level) => {
         if (level.waterCoverage) {
           if (waterCoverage < level.waterCoverage) {
+            return false;
+          }
+        }
+        if (level.resources) {
+          if (
+            level.resources.some((good) => (this.resources[good] ?? 0) === 0)
+          ) {
             return false;
           }
         }
@@ -135,6 +159,13 @@ export class HouseBuilding extends BaseBuilding<
     } else {
       this.spawnImmigrant();
     }
+    this.maxResourcesPerOccupant =
+      HouseBuilding.maxResourcesPerOccupantPerLevel[
+        Math.min(
+          nextLevel + 1,
+          HouseBuilding.maxResourcesPerOccupantPerLevel.length - 1,
+        )
+      ];
     this.level = nextLevel;
   }
 }

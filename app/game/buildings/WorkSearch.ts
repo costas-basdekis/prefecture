@@ -88,7 +88,11 @@ export class WorkSearch implements Mutable<WorkSearch, WorkSearchImmutable> {
     }
   }
 
-  onWorkerFinderPassedHouse(tickCount: number) {
+  onWorkerFinderPassedHouse(
+    _passedHouseCells: Cell[],
+    _person: WandererPerson,
+    tickCount: number,
+  ) {
     this.lastWorkerAccessTickCount = tickCount;
     this.hasWorkerAccess = true;
   }

@@ -50,7 +50,14 @@ export class WandererPerson extends BaseGridPerson<
   maxDuration: number;
   lastVisitedByCell: Map<Cell, number>;
 
-  onPassedHouse = this.eventsManager.add<(tickCount: number) => void>();
+  onPassedHouse =
+    this.eventsManager.add<
+      (
+        passedHouseCells: Cell[],
+        person: WandererPerson,
+        tickCount: number,
+      ) => void
+    >();
 
   constructor(
     people: People,
@@ -88,12 +95,15 @@ export class WandererPerson extends BaseGridPerson<
     }
     this.cell = nextCell;
     this.lastVisitedByCell.set(nextCell, tickCount);
-    if (
-      Array.from(this.cell.getCellsAround(2, 2, false)).some(
-        HouseUtils.cellHasOccupants,
-      )
-    ) {
-      this.onPassedHouse.trigger(this.people.game.tickCount);
+    const passedHouseCells = Array.from(
+      this.cell.getCellsAround(2, 2, false),
+    ).filter(HouseUtils.cellHasOccupants);
+    if (passedHouseCells.length) {
+      this.onPassedHouse.trigger(
+        passedHouseCells,
+        this,
+        this.people.game.tickCount,
+      );
     }
   }
 }

@@ -6,8 +6,8 @@ import {
 } from "./BaseBuilding";
 import { WorkSearch, WorkSearchImmutable } from "./WorkSearch";
 import { Buildings } from "./Buildings";
-import { FoodGood, foodGoods } from "../goods";
-import { GoodsDelivererPerson, Person } from "../people";
+import { FoodGood, Good } from "../goods";
+import { GoodsDelivererPerson, Person, WandererPerson } from "../people";
 import { propById } from "~/utils";
 import {
   BuildingWithContents,
@@ -15,6 +15,8 @@ import {
   ContentStoreImmutable,
 } from "./ContentStore";
 import { FetchFromAvailableStoreMission } from "../people/missions";
+import { Cell } from "../Cell";
+import { HouseBuilding } from "./HouseBuilding";
 
 declare module "./Building" {
   interface BuildingDefinitions {
@@ -48,6 +50,15 @@ export class MarketBuilding
       thisObject.buildings.game.people.byId[id] as GoodsDelivererPerson,
   )
   declare foodFetcher: GoodsDelivererPerson | null;
+  @mutable("plainValue")
+  sellerId: number | null;
+  @propById<MarketBuilding, WandererPerson, number>(
+    "sellerId",
+    (id, thisObject) =>
+      thisObject.buildings.game.people.byId[id] as WandererPerson,
+  )
+  declare seller: WandererPerson | null;
+  lastSellerVisitedByCell: Map<Cell, number>;
 
   constructor(buildings: Buildings, options: MarketBuildingOptions) {
     super(buildings, "market", options);
@@ -59,12 +70,15 @@ export class MarketBuilding
       capacity: 32,
     });
     this.foodFetcherId = null;
+    this.sellerId = null;
+    this.lastSellerVisitedByCell = new Map();
     this.postInit();
   }
 
   tick(tickCount: number) {
     this.workSearch.tick(tickCount);
     this.fetchGoodsIfNecessary();
+    this.spreadGoodsIfAny();
   }
 
   fetchGoodsIfNecessary() {
@@ -95,6 +109,59 @@ export class MarketBuilding
   goodsDelivererRemoved(person: Person) {
     if (this.foodFetcherId === person.id) {
       this.foodFetcher = null;
+    }
+  }
+
+  spreadGoodsIfAny() {
+    if (!this.workSearch.hasWorkerAccess) {
+      return;
+    }
+    if (this.seller) {
+      return;
+    }
+    if (this.contentStore.isEmpty()) {
+      return;
+    }
+    const firstCell = this.findFirstNeighbouringRoad();
+    if (!firstCell) {
+      return;
+    }
+    this.seller = new WandererPerson(this.buildings.game.people, {
+      secondaryType: "marketSeller",
+      sourceBuildingId: this.id,
+      lastVisitedByCell: this.lastSellerVisitedByCell,
+      positionKey: firstCell.key,
+    });
+    this.seller.onPassedHouse.register(this.sellerPassedHouse.bind(this));
+    this.seller.onRemoved.register(this.sellerRemoved.bind(this));
+  }
+
+  sellerPassedHouse(passedHouseCells: Cell[]) {
+    const houses = new Set(
+      passedHouseCells.map((cell) => cell.building),
+    ) as Set<HouseBuilding>;
+    for (const house of houses) {
+      for (const [good, amount] of Object.entries(this.contentStore.contents)) {
+        const houseAmount = house.resources[good as Good] ?? 0;
+        const maxHouseAmountPerOccupant =
+          house.maxResourcesPerOccupant[good as Good] ?? 0;
+        const maxHouseAmount = maxHouseAmountPerOccupant * house.occupantCount;
+        const missingHouseAmount = Math.min(
+          maxHouseAmount - houseAmount,
+          amount,
+        );
+        if (missingHouseAmount > 0) {
+          house.resources[good as Good] = houseAmount + missingHouseAmount;
+          this.contentStore.contents[good as Good] =
+            amount - missingHouseAmount;
+        }
+      }
+    }
+  }
+
+  sellerRemoved(person: Person) {
+    if (this.sellerId === person.id) {
+      this.seller = null;
     }
   }
 }

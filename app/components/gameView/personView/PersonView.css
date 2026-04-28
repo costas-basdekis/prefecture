@@ -12,4 +12,8 @@
   &.person-type-goodsDeliverer {
     fill: brown;
   }
+
+  &.person-type-wanderer-marketSeller {
+    fill: green;
+  }
 }
