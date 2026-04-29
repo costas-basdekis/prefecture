@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { Immutable } from "./Immutable";
 import { Mutable } from "./Mutable";
 import { unreachableCase } from "~/utils";
-import { MutableMetadata } from "./MutableMetadata";
+import { MutableMetadata, MutablePropertyMetadata } from "./MutableMetadata";
 
 export type MutableDirtyKeys<M, I> = keyof {
   [key in keyof M & keyof I as M[key] extends Mutable<any, infer I1>
@@ -48,7 +48,7 @@ export function immutable(target: Object, propertyKey: string | symbol) {
       `Immutable key was already defined (${propertyKey.toString()}) for ${target}`,
     );
   }
-  if (metadata.keysWithMutationType.has(propertyKey)) {
+  if (metadata.mutableMap.has(propertyKey)) {
     throw new Error(
       `Immutable key was already defined (${propertyKey.toString()}) as mutable for ${target}`,
     );
@@ -81,7 +81,7 @@ export function mutable(
 ): PropertyDecorator {
   return function (target: Object, propertyKey: string | symbol) {
     const metadata = MutableMetadata.getOrSet(target);
-    if (metadata.keysWithMutationType.has(propertyKey)) {
+    if (metadata.mutableMap.has(propertyKey)) {
       throw new Error(
         `Mutable key was already defined (${propertyKey.toString()}) for ${target}`,
       );
@@ -91,13 +91,10 @@ export function mutable(
         `Mutable key was already defined (${propertyKey.toString()}) as immutable for ${target}`,
       );
     }
-    metadata.keysWithMutationType.add(propertyKey);
-    metadata.mutationTypeMap[propertyKey] = type;
     if (type === "plainValueById") {
       if (idKey === undefined) {
         idKey = "id";
       }
-      metadata.mutationIdKeyMap[propertyKey] = idKey;
       const descriptor: PropertyDescriptor = {
         get: function (this: any) {
           if (!this[propertyKey]) {
@@ -109,8 +106,19 @@ export function mutable(
       if (idPropertyKey === undefined) {
         idPropertyKey = `${propertyKey.toString()}Id`;
       }
-      metadata.mutationIdPropertyKeyMap[propertyKey] = idPropertyKey;
+      metadata.mutableMap.set(
+        propertyKey,
+        new MutablePropertyMetadata(propertyKey, type, {
+          idKey,
+          idPropertyKey,
+        }),
+      );
       Object.defineProperty(target, idPropertyKey, descriptor);
+    } else {
+      metadata.mutableMap.set(
+        propertyKey,
+        new MutablePropertyMetadata(propertyKey, type, null),
+      );
     }
 
     Object.defineProperty(
@@ -294,28 +302,25 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
   getDefaultInitialDirtyKeys(): DirtyKeys {
     const dirtyKeys: Partial<DirtyKeys> = {};
     const metadata = MutableMetadata.get(this.mutable);
-    for (const key of metadata.keysWithMutationType as Set<keyof I>) {
-      const mutationType: MutationType = metadata.mutationTypeMap[key];
+    for (const property of metadata.mutableMap.values()) {
+      const mutationType: MutationType = property.type;
       switch (mutationType) {
         case "mutable":
         case "plainValue":
         case "plainValueArray":
         case "plainValueMap":
-          // @ts-ignore
-          dirtyKeys[key] = false;
+          dirtyKeys[property.key] = false;
           break;
         case "plainValueById":
-          // @ts-ignore
-          dirtyKeys[key] = false;
+          dirtyKeys[property.key] = false;
           break;
         case "mutableMap":
-          // @ts-ignore
-          dirtyKeys[key] = new Set();
+          dirtyKeys[property.key] = new Set();
           break;
         default:
           throw unreachableCase(
             mutationType,
-            `Unknown mutation type "${mutationType}" for ${this.mutable.constructor.name}.${key.toString()}`,
+            `Unknown mutation type "${mutationType}" for ${this.mutable.constructor.name}.${property.key.toString()}`,
           );
       }
     }
@@ -336,38 +341,45 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
       // @ts-ignore
       immutable[key] = this.mutable[key];
     }
-    for (const key of metadata.keysWithMutationType as Set<
-      keyof I & (string | symbol)
-    >) {
-      const mutationType: MutationType = metadata.mutationTypeMap[key];
+    for (const property of metadata.mutableMap.values()) {
+      const mutationType: MutationType = property.type;
       switch (mutationType) {
         case "mutable":
-          immutable[key] = this.getForMutable(key as any);
+          immutable[property.key as keyof I] = this.getForMutable(
+            property.key as any,
+          );
           break;
         case "mutableMap":
-          immutable[key] = this.getForMutableMap(key as any) as any;
+          immutable[property.key as keyof I] = this.getForMutableMap(
+            property.key as any,
+          ) as any;
           break;
         case "plainValue":
-          immutable[key] = this.getForPlainValue(key as any);
+          immutable[property.key as keyof I] = this.getForPlainValue(
+            property.key as any,
+          );
           break;
         case "plainValueArray":
-          immutable[key] = this.getForPlainValueArray(key as any);
+          immutable[property.key as keyof I] = this.getForPlainValueArray(
+            property.key as any,
+          );
           break;
         case "plainValueMap":
-          immutable[key] = this.getForPlainValueMap(key as any);
+          immutable[property.key as keyof I] = this.getForPlainValueMap(
+            property.key as any,
+          );
           break;
         case "plainValueById":
-          const idKey: string = metadata.mutationIdKeyMap[key];
-          const idPropertyKey: string = metadata.mutationIdPropertyKeyMap[key];
-          immutable[idPropertyKey as keyof I] = this.getForPlainValueById(
-            key as any,
-            idKey,
-          );
+          immutable[property.config!.idPropertyKey as keyof I] =
+            this.getForPlainValueById(
+              property.key as any,
+              property.config!.idKey,
+            );
           break;
         default:
           throw unreachableCase(
             mutationType,
-            `Unknown mutation type "${mutationType}" for ${this.mutable.constructor.name}.${key.toString()}`,
+            `Unknown mutation type "${mutationType}" for ${this.mutable.constructor.name}.${property.key.toString()}`,
           );
       }
     }
@@ -460,32 +472,34 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
 
   updateImmutableDirtyKeys() {
     const metadata = MutableMetadata.get(this.mutable);
-    for (const key of metadata.keysWithMutationType) {
-      const mutationType: MutationType = metadata.mutationTypeMap[key];
+    for (const property of metadata.mutableMap.values()) {
+      const mutationType: MutationType = property.type;
       switch (mutationType) {
         case "mutable":
-          this.updateForMutable(key as any);
+          this.updateForMutable(property.key as any);
           break;
         case "mutableMap":
-          this.updateForMutableMap(key as never);
+          this.updateForMutableMap(property.key as any);
           break;
         case "plainValue":
-          this.updateForPlainValue(key as any);
+          this.updateForPlainValue(property.key as any);
           break;
         case "plainValueArray":
-          this.updateForPlainValueArray(key as any);
+          this.updateForPlainValueArray(property.key as any);
           break;
         case "plainValueMap":
-          this.updateForPlainValueMap(key as any);
+          this.updateForPlainValueMap(property.key as any);
           break;
         case "plainValueById":
-          const idKey: string = metadata.mutationIdKeyMap[key];
-          this.updateForPlainValueById(key as any, idKey);
+          this.updateForPlainValueById(
+            property.key as any,
+            property.config!.idKey,
+          );
           break;
         default:
           throw unreachableCase(
             mutationType,
-            `Unknown mutation type "${mutationType}" for ${this.mutable.constructor.name}.${key.toString()}`,
+            `Unknown mutation type "${mutationType}" for ${this.mutable.constructor.name}.${property.key.toString()}`,
           );
       }
     }
@@ -626,7 +640,7 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
     };
   }
 
-  updateForPlainValueById(key: string, idKey: string) {
+  updateForPlainValueById(key: string, idKey: string | symbol) {
     if (typeof this.dirtyKeys[key] !== "boolean") {
       throw new Error(
         `Dirty key "${key.toString()}" for ${this.constructor.name} is not a boolean`,
@@ -634,14 +648,17 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
     }
     if (this.dirtyKeys[key]) {
       const metadata = MutableMetadata.get(this.mutable);
-      const idPropertyKey: string = metadata.mutationIdPropertyKeyMap[key];
+      const property = metadata.mutableMap.get(
+        key,
+      ) as MutablePropertyMetadata<"plainValueById">;
       // @ts-ignore
-      this.lastImmutable[idPropertyKey] = this.getForPlainValueById(key, idKey);
+      this.lastImmutable[property.config.idPropertyKey] =
+        this.getForPlainValueById(key as keyof M, idKey);
       this.dirtyKeys[key] = false;
     }
   }
 
-  getForPlainValueById<K extends keyof M>(key: K, idKey: string): any {
+  getForPlainValueById<K extends keyof M>(key: K, idKey: string | symbol): any {
     return (this.mutable[key] as any)?.[idKey] ?? null;
   }
 }
