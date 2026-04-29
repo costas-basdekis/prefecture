@@ -2,7 +2,11 @@ import "reflect-metadata";
 import { Immutable } from "./Immutable";
 import { Mutable } from "./Mutable";
 import { unreachableCase } from "~/utils";
-import { MutableMetadata, MutablePropertyMetadata } from "./MutableMetadata";
+import {
+  MutableMetadata,
+  MutablePropertyMetadata,
+  MutationType,
+} from "./MutableMetadata";
 
 export type MutableDirtyKeys<M, I> = keyof {
   [key in keyof M & keyof I as M[key] extends Mutable<any, infer I1>
@@ -32,14 +36,6 @@ export type MutableMutationMethodKeys<M, I> = keyof {
       : never
     : never]: M[key];
 };
-
-export type MutationType =
-  | "mutable"
-  | "mutableMap"
-  | "plainValue"
-  | "plainValueArray"
-  | "plainValueMap"
-  | "plainValueById";
 
 export function immutable(target: Object, propertyKey: string | symbol) {
   const metadata = MutableMetadata.getOrSet(target);
@@ -231,10 +227,14 @@ export function parentKey(dirtyKey: string) {
     const metadata = MutableMetadata.getOrSet(target);
     if (metadata.parentInfo) {
       throw new Error(
-        `Parent key was already defined (${metadata.parentInfo.parentKey.toString()}) for ${target}`,
+        `Parent key was already defined (${metadata.parentInfo.key.toString()}) for ${target}`,
       );
     }
-    metadata.parentInfo = { parentKey: propertyKey, dirtyKey };
+    metadata.parentInfo = {
+      key: propertyKey,
+      dirtyKey,
+      secondaryKey: null,
+    };
   };
 }
 
@@ -243,12 +243,15 @@ export function parentSecondaryKey(
   propertyKey: string | symbol,
 ) {
   const metadata = MutableMetadata.getOrSet(target);
-  if (metadata.parentSecondaryKey) {
+  if (!metadata.parentInfo) {
+    throw new Error(`Not parent relationship has been defined for ${target}`);
+  }
+  if (metadata.parentInfo.secondaryKey) {
     throw new Error(
-      `Parent secondary key was already defined (${metadata.parentSecondaryKey.toString()}) for ${target}`,
+      `Parent secondary key was already defined (${metadata.parentInfo.secondaryKey.toString()}) for ${target}`,
     );
   }
-  metadata.parentSecondaryKey = propertyKey;
+  metadata.parentInfo.secondaryKey = propertyKey;
 }
 
 export type DirtyKeys = {
@@ -399,37 +402,23 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
     }
   }
 
-  parentKey?: keyof M;
-  parentDirtyKey?: string;
-  parentSecondaryDirtyKey?: (mutable: M) => string | number;
-
   markParentDirty() {
     const metadata = MutableMetadata.get(this.mutable);
-    if (!this.parentKey) {
-      const parentInfo = metadata.parentInfo;
-      if (!parentInfo) {
-        return;
-      }
-      this.parentKey = parentInfo.parentKey as keyof M;
-      this.parentDirtyKey = parentInfo.dirtyKey as string;
+    const parentInfo = metadata.parentInfo;
+    if (!parentInfo) {
+      return;
     }
-    if (!this.parentSecondaryDirtyKey) {
-      if (metadata.parentSecondaryKey) {
-        this.parentSecondaryDirtyKey = (mutable) =>
-          mutable[metadata.parentSecondaryKey as keyof M] as any;
-      }
-    }
-    if (this.parentSecondaryDirtyKey) {
+    if (parentInfo.secondaryKey) {
       (
-        this.mutable[this.parentKey] as Mutable<any, any>
+        this.mutable[parentInfo.key as keyof M] as Mutable<any, any>
       ).mutationHelper.markDirty([
-        this.parentDirtyKey as string,
-        this.parentSecondaryDirtyKey(this.mutable),
+        parentInfo.dirtyKey as string,
+        this.mutable[parentInfo.secondaryKey as keyof M] as any,
       ]);
     } else {
       (
-        this.mutable[this.parentKey] as Mutable<any, any>
-      ).mutationHelper.markDirty(this.parentDirtyKey as string);
+        this.mutable[parentInfo.key as keyof M] as Mutable<any, any>
+      ).mutationHelper.markDirty(parentInfo.dirtyKey as string);
     }
   }
 

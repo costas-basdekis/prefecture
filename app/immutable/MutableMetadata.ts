@@ -1,5 +1,12 @@
 import { ClassMetadata } from "./ClassMetadata";
-import { type MutationType } from "./MutationHelper";
+
+export type MutationType =
+  | "mutable"
+  | "mutableMap"
+  | "plainValue"
+  | "plainValueArray"
+  | "plainValueMap"
+  | "plainValueById";
 
 const mutableMetadataProperty = new ClassMetadata<MutableMetadata>(
   "mutableMetadata",
@@ -11,10 +18,10 @@ export class MutableMetadata {
   mutableMap: Map<string | symbol, MutablePropertyMetadata<any>>;
   keysWithMethodMutationType: Set<string | symbol>;
   parentInfo: {
-    parentKey: string | symbol;
+    key: string | symbol;
     dirtyKey: string;
+    secondaryKey: string | symbol | null;
   } | null;
-  parentSecondaryKey: string | symbol | null;
 
   static getOrSet(target: Object): MutableMetadata {
     let metadata = mutableMetadataProperty.getOwn(target);
@@ -46,7 +53,6 @@ export class MutableMetadata {
       other?.keysWithMethodMutationType,
     );
     this.parentInfo = other?.parentInfo ?? null;
-    this.parentSecondaryKey = other?.parentSecondaryKey ?? null;
   }
 }
 
