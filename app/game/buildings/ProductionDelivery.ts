@@ -7,7 +7,6 @@ import {
   parentKey,
 } from "~/immutable";
 import { Building } from "./Building";
-import { propById } from "~/utils";
 import { Person } from "../people";
 import { type Good } from "../goods";
 import { BuildingWithProduction } from "./Production";
@@ -35,19 +34,14 @@ export class ProductionDelivery implements Mutable<
   building: Building & BuildingWithProduction;
   @immutable
   goodType: Good;
-  @mutable("plainValue")
-  goodsDelivererId: number | null;
-  @propById<ProductionDelivery, Person, number>(
-    "goodsDelivererId",
-    (id, thisObject) =>
-      thisObject.building.buildings.game.people.byId[id] as Person,
-  )
-  declare goodsDeliverer: Person | null;
+  @mutable("plainValueById")
+  goodsDeliverer: Person | null;
+  declare goodsDelivererId: number | null;
 
   constructor(building: Building & BuildingWithProduction, goodType: Good) {
     this.building = building;
     this.goodType = goodType;
-    this.goodsDelivererId = null;
+    this.goodsDeliverer = null;
     this.mutationHelper = new MutationHelper<
       ProductionDelivery,
       ProductionDeliveryImmutable
@@ -55,18 +49,18 @@ export class ProductionDelivery implements Mutable<
   }
 
   tick(_tickCount: number) {
-    if (this.building.production.process >= 1 && !this.goodsDelivererId) {
+    if (this.building.production.process >= 1 && !this.goodsDeliverer) {
       const firstCell = this.building.findFirstNeighbouringRoad();
       if (firstCell) {
         this.goodsDeliverer = DeliverToAcceptingStoreMission.makePerson(
           this.building.buildings.game.people,
           {
-            positionKey: firstCell.key,
+            cell: firstCell,
             goodType: this.goodType,
             goodAmount: 1,
           },
           {
-            sourceBuildingId: this.building.id,
+            sourceBuilding: this.building,
           },
         );
         this.goodsDeliverer.onRemoved.register(
@@ -78,7 +72,7 @@ export class ProductionDelivery implements Mutable<
   }
 
   goodsDelivererRemoved(person: Person) {
-    if (this.goodsDelivererId === person.id) {
+    if (this.goodsDeliverer === person) {
       this.goodsDeliverer = null;
     }
   }

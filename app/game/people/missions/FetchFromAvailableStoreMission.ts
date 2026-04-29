@@ -1,5 +1,5 @@
 import { unreachableCase } from "~/utils";
-import { ContentStoreUtils } from "../../buildings";
+import { Building, ContentStoreUtils } from "../../buildings";
 import type { Cell } from "../../Cell";
 import { Game } from "../../Game";
 import type { Good } from "../../goods";
@@ -12,7 +12,7 @@ import { BaseGoodsDelivererMission } from "./BaseGoodsDelivererMission";
 import { FindStoreWithGoodStep, TravelOnPathStep } from "./steps";
 
 export type FetchFromAvailableStoreMissionOptions = {
-  sourceBuildingId: number;
+  sourceBuilding: Building;
   goodType: Good;
   maxAmount: number;
 };
@@ -40,12 +40,12 @@ export class FetchFromAvailableStoreMission extends BaseGoodsDelivererMission {
     game: Game,
     person: GoodsDelivererPerson,
     {
-      sourceBuildingId,
+      sourceBuilding,
       goodType,
       maxAmount,
     }: FetchFromAvailableStoreMissionOptions,
   ) {
-    super(game, person, { sourceBuildingId });
+    super(game, person, { sourceBuilding });
     this.goodType = goodType;
     this.maxAmount = maxAmount;
     this.stateAndStep = this.findSource();
@@ -60,7 +60,7 @@ export class FetchFromAvailableStoreMission extends BaseGoodsDelivererMission {
           break;
         }
         const { building, path } = result;
-        this.stateAndStep = this.pickUpFromTarget(building.id, path);
+        this.stateAndStep = this.pickUpFromTarget(building, path);
         break;
       }
       case "pickUpFromTarget": {
@@ -144,10 +144,10 @@ export class FetchFromAvailableStoreMission extends BaseGoodsDelivererMission {
     };
   }
 
-  pickUpFromTarget(buildingId: number, path: Cell[]): this["stateAndStep"] {
+  pickUpFromTarget(building: Building, path: Cell[]): this["stateAndStep"] {
     return {
       state: "pickUpFromTarget",
-      step: new TravelOnPathStep(this.game, this.person, buildingId, path),
+      step: new TravelOnPathStep(this.game, this.person, building, path),
     };
   }
 
@@ -161,7 +161,7 @@ export class FetchFromAvailableStoreMission extends BaseGoodsDelivererMission {
       step: new TravelOnPathStep(
         this.game,
         this.person,
-        this.sourceBuildingId,
+        this.sourceBuilding,
         path,
       ),
     };

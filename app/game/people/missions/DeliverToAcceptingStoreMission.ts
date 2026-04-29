@@ -1,5 +1,5 @@
 import { unreachableCase } from "~/utils";
-import { ContentStoreUtils } from "../../buildings";
+import { Building, ContentStoreUtils } from "../../buildings";
 import type { Cell } from "../../Cell";
 import { Game } from "../../Game";
 import type { Good } from "../../goods";
@@ -56,7 +56,7 @@ export class DeliverToAcceptingStoreMission extends BaseGoodsDelivererMission {
           break;
         }
         const { building, path } = result;
-        this.stateAndStep = this.deliverToTarget(building.id, path);
+        this.stateAndStep = this.deliverToTarget(building, path);
         break;
       }
       case "deliverToTarget": {
@@ -112,10 +112,10 @@ export class DeliverToAcceptingStoreMission extends BaseGoodsDelivererMission {
     };
   }
 
-  deliverToTarget(buildingId: number, path: Cell[]): this["stateAndStep"] {
+  deliverToTarget(building: Building, path: Cell[]): this["stateAndStep"] {
     return {
       state: "deliverToTarget",
-      step: new TravelOnPathStep(this.game, this.person, buildingId, path),
+      step: new TravelOnPathStep(this.game, this.person, building, path),
     };
   }
 
@@ -125,7 +125,7 @@ export class DeliverToAcceptingStoreMission extends BaseGoodsDelivererMission {
       step: new TravelOnPathStep(
         this.game,
         this.person,
-        this.sourceBuildingId,
+        this.sourceBuilding,
         path,
       ),
     };

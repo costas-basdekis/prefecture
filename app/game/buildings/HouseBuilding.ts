@@ -7,7 +7,6 @@ import {
   BaseBuildingOptions,
 } from "./BaseBuilding";
 import type { Cell } from "../Cell";
-import { propById } from "~/utils";
 import { Building } from "./Building";
 import { Good } from "../goods";
 
@@ -43,14 +42,9 @@ export class HouseBuilding extends BaseBuilding<
   resources: Partial<Record<Good, number>>;
   @mutable("plainValueMap")
   maxResourcesPerOccupant: Partial<Record<Good, number>>;
-  @mutable("plainValue")
-  immigrantId: number | null;
-  @propById(
-    "immigrantId",
-    (id: number, thisObject: HouseBuilding) =>
-      thisObject.buildings.game.people.byId[id],
-  )
+  @mutable("plainValueById")
   declare immigrant: ImmigrantPerson | null;
+  declare readonly immigrantId: number | null;
 
   static maxOccupantCountMap: number[] = [
     0, 3, 7, 12, 18, 25, 33, 42, 52, 63, 75,
@@ -84,7 +78,7 @@ export class HouseBuilding extends BaseBuilding<
     this.maxOccupantCount = 0;
     this.resources = {};
     this.maxResourcesPerOccupant = {};
-    this.immigrantId = null;
+    this.immigrant = null;
     this.postInit();
   }
 
@@ -95,7 +89,7 @@ export class HouseBuilding extends BaseBuilding<
   spawnImmigrant() {
     if (this.occupantCount < this.maxOccupantCount) {
       this.immigrant = new ImmigrantPerson(this.buildings.game.people, {
-        targetBuildingId: this.id,
+        targetBuilding: this,
       });
       this.immigrant.onRemoved.register(this.immigrantRemoved.bind(this));
       this.immigrant.onArrived.register(this.onImmigrantArrived.bind(this));
@@ -103,7 +97,7 @@ export class HouseBuilding extends BaseBuilding<
   }
 
   onImmigrantArrived(immigrant: ImmigrantPerson) {
-    if (this.immigrantId !== immigrant.id) {
+    if (this.immigrant !== immigrant) {
       return;
     }
     this.immigrant = null;
@@ -118,7 +112,7 @@ export class HouseBuilding extends BaseBuilding<
   }
 
   immigrantRemoved(immigrant: Person) {
-    if (this.immigrantId === immigrant.id) {
+    if (this.immigrant === immigrant) {
       this.immigrant = null;
       this.spawnImmigrant();
     }

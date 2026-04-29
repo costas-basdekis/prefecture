@@ -18,7 +18,6 @@ import {
 } from "./buildings";
 import { Coords, makeCoordsKey } from "./Coords";
 import type { Grid } from "./Grid";
-import { propById } from "~/utils";
 import _ from "lodash";
 import { CellSearch } from "./CellSearch";
 import { CellWaterCoverage } from "./buildings/WaterCoverage";
@@ -42,13 +41,9 @@ export class Cell implements Mutable<Cell, CellImmutable> {
   key: string;
   @mutable("plainValue")
   hasRoad: boolean;
-  @mutable("plainValue")
-  buildingId: number | null;
-  @propById(
-    "buildingId",
-    (id: number, thisObject: Cell) => thisObject.grid.game.buildings.byId[id],
-  )
-  declare building: Building | null;
+  @mutable("plainValueById")
+  building: Building | null;
+  declare buildingId: number | null;
   @mutable("plainValue")
   canAddBuilding: boolean;
 
@@ -58,7 +53,7 @@ export class Cell implements Mutable<Cell, CellImmutable> {
     this.y = y;
     this.key = makeCoordsKey(this);
     this.hasRoad = false;
-    this.buildingId = null;
+    this.building = null;
     this.canAddBuilding = true;
     this.mutationHelper = new MutationHelper<Cell, CellImmutable>(this);
   }

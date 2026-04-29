@@ -8,7 +8,6 @@ import { WorkSearch, WorkSearchImmutable } from "./WorkSearch";
 import { Buildings } from "./Buildings";
 import { FoodGood, Good } from "../goods";
 import { GoodsDelivererPerson, Person, WandererPerson } from "../people";
-import { propById } from "~/utils";
 import {
   BuildingWithContents,
   ContentStore,
@@ -42,22 +41,12 @@ export class MarketBuilding
   workSearch: WorkSearch;
   @mutable("mutable")
   contentStore: ContentStore<FoodGood>;
-  @mutable("plainValue")
-  foodFetcherId: number | null;
-  @propById<MarketBuilding, GoodsDelivererPerson, number>(
-    "foodFetcherId",
-    (id, thisObject) =>
-      thisObject.buildings.game.people.byId[id] as GoodsDelivererPerson,
-  )
-  declare foodFetcher: GoodsDelivererPerson | null;
-  @mutable("plainValue")
-  sellerId: number | null;
-  @propById<MarketBuilding, WandererPerson, number>(
-    "sellerId",
-    (id, thisObject) =>
-      thisObject.buildings.game.people.byId[id] as WandererPerson,
-  )
-  declare seller: WandererPerson | null;
+  @mutable("plainValueById")
+  foodFetcher: GoodsDelivererPerson | null;
+  declare foodFetcherId: number | null;
+  @mutable("plainValueById")
+  seller: WandererPerson | null;
+  declare sellerId: number | null;
   lastSellerVisitedByCell: Map<Cell, number>;
 
   constructor(buildings: Buildings, options: MarketBuildingOptions) {
@@ -69,8 +58,8 @@ export class MarketBuilding
       allowsExternalPickups: false,
       capacity: 32,
     });
-    this.foodFetcherId = null;
-    this.sellerId = null;
+    this.foodFetcher = null;
+    this.seller = null;
     this.lastSellerVisitedByCell = new Map();
     this.postInit();
   }
@@ -92,9 +81,9 @@ export class MarketBuilding
       if (firstCell) {
         this.foodFetcher = FetchFromAvailableStoreMission.makePerson(
           this.buildings.game.people,
-          { positionKey: firstCell.key, goodType: "wheat", goodAmount: 0 },
+          { cell: firstCell, goodType: "wheat", goodAmount: 0 },
           {
-            sourceBuildingId: this.id,
+            sourceBuilding: this,
             goodType: "wheat",
             maxAmount: wheatRequired,
           },
@@ -107,7 +96,7 @@ export class MarketBuilding
   }
 
   goodsDelivererRemoved(person: Person) {
-    if (this.foodFetcherId === person.id) {
+    if (this.foodFetcher === person) {
       this.foodFetcher = null;
     }
   }
@@ -128,9 +117,9 @@ export class MarketBuilding
     }
     this.seller = new WandererPerson(this.buildings.game.people, {
       secondaryType: "marketSeller",
-      sourceBuildingId: this.id,
+      sourceBuilding: this,
       lastVisitedByCell: this.lastSellerVisitedByCell,
-      positionKey: firstCell.key,
+      cell: firstCell,
     });
     this.seller.onPassedHouse.register(this.sellerPassedHouse.bind(this));
     this.seller.onRemoved.register(this.sellerRemoved.bind(this));
@@ -160,7 +149,7 @@ export class MarketBuilding
   }
 
   sellerRemoved(person: Person) {
-    if (this.sellerId === person.id) {
+    if (this.seller === person) {
       this.seller = null;
     }
   }

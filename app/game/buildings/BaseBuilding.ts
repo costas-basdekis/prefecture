@@ -79,6 +79,10 @@ export abstract class BaseBuilding<
     this.mutationHelper = null!;
   }
 
+  isRemoved(): boolean {
+    return !this.buildings.byId[this.id];
+  }
+
   postInit() {
     this.mutationHelper = new MutationHelper<M, I>(this as unknown as M);
     this.buildings.add(this as any);

@@ -1,30 +1,22 @@
 import type { Building } from "~/game/buildings";
 import type { Cell } from "~/game/Cell";
 import { Game } from "~/game/Game";
-import { propById } from "~/utils";
 import { BaseMissionStep } from "./BaseMissionStep";
 import { BaseGridPerson } from "../../BaseGridPerson";
 
 export class TravelOnPathStep extends BaseMissionStep {
-  readonly targetBuildingId: number;
-  @propById(
-    "targetBuildingId",
-    (id: number, thisObject: TravelOnPathStep) =>
-      thisObject.game.buildings.byId[id],
-    { allowSetter: false },
-  )
-  declare readonly targetBuilding: Building | null;
+  readonly targetBuilding: Building;
   readonly path: Cell[];
   pathIndex: number;
 
   constructor(
     game: Game,
     person: BaseGridPerson<any, any, any>,
-    targetBuildingId: number,
+    targetBuilding: Building,
     path: Cell[],
   ) {
     super(game, person);
-    this.targetBuildingId = targetBuildingId;
+    this.targetBuilding = targetBuilding;
     this.path = path;
     this.pathIndex = 0;
   }
@@ -32,7 +24,7 @@ export class TravelOnPathStep extends BaseMissionStep {
   tick(
     _tickCount: number,
   ): { done: false; success: false } | { done: true; success: boolean } {
-    if (!this.targetBuilding) {
+    if (this.targetBuilding.isRemoved()) {
       return { done: true, success: false };
     }
     if (this.pathIndex < this.path.length - 1) {

@@ -1,4 +1,3 @@
-import { propById } from "~/utils";
 import type { Building } from "../../buildings";
 import { Game } from "../../Game";
 import {
@@ -9,18 +8,11 @@ import { BasePersonMission } from "./BasePersonMission";
 import type { People } from "../People";
 
 export type BaseGoodsDelivererMissionOptions = {
-  sourceBuildingId: number;
+  sourceBuilding: Building;
 };
 
 export abstract class BaseGoodsDelivererMission extends BasePersonMission<GoodsDelivererPerson> {
-  readonly sourceBuildingId: number;
-  @propById(
-    "sourceBuildingId",
-    (id: number, thisObject: BaseGoodsDelivererMission) =>
-      thisObject.game.buildings.byId[id],
-    { allowSetter: false },
-  )
-  declare readonly sourceBuilding: Building | null;
+  readonly sourceBuilding: Building;
 
   static makePerson(
     people: People,
@@ -39,9 +31,9 @@ export abstract class BaseGoodsDelivererMission extends BasePersonMission<GoodsD
   constructor(
     game: Game,
     person: GoodsDelivererPerson,
-    { sourceBuildingId }: BaseGoodsDelivererMissionOptions,
+    { sourceBuilding }: BaseGoodsDelivererMissionOptions,
   ) {
     super(game, person);
-    this.sourceBuildingId = sourceBuildingId;
+    this.sourceBuilding = sourceBuilding;
   }
 }

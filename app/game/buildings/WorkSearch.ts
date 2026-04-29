@@ -6,7 +6,6 @@ import {
   parentKey,
 } from "~/immutable";
 import { Building } from "./Building";
-import { propById } from "~/utils";
 import { Person, WandererPerson } from "../people";
 import { Cell } from "../Cell";
 
@@ -26,14 +25,9 @@ export class WorkSearch implements Mutable<WorkSearch, WorkSearchImmutable> {
   mutationHelper: MutationHelper<WorkSearch, WorkSearchImmutable>;
   @parentKey("workSearch")
   building: Building & BuildingWithWorkSearch;
-  @mutable("plainValue")
-  workerFinderId: number | null;
-  @propById<WorkSearch, WandererPerson, number>(
-    "workerFinderId",
-    (id, thisObject) =>
-      thisObject.building.buildings.game.people.byId[id] as WandererPerson,
-  )
-  declare workerFinder: WandererPerson | null;
+  @mutable("plainValueById")
+  workerFinder: WandererPerson | null;
+  declare workerFinderId: number | null;
   lastWorkerFinderVisitedByCell: Map<Cell, number>;
   @mutable("plainValue")
   lastWorkerAccessTickCount: number;
@@ -42,7 +36,7 @@ export class WorkSearch implements Mutable<WorkSearch, WorkSearchImmutable> {
 
   constructor(building: Building & BuildingWithWorkSearch) {
     this.building = building;
-    this.workerFinderId = null;
+    this.workerFinder = null;
     this.lastWorkerFinderVisitedByCell = new Map();
     this.lastWorkerAccessTickCount = -Infinity;
     this.hasWorkerAccess = false;
@@ -59,7 +53,7 @@ export class WorkSearch implements Mutable<WorkSearch, WorkSearchImmutable> {
   }
 
   spawnWorkerFinder() {
-    if (!this.workerFinderId) {
+    if (!this.workerFinder) {
       const firstCell = this.building.findFirstNeighbouringRoad();
       if (!firstCell) {
         return;
@@ -68,8 +62,8 @@ export class WorkSearch implements Mutable<WorkSearch, WorkSearchImmutable> {
         this.building.buildings.game.people,
         {
           secondaryType: "workerFinder",
-          sourceBuildingId: this.building.id,
-          positionKey: firstCell.key,
+          sourceBuilding: this.building,
+          cell: firstCell,
           lastVisitedByCell: this.lastWorkerFinderVisitedByCell,
         },
       );
@@ -83,7 +77,7 @@ export class WorkSearch implements Mutable<WorkSearch, WorkSearchImmutable> {
   }
 
   onWorkerFinderFinished(person: Person) {
-    if (this.workerFinderId === person.id) {
+    if (this.workerFinder === person) {
       this.workerFinder = null;
     }
   }

@@ -1,6 +1,5 @@
 import { immutable } from "~/immutable";
 import type { People } from "./People";
-import { propById } from "~/utils";
 import { HouseUtils, type Building } from "../buildings";
 import {
   BaseGridPersonImmutable,
@@ -21,7 +20,7 @@ declare module "./Person" {
 
 export type WandererOptions = Pick<
   WandererPerson,
-  "secondaryType" | "sourceBuildingId" | "lastVisitedByCell"
+  "secondaryType" | "sourceBuilding" | "lastVisitedByCell"
 > &
   BaseGridPersonOptions;
 
@@ -36,14 +35,9 @@ export class WandererPerson extends BaseGridPerson<
   @immutable
   secondaryType: string;
   @immutable
+  sourceBuilding: Building;
+  @immutable
   sourceBuildingId: number;
-  @propById(
-    "sourceBuildingId",
-    (id: number, thisObject: WandererPerson) =>
-      thisObject.people.game.buildings.byId[id] as Building,
-    { allowSetter: false },
-  )
-  declare sourceBuilding: Building;
   @immutable
   firstTickCount: number;
   @immutable
@@ -63,14 +57,15 @@ export class WandererPerson extends BaseGridPerson<
     people: People,
     {
       secondaryType,
-      sourceBuildingId,
+      sourceBuilding,
       lastVisitedByCell,
       ...rest
     }: WandererOptions,
   ) {
     super(people, "wanderer", 1, rest);
     this.secondaryType = secondaryType;
-    this.sourceBuildingId = sourceBuildingId;
+    this.sourceBuilding = sourceBuilding;
+    this.sourceBuildingId = sourceBuilding.id;
     this.firstTickCount = people.game.tickCount;
     this.maxDuration = 20;
     this.lastVisitedByCell = lastVisitedByCell;

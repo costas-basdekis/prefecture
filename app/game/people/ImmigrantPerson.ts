@@ -2,7 +2,6 @@ import { immutable, mutable } from "~/immutable";
 import type { People } from "./People";
 import { getDistance } from "../Coords";
 import type { HouseBuilding } from "../buildings";
-import { propById } from "~/utils";
 import { BasePerson, BasePersonImmutable } from "./BasePerson";
 
 declare module "./Person" {
@@ -14,7 +13,7 @@ declare module "./Person" {
   }
 }
 
-export type ImmigrantPersonOptions = Pick<ImmigrantPerson, "targetBuildingId">;
+export type ImmigrantPersonOptions = Pick<ImmigrantPerson, "targetBuilding">;
 
 export type ImmigrantPersonImmutable = Pick<
   ImmigrantPerson,
@@ -28,14 +27,9 @@ export class ImmigrantPerson extends BasePerson<
   "immigrant"
 > {
   @immutable
+  targetBuilding: HouseBuilding;
+  @immutable
   targetBuildingId: number;
-  @propById(
-    "targetBuildingId",
-    (id: number, thisObject: ImmigrantPerson) =>
-      thisObject.people.game.buildings.byId[id],
-    { allowSetter: false },
-  )
-  declare targetBuilding: HouseBuilding;
   @immutable
   completionRate: number;
   @mutable("plainValue")
@@ -43,9 +37,10 @@ export class ImmigrantPerson extends BasePerson<
 
   onArrived = this.eventsManager.add<(person: ImmigrantPerson) => void>();
 
-  constructor(people: People, { targetBuildingId }: ImmigrantPersonOptions) {
+  constructor(people: People, { targetBuilding }: ImmigrantPersonOptions) {
     super(people, "immigrant");
-    this.targetBuildingId = targetBuildingId;
+    this.targetBuilding = targetBuilding;
+    this.targetBuildingId = targetBuilding.id;
     this.completionRate =
       1 /
       getDistance(
