@@ -39,17 +39,16 @@ export type MutableMutationMethodKeys<M, I> = keyof {
 
 export function immutable(target: Object, propertyKey: string | symbol) {
   const metadata = MutableMetadata.getOrSet(target);
-  if (metadata.keysWithNoMutation.has(propertyKey)) {
+  const existingProperty = metadata.mutableMap.get(propertyKey);
+  if (existingProperty) {
     throw new Error(
-      `Immutable key was already defined (${propertyKey.toString()}) for ${target}`,
+      `Immutable key was already defined (${propertyKey.toString()})${existingProperty.type === "immutable" ? "" : " as mutable"} for ${target}`,
     );
   }
-  if (metadata.mutableMap.has(propertyKey)) {
-    throw new Error(
-      `Immutable key was already defined (${propertyKey.toString()}) as mutable for ${target}`,
-    );
-  }
-  metadata.keysWithNoMutation.add(propertyKey);
+  metadata.mutableMap.set(
+    propertyKey,
+    new MutablePropertyMetadata(propertyKey, "plainValue", false, null),
+  );
 }
 
 const mutableStoreMap = new Map<string | symbol, WeakMap<Object, any>>();
@@ -77,14 +76,10 @@ export function mutable(
 ): PropertyDecorator {
   return function (target: Object, propertyKey: string | symbol) {
     const metadata = MutableMetadata.getOrSet(target);
-    if (metadata.mutableMap.has(propertyKey)) {
+    const existingProperty = metadata.mutableMap.get(propertyKey);
+    if (existingProperty) {
       throw new Error(
-        `Mutable key was already defined (${propertyKey.toString()}) for ${target}`,
-      );
-    }
-    if (metadata.keysWithNoMutation?.has(propertyKey)) {
-      throw new Error(
-        `Mutable key was already defined (${propertyKey.toString()}) as immutable for ${target}`,
+        `Mutable key was already defined (${propertyKey.toString()})${existingProperty.mutable ? "" : " as immutable"} for ${target}`,
       );
     }
     if (type === "plainValueById") {
@@ -104,7 +99,7 @@ export function mutable(
       }
       metadata.mutableMap.set(
         propertyKey,
-        new MutablePropertyMetadata(propertyKey, type, {
+        new MutablePropertyMetadata(propertyKey, type, true, {
           idKey,
           idPropertyKey,
         }),
@@ -113,7 +108,7 @@ export function mutable(
     } else {
       metadata.mutableMap.set(
         propertyKey,
-        new MutablePropertyMetadata(propertyKey, type, null),
+        new MutablePropertyMetadata(propertyKey, type, true, null),
       );
     }
 
@@ -340,10 +335,6 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
   getDefaultInitialImmutable(): I {
     const immutable: Partial<I> = { _mutable: this.mutable } as Partial<I>;
     const metadata = MutableMetadata.get(this.mutable);
-    for (const key of metadata.keysWithNoMutation) {
-      // @ts-ignore
-      immutable[key] = this.mutable[key];
-    }
     for (const property of metadata.mutableMap.values()) {
       const mutationType: MutationType = property.type;
       switch (mutationType) {

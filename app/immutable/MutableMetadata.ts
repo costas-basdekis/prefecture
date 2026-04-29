@@ -14,7 +14,6 @@ const mutableMetadataProperty = new ClassMetadata<MutableMetadata>(
 
 export class MutableMetadata {
   target: Object;
-  keysWithNoMutation: Set<string | symbol>;
   mutableMap: Map<string | symbol, MutablePropertyMetadata<any>>;
   keysWithMethodMutationType: Set<string | symbol>;
   parentInfo: {
@@ -47,7 +46,6 @@ export class MutableMetadata {
 
   constructor(target: Object, other?: MutableMetadata) {
     this.target = target;
-    this.keysWithNoMutation = new Set(other?.keysWithNoMutation);
     this.mutableMap = new Map(other?.mutableMap);
     this.keysWithMethodMutationType = new Set(
       other?.keysWithMethodMutationType,
@@ -64,11 +62,18 @@ export type MutablePropertyConfig<T extends MutationType> =
 export class MutablePropertyMetadata<T extends MutationType> {
   key: string | symbol;
   type: T;
+  mutable: boolean;
   config: MutablePropertyConfig<T>;
 
-  constructor(key: string | symbol, type: T, config: MutablePropertyConfig<T>) {
+  constructor(
+    key: string | symbol,
+    type: T,
+    mutable: boolean,
+    config: MutablePropertyConfig<T>,
+  ) {
     this.key = key;
     this.type = type;
+    this.mutable = mutable;
     this.config = config;
   }
 }
