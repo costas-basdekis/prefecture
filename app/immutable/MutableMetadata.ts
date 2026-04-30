@@ -1,12 +1,5 @@
 import { ClassMetadata } from "./ClassMetadata";
-
-export type MutationType =
-  | "mutable"
-  | "mutableMap"
-  | "plainValue"
-  | "plainValueArray"
-  | "plainValueMap"
-  | "plainValueById";
+import { MutablePropertyMetadata } from "./properties";
 
 const mutableMetadataProperty = new ClassMetadata<MutableMetadata>(
   "mutableMetadata",
@@ -51,29 +44,5 @@ export class MutableMetadata {
       other?.keysWithMethodMutationType,
     );
     this.parentInfo = other?.parentInfo ?? null;
-  }
-}
-
-export type MutablePropertyConfig<T extends MutationType> =
-  T extends "plainValueById"
-    ? { idKey: string | symbol; idPropertyKey: string | symbol }
-    : null;
-
-export class MutablePropertyMetadata<T extends MutationType> {
-  key: string | symbol;
-  type: T;
-  mutable: boolean;
-  config: MutablePropertyConfig<T>;
-
-  constructor(
-    key: string | symbol,
-    type: T,
-    mutable: boolean,
-    config: MutablePropertyConfig<T>,
-  ) {
-    this.key = key;
-    this.type = type;
-    this.mutable = mutable;
-    this.config = config;
   }
 }
