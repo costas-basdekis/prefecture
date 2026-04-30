@@ -10,23 +10,23 @@ export type MutationType =
   | "plainValueMap"
   | "plainValueById";
 
-export type MutablePropertyConfig<T extends MutationType> =
+export type TrackedPropertyConfig<T extends MutationType> =
   T extends "plainValueById"
     ? { idKey: string | symbol; idPropertyKey: string | symbol }
     : null;
 
-export class MutablePropertyMetadata<T extends MutationType> {
+export class TrackedPropertyMetadata<T extends MutationType> {
   key: string | symbol;
   type: T;
   mutable: boolean;
-  config: MutablePropertyConfig<T>;
+  config: TrackedPropertyConfig<T>;
   mutableStore: WeakMap<Object, { value: any; proxy: any }>;
 
   constructor(
     key: string | symbol,
     type: T,
     mutable: boolean,
-    config: MutablePropertyConfig<T>,
+    config: TrackedPropertyConfig<T>,
   ) {
     this.key = key;
     this.type = type;
@@ -38,7 +38,7 @@ export class MutablePropertyMetadata<T extends MutationType> {
   addProperties(target: Object) {
     Object.defineProperty(target, this.key, this.makeMutableProperty());
     if (this.type === "plainValueById") {
-      const propertySelf = this as MutablePropertyMetadata<"plainValueById">;
+      const propertySelf = this as TrackedPropertyMetadata<"plainValueById">;
       Object.defineProperty(target, propertySelf.config.idPropertyKey, {
         get: function (this: Mutable<any, any>) {
           const mainValue = this[propertySelf.key as keyof typeof this] as any;

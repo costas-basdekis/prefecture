@@ -1,8 +1,8 @@
 import "reflect-metadata";
 import { Immutable } from "./Immutable";
 import { Mutable } from "./Mutable";
-import { MutableMetadata } from "./MutableMetadata";
-import { MutablePropertyMetadata, MutationType } from "./properties";
+import { TrackedMetadata } from "./TrackedMetadata";
+import { MutationType, TrackedPropertyMetadata } from "./properties";
 
 export type MutableDirtyKeys<M, I> = keyof {
   [key in keyof M & keyof I as M[key] extends Mutable<any, infer I1>
@@ -34,16 +34,16 @@ export type MutableMutationMethodKeys<M, I> = keyof {
 };
 
 export function immutable(target: Object, propertyKey: string | symbol) {
-  const metadata = MutableMetadata.getOrSet(target);
-  const existingProperty = metadata.mutableMap.get(propertyKey);
+  const metadata = TrackedMetadata.getOrSet(target);
+  const existingProperty = metadata.propertyMap.get(propertyKey);
   if (existingProperty) {
     throw new Error(
       `Immutable key was already defined (${propertyKey.toString()})${existingProperty.type === "immutable" ? "" : " as mutable"} for ${target}`,
     );
   }
-  metadata.mutableMap.set(
+  metadata.propertyMap.set(
     propertyKey,
-    new MutablePropertyMetadata(propertyKey, "plainValue", false, null),
+    new TrackedPropertyMetadata(propertyKey, "plainValue", false, null),
   );
 }
 
@@ -71,14 +71,14 @@ export function mutable(
   idPropertyKey?: string,
 ): PropertyDecorator {
   return function (target: Object, propertyKey: string | symbol) {
-    const metadata = MutableMetadata.getOrSet(target);
-    const existingProperty = metadata.mutableMap.get(propertyKey);
+    const metadata = TrackedMetadata.getOrSet(target);
+    const existingProperty = metadata.propertyMap.get(propertyKey);
     if (existingProperty) {
       throw new Error(
         `Mutable key was already defined (${propertyKey.toString()})${existingProperty.mutable ? "" : " as immutable"} for ${target}`,
       );
     }
-    const property = new MutablePropertyMetadata(
+    const property = new TrackedPropertyMetadata(
       propertyKey,
       type,
       true,
@@ -89,19 +89,19 @@ export function mutable(
           }
         : null,
     );
-    metadata.mutableMap.set(propertyKey, property);
+    metadata.propertyMap.set(propertyKey, property);
     property.addProperties(target);
   };
 }
 
 export function methodMutate(target: Object, propertyKey: string | symbol) {
-  const metadata = MutableMetadata.getOrSet(target);
+  const metadata = TrackedMetadata.getOrSet(target);
   metadata.keysWithMethodMutationType.add(propertyKey);
 }
 
 export function parentKey(dirtyKey: string) {
   return function (target: Object, propertyKey: string | symbol) {
-    const metadata = MutableMetadata.getOrSet(target);
+    const metadata = TrackedMetadata.getOrSet(target);
     if (metadata.parentInfo) {
       throw new Error(
         `Parent key was already defined (${metadata.parentInfo.key.toString()}) for ${target}`,
@@ -119,7 +119,7 @@ export function parentSecondaryKey(
   target: Object,
   propertyKey: string | symbol,
 ) {
-  const metadata = MutableMetadata.getOrSet(target);
+  const metadata = TrackedMetadata.getOrSet(target);
   if (!metadata.parentInfo) {
     throw new Error(`Not parent relationship has been defined for ${target}`);
   }
@@ -176,9 +176,9 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
   }
 
   getInitialDirtyKeys(): DirtyKeys {
-    const metadata = MutableMetadata.get(this.mutable);
+    const metadata = TrackedMetadata.get(this.mutable);
     return Object.fromEntries(
-      Array.from(metadata.mutableMap.values()).map((property) => [
+      Array.from(metadata.propertyMap.values()).map((property) => [
         property.key,
         property.getInitialDirtyKey(),
       ]),
@@ -194,8 +194,8 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
 
   getDefaultInitialImmutable(): I {
     const immutable: Partial<I> = { _mutable: this.mutable } as Partial<I>;
-    const metadata = MutableMetadata.get(this.mutable);
-    for (const property of metadata.mutableMap.values()) {
+    const metadata = TrackedMetadata.get(this.mutable);
+    for (const property of metadata.propertyMap.values()) {
       property.addInitialToImmutable(this.mutable, immutable);
     }
     for (const key of metadata.keysWithMethodMutationType as Set<keyof I>) {
@@ -215,7 +215,7 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
   }
 
   markParentDirty() {
-    const metadata = MutableMetadata.get(this.mutable);
+    const metadata = TrackedMetadata.get(this.mutable);
     const parentInfo = metadata.parentInfo;
     if (!parentInfo) {
       return;
@@ -272,8 +272,8 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
   }
 
   updateImmutableDirtyKeys() {
-    const metadata = MutableMetadata.get(this.mutable);
-    for (const property of metadata.mutableMap.values()) {
+    const metadata = TrackedMetadata.get(this.mutable);
+    for (const property of metadata.propertyMap.values()) {
       property.updateImmutable(
         this.mutable,
         this.lastImmutable,

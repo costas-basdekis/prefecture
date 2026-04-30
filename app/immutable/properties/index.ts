@@ -1,1 +1,1 @@
-export * from "./MutablePropertyMetadata";
+export * from "./TrackedPropertyMetadata";
