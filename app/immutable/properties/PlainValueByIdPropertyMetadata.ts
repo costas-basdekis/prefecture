@@ -1,5 +1,6 @@
 import { Mutable } from "../Mutable";
 import { DirtyKeys } from "../MutationHelper";
+import { trackedProperty } from "./metadataMaker";
 import { TrackedPropertyMetadata } from "./TrackedPropertyMetadata";
 
 declare module "./TrackedPropertyMetadata" {
@@ -8,6 +9,7 @@ declare module "./TrackedPropertyMetadata" {
   }
 }
 
+@trackedProperty("plainValueById")
 export class PlainValueByIdPropertyMetadata extends TrackedPropertyMetadata<"plainValueById"> {
   addProperties(target: Object) {
     super.addProperties(target);

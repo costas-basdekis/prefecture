@@ -1,4 +1,5 @@
 import { Mutable } from "../Mutable";
+import { trackedProperty } from "./metadataMaker";
 import { TrackedPropertyMetadata } from "./TrackedPropertyMetadata";
 
 declare module "./TrackedPropertyMetadata" {
@@ -7,6 +8,7 @@ declare module "./TrackedPropertyMetadata" {
   }
 }
 
+@trackedProperty("plainValueArray")
 export class PlainValueArrayPropertyMetadata extends TrackedPropertyMetadata<"plainValueArray"> {
   makeMutableProxy(value: any, mutable: Mutable<any, any>) {
     const propertySelf = this;

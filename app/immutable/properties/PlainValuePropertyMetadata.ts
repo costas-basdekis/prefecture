@@ -1,4 +1,5 @@
 import { Mutable } from "../Mutable";
+import { trackedProperty } from "./metadataMaker";
 import { TrackedPropertyMetadata } from "./TrackedPropertyMetadata";
 
 declare module "./TrackedPropertyMetadata" {
@@ -7,6 +8,7 @@ declare module "./TrackedPropertyMetadata" {
   }
 }
 
+@trackedProperty("plainValue")
 export class PlainValuePropertyMetadata extends TrackedPropertyMetadata<"plainValue"> {
   getImmutable(mutable: Mutable<any, any>) {
     return this.getValue(mutable);

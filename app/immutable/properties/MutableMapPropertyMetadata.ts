@@ -1,4 +1,5 @@
 import { Mutable } from "../Mutable";
+import { trackedProperty } from "./metadataMaker";
 import { TrackedPropertyMetadata } from "./TrackedPropertyMetadata";
 
 declare module "./TrackedPropertyMetadata" {
@@ -7,6 +8,7 @@ declare module "./TrackedPropertyMetadata" {
   }
 }
 
+@trackedProperty("mutableMap")
 export class MutableMapPropertyMetadata extends TrackedPropertyMetadata<"mutableMap"> {
   getInitialDirtyKey(): boolean | Set<string | number> {
     return new Set();
