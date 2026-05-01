@@ -1,4 +1,5 @@
 export * from "./ClassMetadata";
+export * from "./decorators";
 export * from "./Immutable";
 export * from "./MetadataRepository";
 export * from "./PropertyMetadata";
