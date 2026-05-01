@@ -2,36 +2,7 @@ import "reflect-metadata";
 import { Immutable } from "./Immutable";
 import { Mutable } from "./Mutable";
 import { TrackedMetadata } from "./TrackedMetadata";
-import { MutationType, TrackedPropertyMetadata } from "./properties";
-
-export type MutableDirtyKeys<M, I> = keyof {
-  [key in keyof M & keyof I as M[key] extends Mutable<any, infer I1>
-    ? I[key] extends I1
-      ? key
-      : never
-    : never]: M[key];
-};
-
-export type MappedMutableDirtyKeys<M, I> = keyof {
-  [key in keyof M & keyof I as M[key] extends Record<
-    any,
-    Mutable<any, infer I1>
-  >
-    ? I[key] extends Record<any, I1>
-      ? key
-      : never
-    : never]: M[key];
-};
-
-export type MutableMutationMethodKeys<M, I> = keyof {
-  [key in keyof M & keyof I as M[key] extends (
-    ...args: infer A
-  ) => Mutable<any, any>
-    ? I[key] extends (...args: A) => any
-      ? key
-      : never
-    : never]: M[key];
-};
+import { makeTrackedProperty, MutationType } from "./properties";
 
 export function immutable(target: Object, propertyKey: string | symbol) {
   const metadata = TrackedMetadata.getOrSet(target);
@@ -43,18 +14,8 @@ export function immutable(target: Object, propertyKey: string | symbol) {
   }
   metadata.propertyMap.set(
     propertyKey,
-    new TrackedPropertyMetadata(propertyKey, "plainValue", false, null),
+    makeTrackedProperty(propertyKey, "plainValue", false, null),
   );
-}
-
-const mutableStoreMap = new Map<string | symbol, WeakMap<Object, any>>();
-function getMutableStore(propertyKey: string | symbol): WeakMap<Object, any> {
-  let store = mutableStoreMap.get(propertyKey);
-  if (!store) {
-    store = new WeakMap();
-    mutableStoreMap.set(propertyKey, store);
-  }
-  return store;
 }
 
 export function mutable(
@@ -78,7 +39,7 @@ export function mutable(
         `Mutable key was already defined (${propertyKey.toString()})${existingProperty.mutable ? "" : " as immutable"} for ${target}`,
       );
     }
-    const property = new TrackedPropertyMetadata(
+    const property = makeTrackedProperty(
       propertyKey,
       type,
       true,
@@ -241,7 +202,7 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
       const dirtyKeyValue = this.dirtyKeys[actualKey];
       if (!(dirtyKeyValue instanceof Set)) {
         throw new Error(
-          `Dirty key "${key}" of ${this.constructor.name} is not a set`,
+          `Dirty key [${key.map((subKey) => `"${subKey.toString()}"`).join(", ")}] of ${this.constructor.name} is not a set, but ${typeof dirtyKeyValue}`,
         );
       }
       dirtyKeyValue.add(secondaryKey);
@@ -282,12 +243,8 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
     }
   }
 
-  getForMutationMethod<K extends MutableMutationMethodKeys<M, I>>(
-    key: K,
-    // @ts-ignore
-  ): (...args: Parameters<M[K]>) => I {
-    // @ts-ignore
-    return function (this: I, ...args: Parameters<M[K]>): I {
+  getForMutationMethod(key: any): (...args: any[]) => I {
+    return function (this: I, ...args: any[]): I {
       // @ts-ignore
       this._mutable[key].apply(this._mutable, args);
       return this._mutable.mutationHelper.getImmutable();
