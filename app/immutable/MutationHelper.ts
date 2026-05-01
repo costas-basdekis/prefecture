@@ -12,10 +12,9 @@ export function immutable(target: Object, propertyKey: string | symbol) {
       `Immutable key was already defined (${propertyKey.toString()})${existingProperty.type === "immutable" ? "" : " as mutable"} for ${target}`,
     );
   }
-  metadata.propertyMap.set(
-    propertyKey,
-    makeTrackedProperty(propertyKey, "plainValue", false, null),
-  );
+  const property = makeTrackedProperty(propertyKey, "plainValue", false, null);
+  metadata.propertyMap.set(propertyKey, property);
+  property.addProperties(target);
 }
 
 export function mutable(
@@ -57,7 +56,9 @@ export function mutable(
 
 export function methodMutate(target: Object, propertyKey: string | symbol) {
   const metadata = TrackedMetadata.getOrSet(target);
-  metadata.keysWithMethodMutationType.add(propertyKey);
+  const property = makeTrackedProperty(propertyKey, "method", false, null);
+  metadata.propertyMap.set(propertyKey, property);
+  property.addProperties(target);
 }
 
 export function parentKey(dirtyKey: string) {
@@ -159,9 +160,6 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
     for (const property of metadata.propertyMap.values()) {
       property.addInitialToImmutable(this.mutable, immutable);
     }
-    for (const key of metadata.keysWithMethodMutationType as Set<keyof I>) {
-      immutable[key] = this.getForMutationMethod(key as any) as any;
-    }
     return immutable as I;
   }
 
@@ -241,13 +239,5 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
         this.dirtyKeys,
       );
     }
-  }
-
-  getForMutationMethod(key: any): (...args: any[]) => I {
-    return function (this: I, ...args: any[]): I {
-      // @ts-ignore
-      this._mutable[key].apply(this._mutable, args);
-      return this._mutable.mutationHelper.getImmutable();
-    };
   }
 }

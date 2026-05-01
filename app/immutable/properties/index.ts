@@ -1,4 +1,5 @@
 export * from "./metadataMaker";
+export * from "./MethodPropertyMetadata";
 export * from "./MutablePropertyMetadata";
 export * from "./MutableMapPropertyMetadata";
 export * from "./PlainValuePropertyMetadata";

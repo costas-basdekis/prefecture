@@ -8,7 +8,6 @@ const trackedMetadataProperty = new ClassMetadata<TrackedMetadata>(
 export class TrackedMetadata {
   target: Object;
   propertyMap: Map<string | symbol, TrackedPropertyMetadata<any>>;
-  keysWithMethodMutationType: Set<string | symbol>;
   parentInfo: {
     key: string | symbol;
     dirtyKey: string;
@@ -40,9 +39,6 @@ export class TrackedMetadata {
   constructor(target: Object, other?: TrackedMetadata) {
     this.target = target;
     this.propertyMap = new Map(other?.propertyMap);
-    this.keysWithMethodMutationType = new Set(
-      other?.keysWithMethodMutationType,
-    );
     this.parentInfo = other?.parentInfo ?? null;
   }
 }

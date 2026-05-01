@@ -1,4 +1,5 @@
 import { unreachableCase } from "~/utils";
+import { MethodPropertyMetadata } from "./MethodPropertyMetadata";
 import { MutablePropertyMetadata } from "./MutablePropertyMetadata";
 import { MutableMapPropertyMetadata } from "./MutableMapPropertyMetadata";
 import { PlainValuePropertyMetadata } from "./PlainValuePropertyMetadata";
@@ -59,6 +60,13 @@ export function makeTrackedProperty<T extends MutationType>(
         type,
         mutable,
         config as TrackedPropertyConfig<"plainValueById">,
+      ) as TrackedPropertyMetadata<T>;
+    case "method":
+      return new MethodPropertyMetadata(
+        key,
+        type,
+        mutable,
+        config as TrackedPropertyConfig<"method">,
       ) as TrackedPropertyMetadata<T>;
     default:
       throw unreachableCase(type, `Unknown mutation type ${type}`);

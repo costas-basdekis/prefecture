@@ -9,6 +9,20 @@ declare module "./TrackedPropertyMetadata" {
 }
 
 export class PlainValueByIdPropertyMetadata extends TrackedPropertyMetadata<"plainValueById"> {
+  addProperties(target: Object) {
+    super.addProperties(target);
+    const propertySelf = this as TrackedPropertyMetadata<"plainValueById">;
+    Object.defineProperty(target, propertySelf.config.idPropertyKey, {
+      get: function (this: Mutable<any, any>) {
+        const mainValue = this[propertySelf.key as keyof typeof this] as any;
+        if (!mainValue) {
+          return null;
+        }
+        return mainValue[propertySelf.config.idKey];
+      },
+    });
+  }
+
   addInitialToImmutable(mutable: Mutable<any, any>, immutable: any): void {
     immutable[this.config!.idPropertyKey] = this.getImmutable(mutable);
   }

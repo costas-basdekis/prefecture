@@ -32,18 +32,8 @@ export abstract class TrackedPropertyMetadata<T extends MutationType> {
   }
 
   addProperties(target: Object) {
-    Object.defineProperty(target, this.key, this.makeMutableProperty());
-    if (this.type === "plainValueById") {
-      const propertySelf = this as TrackedPropertyMetadata<"plainValueById">;
-      Object.defineProperty(target, propertySelf.config.idPropertyKey, {
-        get: function (this: Mutable<any, any>) {
-          const mainValue = this[propertySelf.key as keyof typeof this] as any;
-          if (!mainValue) {
-            return null;
-          }
-          return mainValue[propertySelf.config.idKey];
-        },
-      });
+    if (this.mutable) {
+      Object.defineProperty(target, this.key, this.makeMutableProperty());
     }
   }
 
