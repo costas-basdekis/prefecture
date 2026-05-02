@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { Coords, makeCoordsKey } from "~/game/Coords";
+import { Coords, makeCoordsKey } from "./Coords";
 import { unreachableCase } from "~/utils";
 
 export const cellSelectionModeNames = {

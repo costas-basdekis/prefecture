@@ -3,7 +3,7 @@ import {
   CellSelectionMode,
   cellSelectionModeNames,
   cellSelectionModes,
-} from "./CellSelectionMode";
+} from "../../game";
 
 const cellSelectionModesWithNone = [undefined, ...cellSelectionModes];
 

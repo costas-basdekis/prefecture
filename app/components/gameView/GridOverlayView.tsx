@@ -1,8 +1,13 @@
-import { CellImmutable, GameImmutable } from "~/game";
+import {
+  CellImmutable,
+  CellSelectionMode,
+  Coords,
+  GameImmutable,
+  makeCoordsKey,
+  selectCells,
+} from "~/game";
 import { CellOverlayView } from "./CellOverlayView";
 import { useCallback, useMemo, useState } from "react";
-import { Coords, makeCoordsKey } from "~/game/Coords";
-import { CellSelectionMode, selectCells } from "./CellSelectionMode";
 
 export function GridOverlayView({
   game,
