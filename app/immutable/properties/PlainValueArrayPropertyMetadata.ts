@@ -25,6 +25,6 @@ export class PlainValueArrayPropertyMetadata extends TrackedPropertyMetadata<"pl
   }
 
   getImmutable(mutable: Mutable<any, any>) {
-    return Array.from(this.getValue<any[]>(mutable)) as any;
+    return Array.from(this.getValue<any[]>(mutable));
   }
 }

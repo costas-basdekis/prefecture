@@ -16,7 +16,7 @@ export class MutableMapPropertyMetadata extends TrackedPropertyMetadata<"mutable
 
   markDirty(mutable: Mutable<any, any>, value: any): void {
     mutable.mutationHelper.markDirty(this.key);
-    const previousInfo = this.mutableStore.get(this);
+    const previousInfo = this.mutableStore.get(mutable);
     if (previousInfo) {
       mutable.mutationHelper.markDirty(
         ...Object.keys(previousInfo.value).map(

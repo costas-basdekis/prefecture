@@ -66,12 +66,29 @@ export abstract class TrackedPropertyMetadata<T extends MutationType> {
     mutable.mutationHelper.markDirty(this.key);
   }
 
-  makeMutableProxy(value: any, mutable: Mutable<any, any>): any {
+  makeMutableProxy(value: any, _mutable: Mutable<any, any>): any {
     return value;
   }
 
   getInitialDirtyKey(): boolean | Set<string | number> {
     return false;
+  }
+
+  isDirty(dirtyKeys: DirtyKeys): boolean {
+    const dirtyValue = dirtyKeys[this.key];
+    if (typeof dirtyValue === "boolean") {
+      return dirtyValue;
+    } else {
+      return dirtyValue.size > 0;
+    }
+  }
+
+  clearDirty(dirtyKeys: DirtyKeys) {
+    if (typeof dirtyKeys[this.key] === "boolean") {
+      dirtyKeys[this.key] = false;
+    } else {
+      (dirtyKeys[this.key] as Set<any>).clear();
+    }
   }
 
   addInitialToImmutable(mutable: Mutable<any, any>, immutable: any) {
@@ -90,13 +107,9 @@ export abstract class TrackedPropertyMetadata<T extends MutationType> {
     immutable: any,
     dirtyKeys: DirtyKeys,
   ): void {
-    if (dirtyKeys[this.key]) {
+    if (this.isDirty(dirtyKeys)) {
       immutable[this.key] = this.getImmutable(mutable);
-      if (typeof dirtyKeys[this.key] === "boolean") {
-        dirtyKeys[this.key] = false;
-      } else {
-        (dirtyKeys[this.key] as Set<any>).clear();
-      }
+      this.clearDirty(dirtyKeys);
     }
   }
 }

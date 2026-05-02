@@ -13,7 +13,7 @@ declare module "./TrackedPropertyMetadata" {
 export class PlainValueByIdPropertyMetadata extends TrackedPropertyMetadata<"plainValueById"> {
   addProperties(target: Object) {
     super.addProperties(target);
-    const propertySelf = this as TrackedPropertyMetadata<"plainValueById">;
+    const propertySelf = this;
     Object.defineProperty(target, propertySelf.config.idPropertyKey, {
       get: function (this: Mutable<any, any>) {
         const mainValue = this[propertySelf.key as keyof typeof this] as any;
@@ -26,11 +26,11 @@ export class PlainValueByIdPropertyMetadata extends TrackedPropertyMetadata<"pla
   }
 
   addInitialToImmutable(mutable: Mutable<any, any>, immutable: any): void {
-    immutable[this.config!.idPropertyKey] = this.getImmutable(mutable);
+    immutable[this.config.idPropertyKey] = this.getImmutable(mutable);
   }
 
   getImmutable(mutable: Mutable<any, any>) {
-    return this.getValue(mutable)?.[this.config!.idKey] ?? null;
+    return this.getValue(mutable)?.[this.config.idKey] ?? null;
   }
 
   updateImmutable(
@@ -38,9 +38,9 @@ export class PlainValueByIdPropertyMetadata extends TrackedPropertyMetadata<"pla
     immutable: any,
     dirtyKeys: DirtyKeys,
   ): void {
-    if (dirtyKeys[this.key]) {
-      immutable[this.config!.idPropertyKey] = this.getImmutable(mutable);
-      dirtyKeys[this.key] = false;
+    if (this.isDirty(dirtyKeys)) {
+      immutable[this.config.idPropertyKey] = this.getImmutable(mutable);
+      this.clearDirty(dirtyKeys);
     }
   }
 }

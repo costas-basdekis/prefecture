@@ -16,15 +16,4 @@ export class MutablePropertyMetadata extends TrackedPropertyMetadata<"mutable"> 
       mutable,
     ).mutationHelper.getImmutable();
   }
-
-  updateImmutable(
-    mutable: Mutable<any, any>,
-    immutable: any,
-    dirtyKeys: DirtyKeys,
-  ): void {
-    if (dirtyKeys[this.key]) {
-      immutable[this.key] = this.getImmutable(mutable);
-      dirtyKeys[this.key] = false;
-    }
-  }
 }
