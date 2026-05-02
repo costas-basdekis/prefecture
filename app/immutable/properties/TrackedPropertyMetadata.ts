@@ -16,7 +16,7 @@ export abstract class TrackedPropertyMetadata<T extends MutationType> {
   type: T;
   mutable: boolean;
   config: TrackedPropertyConfig<T>;
-  mutableStore: WeakMap<Object, { value: any; proxy: any }>;
+  mutableStore: WeakMap<Mutable<any, any>, { value: any; proxy: any }>;
 
   constructor(
     key: string | symbol,
@@ -40,29 +40,26 @@ export abstract class TrackedPropertyMetadata<T extends MutationType> {
   makeMutableProperty(): PropertyDescriptor {
     const propertySelf = this;
     const store = this.mutableStore;
-    const descriptor: PropertyDescriptor = {
+    return {
       configurable: true,
       get: function (this: Mutable<any, any>) {
         return store.get(this)!.proxy;
       },
-    };
-    if (this.mutable) {
-      descriptor.set = function (this: Mutable<any, any>, value) {
+      set: function (this: Mutable<any, any>, value) {
         const previousInfo = store.get(this);
         if (value === previousInfo?.value) {
           return;
         }
-        let info = {
+        store.set(this, {
           value,
           proxy: propertySelf.makeMutableProxy(value, this),
-        };
-        store.set(this, info);
+        });
+        // There won't be a mutable helper before the end of constructor
         if (this.mutationHelper) {
           propertySelf.markDirty(this, value);
         }
-      };
-    }
-    return descriptor;
+      },
+    };
   }
 
   markDirty(mutable: Mutable<any, any>, _value: any) {
