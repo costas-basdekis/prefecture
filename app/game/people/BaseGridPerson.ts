@@ -7,20 +7,19 @@ import {
 } from "./BasePerson";
 import type { People } from "./People";
 
-export type BaseGridPersonOptions = Pick<
-  BaseGridPerson<any, any, any>,
-  "cell"
-> &
+export type BaseGridPersonOptions = Pick<BaseGridPerson<any, any>, "cell"> &
   BasePersonOptions;
 
-export type BaseGridPersonImmutable<P extends BaseGridPerson<any, any, any>> =
-  Pick<P, "positionKey" | "speed"> & BasePersonImmutable<P>;
+export type BaseGridPersonImmutable<P extends BaseGridPerson<any, any>> = Pick<
+  P,
+  "positionKey" | "speed"
+> &
+  BasePersonImmutable<P>;
 
 export abstract class BaseGridPerson<
-  M extends Mutable<M, I>,
-  I extends Immutable<M>,
+  I extends Immutable<BaseGridPerson<I, T>>,
   T extends string,
-> extends BasePerson<M, I, T> {
+> extends BasePerson<I, T> {
   @mutable("plainValueById", "key", "positionKey")
   cell: Cell;
   declare positionKey: string;

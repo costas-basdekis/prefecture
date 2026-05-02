@@ -17,7 +17,7 @@ export class FindStoreWithSpaceStep extends BaseMissionStep {
 
   constructor(
     game: Game,
-    person: BaseGridPerson<any, any, any>,
+    person: BaseGridPerson<any, any>,
     goodType: Good,
     goodAmount: number,
   ) {

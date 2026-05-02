@@ -12,18 +12,17 @@ import { Person } from "./Person";
 
 export type BasePersonOptions = {};
 
-export type BasePersonImmutable<P extends BasePerson<any, any, any>> = Pick<
+export type BasePersonImmutable<P extends BasePerson<any, any>> = Pick<
   P,
   "id" | "type"
 > &
   Immutable<P>;
 
 export abstract class BasePerson<
-  M extends Mutable<M, I>,
-  I extends Immutable<M>,
+  I extends Immutable<BasePerson<I, T>>,
   T extends string,
-> implements Mutable<M, I> {
-  mutationHelper: MutationHelper<M, I>;
+> implements Mutable<I> {
+  mutationHelper: MutationHelper<BasePerson<I, T>, I>;
   @parentKey("byId")
   people: People;
   @immutable
@@ -43,7 +42,7 @@ export abstract class BasePerson<
   }
 
   postInit() {
-    this.mutationHelper = new MutationHelper<M, I>(this as unknown as M);
+    this.mutationHelper = new MutationHelper<BasePerson<I, T>, I>(this);
     this.people.add(this as any);
   }
 

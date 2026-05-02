@@ -14,7 +14,7 @@ export class MutableMapPropertyMetadata extends TrackedPropertyMetadata<"mutable
     return new Set();
   }
 
-  markDirty(mutable: Mutable<any, any>, value: any): void {
+  markDirty(mutable: Mutable<any>, value: any): void {
     mutable.mutationHelper.markDirty(this.key);
     const previousInfo = this.mutableStore.get(mutable);
     if (previousInfo) {
@@ -31,7 +31,7 @@ export class MutableMapPropertyMetadata extends TrackedPropertyMetadata<"mutable
     );
   }
 
-  makeMutableProxy(value: any, mutable: Mutable<any, any>): any {
+  makeMutableProxy(value: any, mutable: Mutable<any>): any {
     const propertySelf = this;
     return new Proxy(value, {
       set(target, property, subValue, receiver) {
@@ -52,7 +52,7 @@ export class MutableMapPropertyMetadata extends TrackedPropertyMetadata<"mutable
   }
 
   getImmutable(
-    mutable: Mutable<any, any>,
+    mutable: Mutable<any>,
     mappedKeys?: Set<string | symbol | number>,
   ): Object {
     if (mappedKeys) {
@@ -67,9 +67,9 @@ export class MutableMapPropertyMetadata extends TrackedPropertyMetadata<"mutable
       );
     } else {
       return Object.fromEntries(
-        Object.entries(
-          this.getValue<Record<any, Mutable<any, any>>>(mutable),
-        ).map(([key, value]) => [key, value.mutationHelper.getImmutable()]),
+        Object.entries(this.getValue<Record<any, Mutable<any>>>(mutable)).map(
+          ([key, value]) => [key, value.mutationHelper.getImmutable()],
+        ),
       );
     }
   }

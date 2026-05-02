@@ -21,7 +21,7 @@ export type WorkSearchImmutable = Pick<
 > &
   Immutable<WorkSearch>;
 
-export class WorkSearch implements Mutable<WorkSearch, WorkSearchImmutable> {
+export class WorkSearch implements Mutable<WorkSearchImmutable> {
   mutationHelper: MutationHelper<WorkSearch, WorkSearchImmutable>;
   @parentKey("workSearch")
   building: Building & BuildingWithWorkSearch;

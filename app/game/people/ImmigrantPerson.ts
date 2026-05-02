@@ -22,7 +22,6 @@ export type ImmigrantPersonImmutable = Pick<
   BasePersonImmutable<ImmigrantPerson>;
 
 export class ImmigrantPerson extends BasePerson<
-  ImmigrantPerson,
   ImmigrantPersonImmutable,
   "immigrant"
 > {

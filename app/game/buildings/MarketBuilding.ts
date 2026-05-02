@@ -34,7 +34,7 @@ export type MarketBuildingImmutable = {
 } & BaseBuildingImmutable<MarketBuilding>;
 
 export class MarketBuilding
-  extends BaseBuilding<MarketBuilding, MarketBuildingImmutable, "market">
+  extends BaseBuilding<MarketBuildingImmutable, "market">
   implements BuildingWithContents<FoodGood>
 {
   @mutable("mutable")

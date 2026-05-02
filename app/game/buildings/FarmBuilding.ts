@@ -21,7 +21,6 @@ export type FarmBuildingOptions = Pick<FarmBuilding, "productionOutput"> &
 export type FarmBuildingImmutable = ProductionBuildingImmutable<FarmBuilding>;
 
 export class FarmBuilding extends ProductionBuilding<
-  FarmBuilding,
   FarmBuildingImmutable,
   "farm"
 > {

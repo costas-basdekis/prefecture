@@ -10,7 +10,7 @@ declare module "./TrackedPropertyMetadata" {
 
 @trackedProperty("plainValue")
 export class PlainValuePropertyMetadata extends TrackedPropertyMetadata<"plainValue"> {
-  getImmutable(mutable: Mutable<any, any>) {
+  getImmutable(mutable: Mutable<any>) {
     return this.getValue(mutable);
   }
 }

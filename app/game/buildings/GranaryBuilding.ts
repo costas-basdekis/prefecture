@@ -30,7 +30,7 @@ export type GranaryBuildingImmutable = {
 } & BaseBuildingImmutable<GranaryBuilding>;
 
 export class GranaryBuilding
-  extends BaseBuilding<GranaryBuilding, GranaryBuildingImmutable, "granary">
+  extends BaseBuilding<GranaryBuildingImmutable, "granary">
   implements BuildingWithContents<FoodGood>
 {
   @mutable("mutable")

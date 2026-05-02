@@ -19,7 +19,7 @@ export type ProductionImmutable = Pick<
 > &
   Immutable<Production>;
 
-export class Production implements Mutable<Production, ProductionImmutable> {
+export class Production implements Mutable<ProductionImmutable> {
   mutationHelper: MutationHelper<Production, ProductionImmutable>;
   @parentKey("production")
   building: Building & BuildingWithWorkSearch;

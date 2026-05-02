@@ -1,5 +1,5 @@
-import { Game } from "../Game";
-import { Person } from "./Person";
+import { Game } from "../../Game";
+import { Person } from "../Person";
 
 export abstract class BasePersonMission<P extends Person> {
   readonly game: Game;

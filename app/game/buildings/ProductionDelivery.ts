@@ -22,10 +22,7 @@ export type ProductionDeliveryImmutable = Pick<
 > &
   Immutable<ProductionDelivery>;
 
-export class ProductionDelivery implements Mutable<
-  ProductionDelivery,
-  ProductionDeliveryImmutable
-> {
+export class ProductionDelivery implements Mutable<ProductionDeliveryImmutable> {
   mutationHelper: MutationHelper<
     ProductionDelivery,
     ProductionDeliveryImmutable

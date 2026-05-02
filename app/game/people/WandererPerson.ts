@@ -28,7 +28,6 @@ export type WandererPersonImmutable = Pick<WandererPerson, "secondaryType"> &
   BaseGridPersonImmutable<WandererPerson>;
 
 export class WandererPerson extends BaseGridPerson<
-  WandererPerson,
   WandererPersonImmutable,
   "wanderer"
 > {

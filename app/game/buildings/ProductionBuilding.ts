@@ -22,7 +22,7 @@ import {
 export type ProductionBuildingOptions = BaseBuildingOptions;
 
 export type ProductionBuildingImmutable<
-  B extends ProductionBuilding<any, any, any>,
+  B extends ProductionBuilding<any, any>,
 > = Pick<B, "productionOutput"> & {
   workSearch: WorkSearchImmutable;
   production: ProductionImmutable;
@@ -30,15 +30,10 @@ export type ProductionBuildingImmutable<
 } & BaseBuildingImmutable<B>;
 
 export abstract class ProductionBuilding<
-  M extends Mutable<M, I>,
-  I extends Immutable<M>,
+  I extends Immutable<ProductionBuilding<I, T>>,
   T extends string,
 >
-  extends BaseBuilding<
-    ProductionBuilding<M, I, T>,
-    ProductionBuildingImmutable<ProductionBuilding<M, I, T>>,
-    T
-  >
+  extends BaseBuilding<ProductionBuildingImmutable<ProductionBuilding<I, T>>, T>
   implements
     BuildingWithWorkSearch,
     BuildingWithProduction,

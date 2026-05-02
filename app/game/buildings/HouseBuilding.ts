@@ -28,7 +28,6 @@ export type HouseBuildingImmutable = Pick<
   BaseBuildingImmutable<HouseBuilding>;
 
 export class HouseBuilding extends BaseBuilding<
-  HouseBuilding,
   HouseBuildingImmutable,
   "house"
 > {

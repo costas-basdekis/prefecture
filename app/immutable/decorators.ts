@@ -2,10 +2,7 @@ import { type Mutable } from "./Mutable";
 import { makeTrackedProperty, MutationType } from "./properties";
 import { TrackedMetadata } from "./TrackedMetadata";
 
-export function immutable(
-  target: Mutable<any, any>,
-  propertyKey: string | symbol,
-) {
+export function immutable(target: Mutable<any>, propertyKey: string | symbol) {
   const metadata = TrackedMetadata.getOrSet(target);
   const existingProperty = metadata.propertyMap.get(propertyKey);
   if (existingProperty) {
@@ -25,7 +22,7 @@ export function immutable(
 }
 
 export type MutablePropertyDecorator = (
-  target: Mutable<any, any>,
+  target: Mutable<any>,
   propertyKey: string | symbol,
 ) => void;
 
@@ -42,7 +39,7 @@ export function mutable(
   idKey: string = "id",
   idPropertyKey?: string,
 ): MutablePropertyDecorator {
-  return function (target: Mutable<any, any>, propertyKey: string | symbol) {
+  return function (target: Mutable<any>, propertyKey: string | symbol) {
     const metadata = TrackedMetadata.getOrSet(target);
     const existingProperty = metadata.propertyMap.get(propertyKey);
     if (existingProperty) {
@@ -68,7 +65,7 @@ export function mutable(
 }
 
 export function methodMutate(
-  target: Mutable<any, any>,
+  target: Mutable<any>,
   propertyKey: string | symbol,
 ) {
   const metadata = TrackedMetadata.getOrSet(target);
@@ -87,11 +84,11 @@ export function methodForImmutable(
   renamedPropertyKey: string | symbol,
 ): MutablePropertyDecorator;
 export function methodForImmutable(
-  target: Mutable<any, any>,
+  target: Mutable<any>,
   actualPropertyKey: string | symbol,
 ): void;
 export function methodForImmutable(
-  targetOrRenamedPropertyKey?: Mutable<any, any> | string | symbol,
+  targetOrRenamedPropertyKey?: Mutable<any> | string | symbol,
   maybeActualPropertyKey?: string | symbol,
 ): void | MutablePropertyDecorator {
   const target =
@@ -107,7 +104,7 @@ export function methodForImmutable(
       ? undefined
       : targetOrRenamedPropertyKey;
   const decorator = function (
-    target: Mutable<any, any>,
+    target: Mutable<any>,
     actualPropertyKey: string | symbol,
   ) {
     const propertyKey = renamedPropertyKey ?? actualPropertyKey;
@@ -136,7 +133,7 @@ export function methodForImmutable(
 }
 
 export function parentKey(dirtyKey: string): MutablePropertyDecorator {
-  return function (target: Mutable<any, any>, propertyKey: string | symbol) {
+  return function (target: Mutable<any>, propertyKey: string | symbol) {
     const metadata = TrackedMetadata.getOrSet(target);
     if (metadata.parentInfo) {
       throw new Error(
@@ -152,7 +149,7 @@ export function parentKey(dirtyKey: string): MutablePropertyDecorator {
 }
 
 export function parentSecondaryKey(
-  target: Mutable<any, any>,
+  target: Mutable<any>,
   propertyKey: string | symbol,
 ) {
   const metadata = TrackedMetadata.getOrSet(target);

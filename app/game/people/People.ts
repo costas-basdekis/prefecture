@@ -14,7 +14,7 @@ export type PeopleImmutable = Pick<People, "nextId"> & {
   getPeople: () => PersonImmutable[];
 } & Immutable<People>;
 
-export class People implements Mutable<People, PeopleImmutable> {
+export class People implements Mutable<PeopleImmutable> {
   mutationHelper: MutationHelper<People, PeopleImmutable>;
   @parentKey("people")
   game: Game;

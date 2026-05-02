@@ -9,7 +9,7 @@ export type DirtyKeys = {
 
 export type DirtyKey = string | symbol | [string | symbol, string | number];
 
-export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
+export class MutationHelper<M extends Mutable<I>, I extends Immutable<M>> {
   mutable: M;
   dirty: boolean;
   dirtyKeys: DirtyKeys;
@@ -84,14 +84,14 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
     }
     if (parentInfo.secondaryKey) {
       (
-        this.mutable[parentInfo.key as keyof M] as Mutable<any, any>
+        this.mutable[parentInfo.key as keyof M] as Mutable<any>
       ).mutationHelper.markDirty([
         parentInfo.dirtyKey as string,
         this.mutable[parentInfo.secondaryKey as keyof M] as any,
       ]);
     } else {
       (
-        this.mutable[parentInfo.key as keyof M] as Mutable<any, any>
+        this.mutable[parentInfo.key as keyof M] as Mutable<any>
       ).mutationHelper.markDirty(parentInfo.dirtyKey as string);
     }
   }

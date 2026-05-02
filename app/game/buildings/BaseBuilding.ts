@@ -12,11 +12,11 @@ import type { Cell } from "../Cell";
 import _ from "lodash";
 
 export type BaseBuildingOptions = Pick<
-  BaseBuilding<any, any, any>,
+  BaseBuilding<any, any>,
   "positions" | "topLeftPosition" | "bottomRightPosition" | "width" | "height"
 >;
 
-export type BaseBuildingImmutable<B extends BaseBuilding<any, any, any>> = Pick<
+export type BaseBuildingImmutable<B extends BaseBuilding<any, any>> = Pick<
   B,
   | "id"
   | "type"
@@ -29,11 +29,10 @@ export type BaseBuildingImmutable<B extends BaseBuilding<any, any, any>> = Pick<
   Immutable<B>;
 
 export abstract class BaseBuilding<
-  M extends Mutable<M, I>,
-  I extends Immutable<M>,
+  I extends Immutable<BaseBuilding<I, T>>,
   T extends string,
-> implements Mutable<M, I> {
-  mutationHelper: MutationHelper<M, I>;
+> implements Mutable<I> {
+  mutationHelper: MutationHelper<BaseBuilding<I, T>, I>;
   @parentKey("byId")
   buildings: Buildings;
   @immutable
@@ -84,7 +83,7 @@ export abstract class BaseBuilding<
   }
 
   postInit() {
-    this.mutationHelper = new MutationHelper<M, I>(this as unknown as M);
+    this.mutationHelper = new MutationHelper<BaseBuilding<I, T>, I>(this);
     this.buildings.add(this as any);
   }
 
@@ -120,7 +119,7 @@ export abstract class BaseBuilding<
   }
 
   static getClosestBuildingAndPath<
-    B extends BaseBuilding<any, any, any> = BaseBuilding<any, any, any>,
+    B extends BaseBuilding<any, any> = BaseBuilding<any, any>,
   >(candidates: B[], start: Cell): [B, Cell[]] | null {
     const reachableStoresAndPaths = candidates
       .map((building) => [building, building.getPathFrom(start)] as const)

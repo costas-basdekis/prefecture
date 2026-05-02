@@ -23,11 +23,11 @@ export class PlainValueByIdPropertyMetadata extends TrackedPropertyMetadata<"pla
     super(key, config.idPropertyKey, type, mutable, config);
   }
 
-  addProperties(target: Mutable<any, any>) {
+  addProperties(target: Mutable<any>) {
     super.addProperties(target);
     const propertySelf = this;
     Object.defineProperty(target, propertySelf.config.idPropertyKey, {
-      get: function (this: Mutable<any, any>) {
+      get: function (this: Mutable<any>) {
         const mainValue = this[propertySelf.key as keyof typeof this] as any;
         if (!mainValue) {
           return null;
@@ -37,7 +37,7 @@ export class PlainValueByIdPropertyMetadata extends TrackedPropertyMetadata<"pla
     });
   }
 
-  getImmutable(mutable: Mutable<any, any>) {
+  getImmutable(mutable: Mutable<any>) {
     return this.getValue(mutable)?.[this.config.idKey] ?? null;
   }
 }

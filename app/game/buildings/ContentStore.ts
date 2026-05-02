@@ -32,7 +32,6 @@ export type ContentStoreImmutable<G extends Good> = Pick<
   Immutable<ContentStore<G>>;
 
 export class ContentStore<G extends Good> implements Mutable<
-  ContentStore<G>,
   ContentStoreImmutable<G>
 > {
   mutationHelper: MutationHelper<ContentStore<G>, ContentStoreImmutable<G>>;

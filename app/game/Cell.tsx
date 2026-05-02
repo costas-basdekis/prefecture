@@ -28,7 +28,7 @@ export type CellImmutable = Pick<
 > &
   Immutable<Cell>;
 
-export class Cell implements Mutable<Cell, CellImmutable> {
+export class Cell implements Mutable<CellImmutable> {
   mutationHelper: MutationHelper<Cell, CellImmutable>;
   @parentKey("cellMap")
   grid: Grid;

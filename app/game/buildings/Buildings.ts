@@ -17,7 +17,7 @@ export type BuildingsImmutable = Pick<Buildings, "nextId"> & {
 type BuildingMap = Record<number, Building>;
 type BuildingMapImmutable = Record<number, BuildingImmutable>;
 
-export class Buildings implements Mutable<Buildings, BuildingsImmutable> {
+export class Buildings implements Mutable<BuildingsImmutable> {
   mutationHelper: MutationHelper<Buildings, BuildingsImmutable>;
   @parentKey("buildings")
   game: Game;

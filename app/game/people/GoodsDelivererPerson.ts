@@ -37,7 +37,6 @@ export type GoodsDelivererPersonMission =
   | FetchFromAvailableStoreMission;
 
 export class GoodsDelivererPerson extends BaseGridPerson<
-  GoodsDelivererPerson,
   GoodsDelivererPersonImmutable,
   "goodsDeliverer"
 > {

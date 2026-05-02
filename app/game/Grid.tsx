@@ -35,7 +35,7 @@ export type GridImmutable = Pick<Grid, "width" | "height"> & {
 export type CellMap = Record<string, Cell>;
 export type CellMapImmutable = Record<string, CellImmutable>;
 
-export class Grid implements Mutable<Grid, GridImmutable> {
+export class Grid implements Mutable<GridImmutable> {
   mutationHelper: MutationHelper<Grid, GridImmutable>;
   @parentKey("grid")
   game: Game;

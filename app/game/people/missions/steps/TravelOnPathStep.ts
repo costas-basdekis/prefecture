@@ -11,7 +11,7 @@ export class TravelOnPathStep extends BaseMissionStep {
 
   constructor(
     game: Game,
-    person: BaseGridPerson<any, any, any>,
+    person: BaseGridPerson<any, any>,
     targetBuilding: Building,
     path: Cell[],
   ) {

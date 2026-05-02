@@ -17,7 +17,7 @@ export abstract class TrackedPropertyMetadata<T extends MutationType> {
   type: T;
   mutable: boolean;
   config: TrackedPropertyConfig<T>;
-  mutableStore: WeakMap<Mutable<any, any>, { value: any; proxy: any }>;
+  mutableStore: WeakMap<Mutable<any>, { value: any; proxy: any }>;
 
   constructor(
     key: string | symbol,
@@ -34,7 +34,7 @@ export abstract class TrackedPropertyMetadata<T extends MutationType> {
     this.mutableStore = new WeakMap();
   }
 
-  addProperties(target: Mutable<any, any>) {
+  addProperties(target: Mutable<any>) {
     if (this.mutable) {
       Object.defineProperty(target, this.key, this.makeMutableProperty());
     }
@@ -45,10 +45,10 @@ export abstract class TrackedPropertyMetadata<T extends MutationType> {
     const store = this.mutableStore;
     return {
       configurable: true,
-      get: function (this: Mutable<any, any>) {
+      get: function (this: Mutable<any>) {
         return store.get(this)!.proxy;
       },
-      set: function (this: Mutable<any, any>, value) {
+      set: function (this: Mutable<any>, value) {
         const previousInfo = store.get(this);
         if (value === previousInfo?.value) {
           return;
@@ -65,11 +65,11 @@ export abstract class TrackedPropertyMetadata<T extends MutationType> {
     };
   }
 
-  markDirty(mutable: Mutable<any, any>, _value: any) {
+  markDirty(mutable: Mutable<any>, _value: any) {
     mutable.mutationHelper.markDirty(this.key);
   }
 
-  makeMutableProxy(value: any, _mutable: Mutable<any, any>): any {
+  makeMutableProxy(value: any, _mutable: Mutable<any>): any {
     return value;
   }
 
@@ -94,19 +94,19 @@ export abstract class TrackedPropertyMetadata<T extends MutationType> {
     }
   }
 
-  addInitialToImmutable(mutable: Mutable<any, any>, immutable: any) {
+  addInitialToImmutable(mutable: Mutable<any>, immutable: any) {
     immutable[this.renamedKey] = this.getImmutable(mutable);
   }
 
-  getValue<T = any>(mutable: Mutable<any, any>): T {
+  getValue<T = any>(mutable: Mutable<any>): T {
     // @ts-ignore
     return mutable[this.key];
   }
 
-  abstract getImmutable(mutable: Mutable<any, any>): any;
+  abstract getImmutable(mutable: Mutable<any>): any;
 
   updateImmutable(
-    mutable: Mutable<any, any>,
+    mutable: Mutable<any>,
     immutable: any,
     dirtyKeys: DirtyKeys,
   ): void {

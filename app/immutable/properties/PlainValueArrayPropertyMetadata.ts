@@ -10,7 +10,7 @@ declare module "./TrackedPropertyMetadata" {
 
 @trackedProperty("plainValueArray")
 export class PlainValueArrayPropertyMetadata extends TrackedPropertyMetadata<"plainValueArray"> {
-  makeMutableProxy(value: any, mutable: Mutable<any, any>) {
+  makeMutableProxy(value: any, mutable: Mutable<any>) {
     const propertySelf = this;
     return new Proxy(value, {
       set(target, property, subValue, receiver) {
@@ -24,7 +24,7 @@ export class PlainValueArrayPropertyMetadata extends TrackedPropertyMetadata<"pl
     });
   }
 
-  getImmutable(mutable: Mutable<any, any>) {
+  getImmutable(mutable: Mutable<any>) {
     return Array.from(this.getValue<any[]>(mutable));
   }
 }

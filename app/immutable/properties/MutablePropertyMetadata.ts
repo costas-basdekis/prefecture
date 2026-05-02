@@ -11,9 +11,7 @@ declare module "./TrackedPropertyMetadata" {
 
 @trackedProperty("mutable")
 export class MutablePropertyMetadata extends TrackedPropertyMetadata<"mutable"> {
-  getImmutable(mutable: Mutable<any, any>) {
-    return this.getValue<Mutable<any, any>>(
-      mutable,
-    ).mutationHelper.getImmutable();
+  getImmutable(mutable: Mutable<any>) {
+    return this.getValue<Mutable<any>>(mutable).mutationHelper.getImmutable();
   }
 }

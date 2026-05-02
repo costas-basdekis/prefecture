@@ -21,11 +21,7 @@ export type WellOptions = BaseBuildingOptions;
 
 export type WellBuildingImmutable = BaseBuildingImmutable<WellBuilding>;
 
-export class WellBuilding extends BaseBuilding<
-  WellBuilding,
-  WellBuildingImmutable,
-  "well"
-> {
+export class WellBuilding extends BaseBuilding<WellBuildingImmutable, "well"> {
   @immutable
   waterCoverage: WaterCoverageLevel;
 

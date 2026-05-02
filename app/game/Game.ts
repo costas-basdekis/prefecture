@@ -30,7 +30,7 @@ export type GameImmutable = Pick<Game, "tickCount"> & {
   tick(): GameImmutable;
 } & Immutable<Game>;
 
-export class Game implements Mutable<Game, GameImmutable> {
+export class Game implements Mutable<GameImmutable> {
   mutationHelper: MutationHelper<Game, GameImmutable>;
   @mutable("plainValue")
   tickCount: number;
