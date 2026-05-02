@@ -37,7 +37,7 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
   mutateIfAtLatest(
     immutable: I,
     newImmutableOrFunc: I | ((immutable: I) => I),
-  ) {
+  ): I {
     if (this.lastImmutable !== immutable) {
       return this.lastImmutable;
     }

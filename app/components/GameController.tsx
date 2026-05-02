@@ -18,7 +18,7 @@ export function GameController({
   // We need to prevent double actions in React dev
   const setGame = useMemo(
     () => mutableGame.mutationHelper.getIfAtLatestMutator(innerSetGame),
-    [innerSetGame],
+    [mutableGame, innerSetGame],
   );
   const [tool, setTool] = useState<Tool>(new SelectionTool());
   const onTickClick = useCallback(() => {

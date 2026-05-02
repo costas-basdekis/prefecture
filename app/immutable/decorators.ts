@@ -80,7 +80,7 @@ export function parentSecondaryKey(
 ) {
   const metadata = TrackedMetadata.getOrSet(target);
   if (!metadata.parentInfo) {
-    throw new Error(`Not parent relationship has been defined for ${target}`);
+    throw new Error(`No parent relationship has been defined for ${target}`);
   }
   if (metadata.parentInfo.secondaryKey) {
     throw new Error(
