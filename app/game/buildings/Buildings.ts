@@ -1,5 +1,6 @@
 import {
   Immutable,
+  methodForImmutable,
   Mutable,
   mutable,
   MutationHelper,
@@ -31,12 +32,12 @@ export class Buildings implements Mutable<Buildings, BuildingsImmutable> {
     this.byId = {};
     this.mutationHelper = new MutationHelper<Buildings, BuildingsImmutable>(
       this,
-      {
-        getBuildings(this: BuildingsImmutable) {
-          return Object.values(this.byId);
-        },
-      },
     );
+  }
+
+  @methodForImmutable("getBuildings")
+  getBuildingsForImmutable(this: BuildingsImmutable) {
+    return Object.values(this.byId);
   }
 
   createId(): number {

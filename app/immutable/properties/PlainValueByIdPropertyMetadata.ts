@@ -1,7 +1,9 @@
 import { Mutable } from "../Mutable";
-import { DirtyKeys } from "../MutationHelper";
 import { trackedProperty } from "./metadataMaker";
-import { TrackedPropertyMetadata } from "./TrackedPropertyMetadata";
+import {
+  type TrackedPropertyConfig,
+  TrackedPropertyMetadata,
+} from "./TrackedPropertyMetadata";
 
 declare module "./TrackedPropertyMetadata" {
   interface MutationTypeDefinitions {
@@ -11,7 +13,17 @@ declare module "./TrackedPropertyMetadata" {
 
 @trackedProperty("plainValueById")
 export class PlainValueByIdPropertyMetadata extends TrackedPropertyMetadata<"plainValueById"> {
-  addProperties(target: Object) {
+  constructor(
+    key: string | symbol,
+    _renamedKey: string | symbol,
+    type: "plainValueById",
+    mutable: boolean,
+    config: TrackedPropertyConfig<"plainValueById">,
+  ) {
+    super(key, config.idPropertyKey, type, mutable, config);
+  }
+
+  addProperties(target: Mutable<any, any>) {
     super.addProperties(target);
     const propertySelf = this;
     Object.defineProperty(target, propertySelf.config.idPropertyKey, {
@@ -25,22 +37,7 @@ export class PlainValueByIdPropertyMetadata extends TrackedPropertyMetadata<"pla
     });
   }
 
-  addInitialToImmutable(mutable: Mutable<any, any>, immutable: any): void {
-    immutable[this.config.idPropertyKey] = this.getImmutable(mutable);
-  }
-
   getImmutable(mutable: Mutable<any, any>) {
     return this.getValue(mutable)?.[this.config.idKey] ?? null;
-  }
-
-  updateImmutable(
-    mutable: Mutable<any, any>,
-    immutable: any,
-    dirtyKeys: DirtyKeys,
-  ): void {
-    if (this.isDirty(dirtyKeys)) {
-      immutable[this.config.idPropertyKey] = this.getImmutable(mutable);
-      this.clearDirty(dirtyKeys);
-    }
   }
 }

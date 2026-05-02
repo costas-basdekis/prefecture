@@ -5,6 +5,7 @@ import type { Game } from "./Game";
 import {
   immutable,
   Immutable,
+  methodForImmutable,
   Mutable,
   mutable,
   MutationHelper,
@@ -59,14 +60,15 @@ export class Grid implements Mutable<Grid, GridImmutable> {
     this.width = width;
     this.height = height;
     this.waterCoverage = new WaterCoverage(this);
-    this.mutationHelper = new MutationHelper<Grid, GridImmutable>(this, {
-      getCells(this: GridImmutable) {
-        return Object.values(this.cellMap);
-      },
-    });
+    this.mutationHelper = new MutationHelper<Grid, GridImmutable>(this);
   }
 
   get cells(): Cell[] {
+    return Object.values(this.cellMap);
+  }
+
+  @methodForImmutable("getCells")
+  getCellsForImmutable(this: GridImmutable) {
     return Object.values(this.cellMap);
   }
 

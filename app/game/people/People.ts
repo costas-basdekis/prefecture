@@ -1,5 +1,6 @@
 import {
   Immutable,
+  methodForImmutable,
   mutable,
   Mutable,
   MutationHelper,
@@ -26,11 +27,12 @@ export class People implements Mutable<People, PeopleImmutable> {
     this.game = game;
     this.nextId = 1;
     this.byId = {};
-    this.mutationHelper = new MutationHelper<People, PeopleImmutable>(this, {
-      getPeople: function (this: PeopleImmutable): PersonImmutable[] {
-        return Object.values(this.byId);
-      },
-    });
+    this.mutationHelper = new MutationHelper<People, PeopleImmutable>(this);
+  }
+
+  @methodForImmutable("getPeople")
+  getPeopleForImmutable(this: PeopleImmutable): PersonImmutable[] {
+    return Object.values(this.byId);
   }
 
   createId(): number {

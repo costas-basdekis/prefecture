@@ -13,6 +13,7 @@ export type TrackedPropertyConfig<T extends MutationType> =
 
 export abstract class TrackedPropertyMetadata<T extends MutationType> {
   key: string | symbol;
+  renamedKey: string | symbol;
   type: T;
   mutable: boolean;
   config: TrackedPropertyConfig<T>;
@@ -20,18 +21,20 @@ export abstract class TrackedPropertyMetadata<T extends MutationType> {
 
   constructor(
     key: string | symbol,
+    renamedKey: string | symbol,
     type: T,
     mutable: boolean,
     config: TrackedPropertyConfig<T>,
   ) {
     this.key = key;
+    this.renamedKey = renamedKey;
     this.type = type;
     this.mutable = mutable;
     this.config = config;
     this.mutableStore = new WeakMap();
   }
 
-  addProperties(target: Object) {
+  addProperties(target: Mutable<any, any>) {
     if (this.mutable) {
       Object.defineProperty(target, this.key, this.makeMutableProperty());
     }
@@ -92,7 +95,7 @@ export abstract class TrackedPropertyMetadata<T extends MutationType> {
   }
 
   addInitialToImmutable(mutable: Mutable<any, any>, immutable: any) {
-    immutable[this.key] = this.getImmutable(mutable);
+    immutable[this.renamedKey] = this.getImmutable(mutable);
   }
 
   getValue<T = any>(mutable: Mutable<any, any>): T {
@@ -108,7 +111,7 @@ export abstract class TrackedPropertyMetadata<T extends MutationType> {
     dirtyKeys: DirtyKeys,
   ): void {
     if (this.isDirty(dirtyKeys)) {
-      immutable[this.key] = this.getImmutable(mutable);
+      immutable[this.renamedKey] = this.getImmutable(mutable);
       this.clearDirty(dirtyKeys);
     }
   }

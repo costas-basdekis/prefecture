@@ -24,6 +24,7 @@ export function trackedProperty<T extends MutationType>(type: T) {
 
 export function makeTrackedProperty<T extends MutationType>(
   key: string | symbol,
+  renamedKey: string | symbol,
   type: T,
   mutable: boolean,
   config: TrackedPropertyConfig<T>,
@@ -35,6 +36,7 @@ export function makeTrackedProperty<T extends MutationType>(
   // @ts-ignore
   return new PropertyMetadata(
     key,
+    renamedKey,
     type,
     mutable,
     config as TrackedPropertyConfig<"mutable">,

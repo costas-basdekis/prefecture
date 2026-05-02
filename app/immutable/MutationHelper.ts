@@ -15,11 +15,11 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
   dirtyKeys: DirtyKeys;
   lastImmutable: I;
 
-  constructor(mutable: M, initialExtraImmutable?: Partial<I>) {
+  constructor(mutable: M) {
     this.mutable = mutable;
     this.dirty = false;
     this.dirtyKeys = this.getInitialDirtyKeys();
-    this.lastImmutable = this.getInitialImmutable(initialExtraImmutable);
+    this.lastImmutable = this.getInitialImmutable();
   }
 
   /* Get a mutator method to prevent updates if we are not looking at the latest immutable */
@@ -57,14 +57,7 @@ export class MutationHelper<M extends Mutable<M, I>, I extends Immutable<M>> {
     );
   }
 
-  getInitialImmutable(initialExtraImmutable?: Partial<I>): I {
-    return {
-      ...this.getDefaultInitialImmutable(),
-      ...initialExtraImmutable,
-    };
-  }
-
-  getDefaultInitialImmutable(): I {
+  getInitialImmutable(): I {
     const immutable: Partial<I> = { _mutable: this.mutable } as Partial<I>;
     const metadata = TrackedMetadata.get(this.mutable);
     for (const property of metadata.propertyMap.values()) {
