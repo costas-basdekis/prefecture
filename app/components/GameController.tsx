@@ -2,6 +2,7 @@ import { FC, ReactNode, useCallback, useMemo, useState } from "react";
 import { Game } from "~/game";
 import { Tool, SelectionTool, ToolSelector } from "./toolbox";
 import { GameView } from "./gameView";
+import { StorySelector } from "./StorySelector";
 
 export function GameController({
   initialGame,
@@ -10,10 +11,11 @@ export function GameController({
   initialGame?: Game;
   SvgComponent: FC<{ children: ReactNode }>;
 }) {
-  const [mutableGame, initialImmutableGame] = useMemo(() => {
+  const [initialMutableGame, initialImmutableGame] = useMemo(() => {
     const mutableGame = initialGame ?? new Game();
     return [mutableGame, mutableGame.mutationHelper.getImmutable()];
   }, []);
+  const [mutableGame, setMutableGame] = useState(initialMutableGame);
   const [game, innerSetGame] = useState(initialImmutableGame);
   // We need to prevent double actions in React dev
   const setGame = useMemo(
@@ -26,8 +28,16 @@ export function GameController({
       return game.tick();
     });
   }, [setGame]);
+  const onStoryGameChange = useCallback(
+    (game: Game) => {
+      setMutableGame(game);
+      innerSetGame(game.mutationHelper.getImmutable());
+    },
+    [setMutableGame, innerSetGame],
+  );
   return (
     <>
+      <StorySelector onGameChange={onStoryGameChange} />
       <ToolSelector tool={tool} onChange={setTool} />
       <div>
         <button

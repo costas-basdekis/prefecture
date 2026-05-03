@@ -15,5 +15,5 @@ export interface TestContext {
 }
 
 export abstract class BaseStoryStep {
-  abstract run(game: Game, testContext?: TestContext): void;
+  abstract run(game: Game, expect?: LimitedExpect): void;
 }

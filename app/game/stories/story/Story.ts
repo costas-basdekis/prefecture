@@ -1,5 +1,6 @@
 import { Game } from "../../Game";
 import { addStory } from "../allStories";
+import { checkExpect } from "./CheckExpect";
 import {
   BaseStoryStep,
   DoStep,
@@ -50,16 +51,26 @@ export class Story {
     return this;
   }
 
-  testStory(testContext?: TestContext) {
+  runStory(): Game {
     const game = new Game();
-    it(this.name, () => {
-      for (const step of this.steps) {
-        step.run(game, testContext);
-      }
-    });
+    for (const step of this.steps) {
+      step.run(game);
+    }
+    return game;
   }
 
-  checkStory() {
-    this.testStory();
+  testStory(testContext?: TestContext) {
+    const game = new Game();
+    if (testContext) {
+      testContext.it(this.name, () => {
+        for (const step of this.steps) {
+          step.run(game, testContext.expect);
+        }
+      });
+    } else {
+      for (const step of this.steps) {
+        step.run(game, checkExpect);
+      }
+    }
   }
 }

@@ -1,8 +1,9 @@
 import { useCallback } from "react";
-import { CellSelectionMode, CellSelectionModeSelector } from "../../gameView";
+import { CellSelectionModeSelector } from "../../gameView";
 import { BaseTool } from "./BaseTool";
 import { Tool } from "./Tool";
 import { toolsByName } from "./toolsByName";
+import { CellSelectionMode } from "~/game";
 
 declare module "./Tool" {
   interface ToolDefinitions {

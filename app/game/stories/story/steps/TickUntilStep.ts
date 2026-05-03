@@ -1,5 +1,5 @@
 import type { Game } from "~/game/Game";
-import { BaseStoryStep, TestContext } from "./BaseStoryStep";
+import { BaseStoryStep, LimitedExpect, TestContext } from "./BaseStoryStep";
 import { CheckStep } from "./CheckStep";
 import assert from "assert";
 
@@ -19,18 +19,20 @@ export class TickUntilStep extends BaseStoryStep {
     this.message = message;
   }
 
-  run(game: Game, testContext?: TestContext) {
+  run(game: Game, expect?: LimitedExpect) {
     for (let i = 0; i < this.maxTickCount; i++) {
       if (this.callback(game)) {
         return;
       }
       game.tick();
     }
-    new CheckStep((_game, expect) => {
-      assert(
-        false,
-        `Expected behaviour '${this.message}' to happen within ${this.maxTickCount} ticks`,
-      );
-    }, this.message).run(game, testContext);
+    if (expect) {
+      new CheckStep((_game) => {
+        assert(
+          false,
+          `Expected behaviour '${this.message}' to happen within ${this.maxTickCount} ticks`,
+        );
+      }, this.message).run(game, expect);
+    }
   }
 }

@@ -1,6 +1,5 @@
 import type { Game } from "~/game/Game";
-import { BaseStoryStep, LimitedExpect, TestContext } from "./BaseStoryStep";
-import { checkExpect } from "../CheckExpect";
+import { BaseStoryStep, LimitedExpect } from "./BaseStoryStep";
 
 export class CheckStep extends BaseStoryStep {
   callback: (game: Game, expect: LimitedExpect) => void;
@@ -15,11 +14,9 @@ export class CheckStep extends BaseStoryStep {
     this.message = message;
   }
 
-  run(game: Game, testContext?: TestContext) {
-    if (testContext) {
-      this.callback(game, testContext.expect);
-    } else {
-      this.callback(game, checkExpect);
+  run(game: Game, expect?: LimitedExpect) {
+    if (expect) {
+      this.callback(game, expect);
     }
   }
 }
