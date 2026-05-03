@@ -7,7 +7,7 @@ import {
   parentKey,
 } from "~/immutable";
 import { Building } from "./Building";
-import { Person } from "../people";
+import { GoodsDelivererPerson, Person } from "../people";
 import { type Good } from "../goods";
 import { BuildingWithProduction } from "./Production";
 import { DeliverToAcceptingStoreMission } from "../people/missions";
@@ -32,7 +32,7 @@ export class ProductionDelivery implements Mutable<ProductionDeliveryImmutable> 
   @immutable
   goodType: Good;
   @mutable("plainValueById")
-  goodsDeliverer: Person | null;
+  goodsDeliverer: GoodsDelivererPerson | null;
   declare goodsDelivererId: number | null;
 
   constructor(building: Building & BuildingWithProduction, goodType: Good) {

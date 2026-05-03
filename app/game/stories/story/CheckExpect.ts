@@ -9,12 +9,18 @@ export function checkExpect(actual: any): LimitedMatchersAndInverse {
     toBeNull() {
       assert(actual !== null);
     },
+    toBeTruthy() {
+      assert(actual);
+    },
     not: {
       toEqual(expected: any) {
         assert(actual !== expected);
       },
       toBeNull() {
         assert(actual === null);
+      },
+      toBeTruthy() {
+        assert(!actual);
       },
     },
   };

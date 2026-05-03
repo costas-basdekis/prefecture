@@ -2,7 +2,10 @@ import { Game } from "~/game/Game";
 import type { Inverse, Matchers } from "expect";
 import type { Global } from "@jest/types";
 
-export type LimitedMatchers = Pick<Matchers<any, any>, "toEqual" | "toBeNull">;
+export type LimitedMatchers = Pick<
+  Matchers<any, any>,
+  "toEqual" | "toBeNull" | "toBeTruthy"
+>;
 
 export type LimitedMatchersAndInverse = LimitedMatchers &
   Inverse<LimitedMatchers>;

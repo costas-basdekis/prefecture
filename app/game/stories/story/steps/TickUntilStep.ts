@@ -1,16 +1,15 @@
 import type { Game } from "~/game/Game";
-import { BaseStoryStep, LimitedExpect, TestContext } from "./BaseStoryStep";
-import { CheckStep } from "./CheckStep";
+import { BaseStoryStep, LimitedExpect } from "./BaseStoryStep";
 import assert from "assert";
 
 export class TickUntilStep extends BaseStoryStep {
   maxTickCount: number;
-  callback: (game: Game) => boolean;
+  callback: (game: Game) => boolean | string;
   message: string;
 
   constructor(
     maxTickCount: number,
-    callback: (game: Game) => boolean,
+    callback: (game: Game) => boolean | string,
     message: string,
   ) {
     super();
@@ -21,18 +20,21 @@ export class TickUntilStep extends BaseStoryStep {
 
   run(game: Game, expect?: LimitedExpect) {
     for (let i = 0; i < this.maxTickCount; i++) {
-      if (this.callback(game)) {
+      if (this.callback(game) === true) {
         return;
       }
       game.tick();
     }
+    const maybeReason = this.callback(game);
+    if (maybeReason === true) {
+      return;
+    }
     if (expect) {
-      new CheckStep((_game) => {
-        assert(
-          false,
-          `Expected behaviour '${this.message}' to happen within ${this.maxTickCount} ticks`,
-        );
-      }, this.message).run(game, expect);
+      let message = `Expected behaviour '${this.message}' to happen within ${this.maxTickCount} ticks`;
+      if (typeof maybeReason === "string") {
+        message = `${message}, but: ${maybeReason}`;
+      }
+      assert(false, message);
     }
   }
 }

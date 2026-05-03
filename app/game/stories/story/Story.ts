@@ -44,7 +44,7 @@ export class Story {
 
   tickUntil(
     maxTickCount: number,
-    callback: (game: Game) => boolean,
+    callback: (game: Game) => boolean | string,
     message: string,
   ): this {
     this.steps.push(new TickUntilStep(maxTickCount, callback, message));
