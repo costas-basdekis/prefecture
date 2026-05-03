@@ -6,3 +6,4 @@ export * from "./Coords";
 export * from "./Game";
 export * from "./Grid";
 export * from "./people";
+export * from "./stories";

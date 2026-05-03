@@ -46,6 +46,12 @@ export class Buildings implements Mutable<BuildingsImmutable> {
     return id;
   }
 
+  getOfType(type: Building["type"]): Building[] {
+    return Object.values(this.byId).filter(
+      (building) => building.type === type,
+    );
+  }
+
   add(building: Building): Building {
     this.byId[building.id] = building;
     return building;

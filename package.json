@@ -6,7 +6,9 @@
     "build": "react-router build",
     "dev": "react-router dev --port 5174",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "typecheck": "react-router typegen && tsc",
+    "test": "jest",
+    "watch-test": "jest --watch"
   },
   "dependencies": {
     "@react-router/node": "7.14.0",
@@ -21,12 +23,21 @@
   "devDependencies": {
     "@react-router/dev": "7.14.0",
     "@tailwindcss/vite": "^4.2.2",
+    "@types/jest": "^30.0.0",
     "@types/lodash": "^4.17.24",
     "@types/node": "^22",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "jest": "^30.3.0",
     "tailwindcss": "^4.2.2",
+    "ts-jest": "^29.4.9",
     "typescript": "^5.9.3",
     "vite": "^8.0.3"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "moduleNameMapper": {
+      "^~/(.*)$": "<rootDir>/app/$1"
+    }
   }
 }
