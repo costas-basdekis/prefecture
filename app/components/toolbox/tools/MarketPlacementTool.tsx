@@ -1,7 +1,7 @@
-import { CellSelectionMode } from "~/components/gameView";
 import { BaseTool } from "./BaseTool";
 import { OnSelectionProps } from "../ToolSelector";
 import { toolsByName } from "./toolsByName";
+import { CellSelectionMode } from "~/game";
 
 declare module "./Tool" {
   interface ToolDefinitions {
