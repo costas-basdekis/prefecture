@@ -9,7 +9,7 @@ export const spreadReligion = feedHouses
   .tickUntil(
     10,
     (game) => {
-      const temple = game.buildings.getOfType("temple")[0] as TempleBuilding;
+      const temple = game.buildings.getOfType("temple")[0];
       if (!temple.workSearch.hasWorkerAccess) {
         return "no worker access";
       }
@@ -23,7 +23,7 @@ export const spreadReligion = feedHouses
   .tickUntil(
     10,
     (game) => {
-      const houses = game.buildings.getOfType("house") as HouseBuilding[];
+      const houses = game.buildings.getOfType("house");
       const housesWithoutTempleAccess = houses.filter(
         (house) => house.accessAge.temple === 0,
       );
@@ -37,7 +37,7 @@ export const spreadReligion = feedHouses
   .tickUntil(
     10,
     (game) => {
-      const houses = game.buildings.getOfType("house") as HouseBuilding[];
+      const houses = game.buildings.getOfType("house");
       const houseNotAtLevel4 = houses.filter((house) => house.level < 4);
 
       if (houseNotAtLevel4.length) {

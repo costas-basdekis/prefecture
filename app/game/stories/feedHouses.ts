@@ -16,7 +16,7 @@ export const feedHouses = Story.add("Feed houses")
   })
   .tickMany(1)
   .check((game, expect) => {
-    const houses = game.buildings.getOfType("house") as HouseBuilding[];
+    const houses = game.buildings.getOfType("house");
     expect(houses.length).toEqual(4);
     for (const house of houses) {
       expect(house.level).toEqual(1);
@@ -27,14 +27,14 @@ export const feedHouses = Story.add("Feed houses")
   .tickUntil(
     10,
     (game) => {
-      const houses = game.buildings.getOfType("house") as HouseBuilding[];
+      const houses = game.buildings.getOfType("house");
       return !houses.some((house) => house.immigrant);
     },
     "no houses have an immigrant anymore",
   )
   .tickMany(1)
   .check((game, expect) => {
-    const houses = game.buildings.getOfType("house") as HouseBuilding[];
+    const houses = game.buildings.getOfType("house");
     expect(houses.length).toEqual(4);
     for (const house of houses) {
       expect(house.occupantCount).toEqual(3);
@@ -45,7 +45,7 @@ export const feedHouses = Story.add("Feed houses")
     game.tick();
   })
   .check((game, expect) => {
-    const houses = game.buildings.getOfType("house") as HouseBuilding[];
+    const houses = game.buildings.getOfType("house");
     expect(houses.length).toEqual(4);
     for (const house of houses) {
       expect(house.level).toEqual(2);
@@ -56,14 +56,14 @@ export const feedHouses = Story.add("Feed houses")
   .tickUntil(
     10,
     (game) => {
-      const houses = game.buildings.getOfType("house") as HouseBuilding[];
+      const houses = game.buildings.getOfType("house");
       return !houses.some((house) => house.immigrant);
     },
     "no houses have immigrants anymore",
   )
   .tickMany(1)
   .check((game, expect) => {
-    const houses = game.buildings.getOfType("house") as HouseBuilding[];
+    const houses = game.buildings.getOfType("house");
     expect(houses.length).toEqual(4);
     for (const house of houses) {
       expect(house.occupantCount).toEqual(7);
@@ -168,7 +168,7 @@ export const feedHouses = Story.add("Feed houses")
     (game) => {
       const market = game.buildings.getOfType("market")[0] as MarketBuilding;
       const marketWheat = market.contentStore.contents.wheat ?? 0;
-      const houses = game.buildings.getOfType("house") as HouseBuilding[];
+      const houses = game.buildings.getOfType("house");
       if (
         marketWheat === 0 &&
         (!market.foodFetcher || market.foodFetcher.goodAmount === 0) &&
@@ -182,7 +182,7 @@ export const feedHouses = Story.add("Feed houses")
   )
   .tickMany(50)
   .check((game, expect) => {
-    const houses = game.buildings.getOfType("house") as HouseBuilding[];
+    const houses = game.buildings.getOfType("house");
     expect(houses.length).toEqual(4);
     for (const house of houses) {
       expect(house.occupantCount).toEqual(12);

@@ -7,7 +7,12 @@ import {
   parentKey,
 } from "~/immutable";
 import type { Game } from "../Game";
-import { Building, BuildingImmutable } from "./Building";
+import {
+  Building,
+  BuildingByType,
+  BuildingImmutable,
+  BuildingType,
+} from "./Building";
 
 export type BuildingsImmutable = Pick<Buildings, "nextId"> & {
   byId: BuildingMapImmutable;
@@ -46,10 +51,10 @@ export class Buildings implements Mutable<BuildingsImmutable> {
     return id;
   }
 
-  getOfType(type: Building["type"]): Building[] {
+  getOfType<T extends BuildingType>(type: T): BuildingByType[T][] {
     return Object.values(this.byId).filter(
       (building) => building.type === type,
-    );
+    ) as BuildingByType[T][];
   }
 
   add(building: Building): Building {
