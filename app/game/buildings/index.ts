@@ -9,5 +9,7 @@ export * from "./MarketBuilding";
 export * from "./Production";
 export * from "./ProductionBuilding";
 export * from "./ProductionDelivery";
+export * from "./TempleBuilding";
+export * from "./WaterCoverage";
 export * from "./WellBuilding";
 export * from "./WorkSearch";

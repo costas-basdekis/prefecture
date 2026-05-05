@@ -16,4 +16,8 @@
   &.person-type-wanderer-marketSeller {
     fill: green;
   }
+
+  &.person-type-wanderer-priest {
+    fill: silver;
+  }
 }

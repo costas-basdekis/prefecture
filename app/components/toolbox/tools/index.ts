@@ -5,6 +5,7 @@ export * from "./HousePlacementTool";
 export * from "./MarketPlacementTool";
 export * from "./RoadPlacementTool";
 export * from "./SelectionTool";
+export * from "./TemplePlacementTool";
 export * from "./Tool";
 export * from "./toolsByName";
 export * from "./WellPlacementTool";

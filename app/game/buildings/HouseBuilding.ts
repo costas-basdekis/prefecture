@@ -27,6 +27,10 @@ export type HouseBuildingImmutable = Pick<
 > &
   BaseBuildingImmutable<HouseBuilding>;
 
+export type HouseAccess<T> = {
+  temple: T;
+};
+
 export class HouseBuilding extends BaseBuilding<
   HouseBuildingImmutable,
   "house"
@@ -44,6 +48,8 @@ export class HouseBuilding extends BaseBuilding<
   @mutable("plainValueById")
   declare immigrant: ImmigrantPerson | null;
   declare readonly immigrantId: number | null;
+  @mutable("plainValueMap")
+  accessAge: HouseAccess<number>;
 
   static maxOccupantCountMap: number[] = [
     0, 3, 7, 12, 18, 25, 33, 42, 52, 63, 75,
@@ -54,11 +60,13 @@ export class HouseBuilding extends BaseBuilding<
   static requirementsByLevel: Partial<{
     waterCoverage: number;
     resources: Good[];
+    access: HouseAccess<true>;
   }>[] = [
     {},
     {},
     { waterCoverage: 1 },
     { waterCoverage: 1, resources: ["wheat"] },
+    { waterCoverage: 1, resources: ["wheat"], access: { temple: true } },
   ];
   static maxResourcesPerOccupantPerLevel: Partial<Record<Good, number>>[] =
     this.requirementsByLevel.map((level) =>
@@ -78,11 +86,13 @@ export class HouseBuilding extends BaseBuilding<
     this.resources = {};
     this.maxResourcesPerOccupant = {};
     this.immigrant = null;
+    this.accessAge = { temple: 0 };
     this.postInit();
   }
 
   tick(_tickCount: number) {
     this.updateLevel(this.cells[0]);
+    this.reduceAccessAge();
   }
 
   spawnImmigrant() {
@@ -135,6 +145,11 @@ export class HouseBuilding extends BaseBuilding<
             return false;
           }
         }
+        if (level.access) {
+          if (level.access.temple && !this.accessAge.temple) {
+            return false;
+          }
+        }
         return true;
       },
     );
@@ -160,6 +175,15 @@ export class HouseBuilding extends BaseBuilding<
         )
       ];
     this.level = nextLevel;
+  }
+
+  reduceAccessAge() {
+    for (let [key, life] of Object.entries(this.accessAge) as [
+      keyof HouseAccess<number>,
+      number,
+    ][]) {
+      this.accessAge[key] = Math.max(0, life - 1);
+    }
   }
 }
 

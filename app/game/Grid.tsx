@@ -16,6 +16,7 @@ import {
   Building,
   FarmBuilding,
   FarmBuildingOptions,
+  TempleBuilding,
 } from "./buildings";
 import _ from "lodash";
 import { GranaryBuilding } from "./buildings/GranaryBuilding";
@@ -160,6 +161,14 @@ export class Grid implements Mutable<GridImmutable> {
     this.addBuilding(
       buildingOptions.positions,
       () => new MarketBuilding(this.game.buildings, buildingOptions),
+    );
+  }
+
+  addTemple(coords: Coords) {
+    const buildingOptions = this.makeRectangleBuildingOptions(coords, 2, 2);
+    this.addBuilding(
+      buildingOptions.positions,
+      () => new TempleBuilding(this.game.buildings, buildingOptions),
     );
   }
 }

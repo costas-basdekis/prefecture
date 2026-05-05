@@ -14,4 +14,8 @@
   &.building-type-market {
     fill: green;
   }
+
+  &.building-type-temple {
+    fill: silver;
+  }
 }

@@ -16,12 +16,17 @@ export class Story {
   steps: BaseStoryStep[];
 
   static add(name: string) {
-    return addStory(new Story(name));
+    return new Story(name).add();
   }
 
   constructor(name: string) {
     this.name = name;
     this.steps = [];
+  }
+
+  add(): this {
+    addStory(this);
+    return this;
   }
 
   do(callback: (game: Game) => void): this {
@@ -49,6 +54,16 @@ export class Story {
   ): this {
     this.steps.push(new TickUntilStep(maxTickCount, callback, message));
     return this;
+  }
+
+  extend(name: string): Story {
+    const story = new Story(name);
+    story.steps.push(...this.steps);
+    return story;
+  }
+
+  extendAndAdd(name: string) {
+    return this.extend(name).add();
   }
 
   runStory(): Game {
