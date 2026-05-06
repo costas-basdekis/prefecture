@@ -13,7 +13,7 @@ export const spreadReligion = feedHouses
       if (!temple.workSearch.hasWorkerAccess) {
         return "no worker access";
       }
-      if (!temple.priest) {
+      if (!temple.serviceSpread.serviceSpreader) {
         return "no priest";
       }
       return true;

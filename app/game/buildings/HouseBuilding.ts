@@ -31,6 +31,8 @@ export type HouseAccess<T> = {
   temple: T;
 };
 
+export type HouseAccessType = keyof HouseAccess<any>;
+
 export class HouseBuilding extends BaseBuilding<
   HouseBuildingImmutable,
   "house"
