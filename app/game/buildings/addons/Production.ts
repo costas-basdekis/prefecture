@@ -6,7 +6,7 @@ import {
   MutationHelper,
   parentKey,
 } from "~/immutable";
-import { Building } from "./Building";
+import { Building } from "../Building";
 import { BuildingWithWorkSearch } from "./WorkSearch";
 
 export interface BuildingWithProduction {

@@ -5,19 +5,20 @@ import {
   BaseBuildingOptions,
 } from "./BaseBuilding";
 import type { Buildings } from "./Buildings";
-import { WorkSearchImmutable, type BuildingWithWorkSearch } from "./WorkSearch";
-import { WorkSearch } from "./WorkSearch";
 import {
   BuildingWithProductionDelivery,
+  BuildingWithWorkSearch,
   ProductionDelivery,
   ProductionDeliveryImmutable,
-} from "./ProductionDelivery";
+  WorkSearch,
+  WorkSearchImmutable,
+} from "./addons";
 import type { Good } from "../goods";
 import {
   type BuildingWithProduction,
   Production,
   ProductionImmutable,
-} from "./Production";
+} from "./addons";
 
 export type ProductionBuildingOptions = BaseBuildingOptions;
 

@@ -6,8 +6,8 @@ import {
   MutationHelper,
   parentKey,
 } from "~/immutable";
-import { Building } from "./Building";
-import { Good } from "../goods";
+import { Building } from "../Building";
+import { Good } from "../../goods";
 import _ from "lodash";
 
 export type BuildingWithContents<G extends Good> = {

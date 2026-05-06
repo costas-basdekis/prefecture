@@ -5,13 +5,14 @@ import {
   BaseBuildingOptions,
 } from "./BaseBuilding";
 import { Buildings } from "./Buildings";
-import { WorkSearch, WorkSearchImmutable } from "./WorkSearch";
 import { FoodGood, foodGoods } from "../goods";
 import {
   BuildingWithContents,
   ContentStore,
   ContentStoreImmutable,
-} from "./ContentStore";
+  WorkSearch,
+  WorkSearchImmutable,
+} from "./addons";
 
 declare module "./Building" {
   interface BuildingDefinitions {

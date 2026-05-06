@@ -4,7 +4,7 @@ import {
   BaseBuildingImmutable,
   BaseBuildingOptions,
 } from "./BaseBuilding";
-import { WorkSearch, WorkSearchImmutable } from "./WorkSearch";
+import { WorkSearch, WorkSearchImmutable } from "./addons";
 import { Buildings } from "./Buildings";
 import { Person, WandererPerson } from "../people";
 import { Cell } from "../Cell";

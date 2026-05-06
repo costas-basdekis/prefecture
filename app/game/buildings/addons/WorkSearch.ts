@@ -5,9 +5,9 @@ import {
   MutationHelper,
   parentKey,
 } from "~/immutable";
-import { Building } from "./Building";
-import { Person, WandererPerson } from "../people";
-import { Cell } from "../Cell";
+import { Building } from "../Building";
+import { Person, WandererPerson } from "../../people";
+import { Cell } from "../../Cell";
 
 export interface BuildingWithWorkSearch {
   workSearch: WorkSearch;

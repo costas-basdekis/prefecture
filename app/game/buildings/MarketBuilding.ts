@@ -4,7 +4,6 @@ import {
   BaseBuildingImmutable,
   BaseBuildingOptions,
 } from "./BaseBuilding";
-import { WorkSearch, WorkSearchImmutable } from "./WorkSearch";
 import { Buildings } from "./Buildings";
 import { FoodGood, Good } from "../goods";
 import { GoodsDelivererPerson, Person, WandererPerson } from "../people";
@@ -12,7 +11,9 @@ import {
   BuildingWithContents,
   ContentStore,
   ContentStoreImmutable,
-} from "./ContentStore";
+  WorkSearch,
+  WorkSearchImmutable,
+} from "./addons";
 import { FetchFromAvailableStoreMission } from "../people/missions";
 import { Cell } from "../Cell";
 import { HouseBuilding } from "./HouseBuilding";

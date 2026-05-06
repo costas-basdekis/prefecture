@@ -6,11 +6,11 @@ import {
   MutationHelper,
   parentKey,
 } from "~/immutable";
-import { Building } from "./Building";
-import { GoodsDelivererPerson, Person } from "../people";
-import { type Good } from "../goods";
+import { Building } from "../Building";
+import { GoodsDelivererPerson, Person } from "../../people";
+import { type Good } from "../../goods";
 import { BuildingWithProduction } from "./Production";
-import { DeliverToAcceptingStoreMission } from "../people/missions";
+import { DeliverToAcceptingStoreMission } from "../../people/missions";
 
 export interface BuildingWithProductionDelivery {
   productionDelivery: ProductionDelivery;
